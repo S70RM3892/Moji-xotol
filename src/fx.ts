@@ -85,7 +85,7 @@ export function countUp(el: HTMLElement, to: number): void {
   requestAnimationFrame(step);
 }
 
-/** 画面上部から木のタイル色の紙吹雪 */
+/** 顔料の色（金・青緑・赤土・青）の紙吹雪 */
 export function confetti(): void {
   if (reduced()) return;
   const canvas = document.createElement('canvas');
@@ -100,7 +100,7 @@ export function confetti(): void {
   if (!g) return canvas.remove();
   g.scale(dpr, dpr);
   const css = getComputedStyle(document.documentElement);
-  const colors = ['--accent', '--ok', '--tile', '--cool'].map((v) => css.getPropertyValue(v).trim());
+  const colors = ['--gold', '--faience', '--terra', '--lapis'].map((v) => css.getPropertyValue(v).trim());
   const parts = Array.from({ length: 90 }, (_, i) => ({
     x: w / 2 + (Math.random() - 0.5) * w * 0.5,
     y: h * 0.3,

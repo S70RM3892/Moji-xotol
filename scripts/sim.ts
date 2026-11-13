@@ -120,7 +120,7 @@ function run(cfg: Cfg, mode: Mode, games: number) {
       // 3) 置き場がなければ捨てる。捨てられなければ空きに置く（待ちになる）
       const junk = game.hand.findIndex((ch) => ch !== WILD);
       if (junk < 0) break;
-      if (game.discardsLeft > 0) {
+      if (game.fixesLeft > 0) {
         game.discard(junk);
         sum.discards++;
         continue;
@@ -160,7 +160,7 @@ const cfgs: Cfg[] = [
   { name: 'むずかしい(30手★1) / 全部', know: 1, turns: 30, wilds: 1 },
 ];
 console.log(`判定語彙 ${lex.list.length}語`);
-for (const mode of ['kyote', 'kyodai'] as Mode[]) {
+for (const mode of (process.argv[3] ? [process.argv[3]] : ['kyote', 'kyodai']) as Mode[]) {
   console.log(`\n== ${mode} (${games}局) ==`);
   for (const cfg of cfgs) run(cfg, mode, games);
 }

@@ -9,6 +9,8 @@ export interface Found {
   r: number;
   c: number;
   down: boolean;
+  /** 逆向き（右→左、下→上）に読んだ単語 */
+  mirrored?: boolean;
 }
 
 export interface WordSet {
@@ -22,8 +24,11 @@ export function cellsOf(w: Found): [number, number][] {
   return [...w.text].map((_, i) => (w.down ? [w.r + i, w.c] : [w.r, w.c + i]));
 }
 
-/** fresh のマスを1つ以上含む、縦横すべての単語（2文字以上の連続部分）を返す */
-export function findWords(grid: Grid, fresh: Mask, valid: WordSet): Found[] {
+/**
+ * fresh のマスを1つ以上含む、縦横すべての単語（2文字以上の連続部分）を返す。
+ * mirror が真なら、逆向きに読んで単語になる並びも拾う。
+ */
+export function findWords(grid: Grid, fresh: Mask, valid: WordSet, mirror = false): Found[] {
   const n = grid.length;
   const out: Found[] = [];
   for (let d = 0; d < 2; d++) {
@@ -41,13 +46,16 @@ export function findWords(grid: Grid, fresh: Mask, valid: WordSet): Found[] {
         while (e < n && ch(e)) e++;
         for (let i = s; i < e - 1; i++) {
           let text = ch(i);
+          let back = ch(i);
           let hasFresh = fr(i);
           for (let j = i + 1; j < e; j++) {
             text += ch(j);
+            back = ch(j) + back;
             hasFresh ||= fr(j);
-            if (hasFresh && valid.has(text)) {
-              out.push(down ? { text, r: i, c: a, down } : { text, r: a, c: i, down });
-            }
+            if (!hasFresh) continue;
+            const at = down ? { r: i, c: a, down } : { r: a, c: i, down };
+            if (valid.has(text)) out.push({ text, ...at });
+            if (mirror && back !== text && valid.has(back)) out.push({ text: back, ...at, mirrored: true });
           }
         }
         s = e;

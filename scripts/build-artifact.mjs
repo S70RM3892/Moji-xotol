@@ -11,9 +11,9 @@ const body = read('index.html').match(/<!-- app:start -->([\s\S]*)<!-- app:end -
 const valid = read('public/valid.txt');
 const safe = (s) => s.replace(/<\/script/gi, '<\\/script');
 
-const html = `<title>Moji-Xoltol</title>
+const html = `<title>Moji-Xolotl</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap">
 <style>${css}</style>
 ${body}
 <script type="text/plain" id="valid-words">${valid}</script>

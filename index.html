@@ -3,53 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Moji-Xoltol</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" />
+    <title>Moji-Xolotl</title>
+    <link rel="icon" href="./icon.png" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
     <!-- app:start -->
     <main id="app">
       <section id="home">
-        <header class="brand">
-          <h1>Moji-Xoltol</h1>
+        <header class="hero">
+          <img id="heroimg" alt="筆と書板を持つ犬頭の書記の壁画" />
+          <div class="herotext">
+            <h1>Moji-Xolotl</h1>
+            <p>来る文字に賭けて、壁に言葉を刻め。</p>
+          </div>
           <button id="sound" class="mini">音 ON</button>
         </header>
-        <p class="lead">来た文字を1枚ずつ盤面へ。単語になれば得点、ならなければ「待ち」。次に来る文字に賭けて、お題の英単語を組み上げろ。</p>
+        <div class="fret" aria-hidden="true"></div>
 
-        <div class="card">
-          <div class="lvrow">
-            <span class="lv">Lv <b id="lv">1</b></span>
-            <span class="xp" aria-hidden="true"><i id="xpbar"></i></span>
-            <span class="num"><b id="xp">0</b>点</span>
-          </div>
-          <div class="statrow">
-            <span><b id="games">0</b>局</span>
-            <span><b id="streak">0</b>日連続</span>
-            <span>最高 <b id="best">0</b>点</span>
-            <span>復習待ち <b id="missed">0</b>語</span>
+        <div class="card rank">
+          <img id="iconimg" alt="" />
+          <div class="rankbody">
+            <div class="lvrow">
+              <span class="lv">Lv <b id="lv">1</b></span>
+              <span id="title" class="title">書記見習い</span>
+              <span class="num"><b id="xp">0</b>点</span>
+            </div>
+            <span class="bar" aria-hidden="true"><i id="xpbar"></i></span>
+            <div class="statrow">
+              <span><b id="games">0</b>局</span>
+              <span><b id="streak">0</b>日連続</span>
+              <span>最高 <b id="best">0</b></span>
+              <span>復習待ち <b id="missed">0</b>語</span>
+            </div>
           </div>
         </div>
 
-        <h2>モード</h2>
+        <h2>層</h2>
         <div class="seg" id="modes" role="group" aria-label="モード"></div>
         <p class="note" id="modenote"></p>
         <h2>むずかしさ</h2>
         <div class="seg" id="levels" role="group" aria-label="むずかしさ"></div>
         <p class="note" id="levelnote"></p>
-        <button id="start" class="primary big">はじめる</button>
+
+        <h2>護符 <span class="count">2つまで持ち込める</span></h2>
+        <div id="amulets" class="grid2"></div>
+
+        <button id="daily" class="primary big">今日の盤に挑む</button>
+        <p class="note" id="dailynote"></p>
+        <button id="start" class="big">ランダムな盤</button>
+
+        <div class="fret" aria-hidden="true"></div>
+        <h2>碑文 <span class="count" id="inscount"></span></h2>
+        <p class="note">盤の上で見つけた技が刻まれる。条件は伏せてあり、謎かけだけが読める。</p>
+        <div id="inscriptions" class="grid2"></div>
 
         <h2>単語図鑑</h2>
         <div class="card" id="zukan"></div>
 
-        <h2>ルール</h2>
+        <h2>遊び方</h2>
         <ol class="rules">
-          <li>マスをタップして置く場所を選び、手札をタップすると1枚置ける。</li>
-          <li>置いた文字を含む単語が縦か横にできれば得点。1枚で複数できると<b>連鎖</b>で倍になる。</li>
-          <li>単語にならなくても置ける。その文字は<b>待ち</b>になり、あとの文字で単語になれば生き返る。</li>
-          <li>袋の中身はお題6語の文字とおまけ。手数が尽きると残りは来ない。待ちのまま終わった文字は減点。</li>
-          <li>評価は自力で達成したお題の数で決まる（5語以上で S、4語で A）。つづりを見たお題は数えない。</li>
-          <li><b>★</b>は好きな文字になる。<b>×2・×3</b>のマスに置いて単語を作ると、その得点が倍になる。</li>
+          <li>マスをタップして場所を選び、手札をタップすると1枚置ける。</li>
+          <li>置いた文字を含む英単語が縦か横にできれば得点。並び全体が単語でなくていい。1枚で複数できると<b>連鎖</b>で、合計に連鎖数が掛かる。</li>
+          <li>単語にならなくても置ける。その文字は<b>待ち</b>になり、あとの文字で単語の一部になれば色が付く。待ちのまま終わると1枚 −15点。</li>
+          <li>袋の中身はお題6語の文字とおまけ。手数が尽きると残りは来ない。袋の残りを見て、来る見込みに賭ける。</li>
+          <li><b>手直し</b>で、手札を捨てるか、待ちの文字を拾って置き直せる。<b>★</b>は好きな文字になる。<b>×2・×3</b>マスに置いて単語を作ると倍。</li>
+          <li>評価は自力で達成したお題の数（5語以上 S、4語 A、2〜3語 B）。</li>
         </ol>
       </section>
 
@@ -61,7 +81,7 @@
           <button id="quit" class="mini">おわる</button>
         </div>
         <ul id="missions" aria-label="お題"></ul>
-        <div id="board" aria-label="盤面"></div>
+        <div class="wall"><div id="board" aria-label="盤面"></div></div>
         <div id="feed" aria-live="polite"></div>
         <div class="rack">
           <div id="hand" aria-label="手札"></div>
@@ -69,22 +89,26 @@
         </div>
         <div class="actions">
           <button id="undo">1手もどす</button>
-          <button id="discard">すてる <b id="discards">3</b></button>
+          <button id="fix">手直し <b id="fixes">4</b></button>
           <button id="turn" aria-label="置く向きを切り替える">向き →</button>
         </div>
         <p id="bag" class="note"></p>
       </section>
 
       <section id="result" hidden>
-        <header class="brand"><h1>結果</h1><span class="note" id="resmode"></span></header>
+        <header class="brand"><h1>検分</h1><span class="note" id="resmode"></span></header>
+        <div class="fret" aria-hidden="true"></div>
         <div class="card reshead">
           <div id="grade" class="grade">A</div>
           <div class="rows" id="resrows"></div>
         </div>
+        <p class="note" id="resrecord"></p>
         <div class="actions">
-          <button id="again" class="primary">もう1局</button>
-          <button id="tohome">ホームへ</button>
+          <button id="retry" class="primary">同じ盤をもう一度</button>
+          <button id="again">次の盤</button>
+          <button id="tohome">ホーム</button>
         </div>
+        <div id="resnew"></div>
         <h2>お題</h2>
         <ul id="resmissions" class="wordlist"></ul>
         <h2 id="foundhead">見つけた受験語</h2>
@@ -101,7 +125,7 @@
 
       <footer>
         語彙レベル: CEFR-J Wordlist 1.5（東京外国語大学 投野由紀夫研究室）／Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）。
-        和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE と FrequencyWords（CC BY-SA 4.0）から作成。
+        和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE。
       </footer>
     </main>
     <!-- app:end -->
