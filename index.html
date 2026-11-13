@@ -12,6 +12,7 @@
     <!-- app:start -->
     <main id="app">
       <section id="home">
+        <div class="col">
         <header class="hero">
           <img id="heroimg" alt="筆と書板を持つ犬頭の書記の壁画" />
           <div class="herotext">
@@ -54,6 +55,8 @@
         <button id="daily" class="primary big">今日の盤に挑む</button>
         <p class="note" id="dailynote"></p>
         <button id="start" class="big">ランダムな盤</button>
+        </div>
+        <div class="col">
 
         <div class="fret" aria-hidden="true"></div>
         <h2 data-sign="roll">碑文 <span class="count" id="inscount"></span></h2>
@@ -65,7 +68,7 @@
 
         <h2 data-sign="eye">遊び方</h2>
         <ol class="rules">
-          <li>マスをタップして場所を選び、手札をタップすると1枚置ける。</li>
+          <li>手札をドラッグしてマスに置く。マスをタップで選んでから手札をタップしても置ける。</li>
           <li>置いた文字を含む英単語が縦か横にできれば得点。並び全体が単語でなくていい。1枚で複数できると<b>連鎖</b>で、合計に連鎖数が掛かる。</li>
           <li>単語にならなくても置ける。その文字は<b>待ち</b>（点線の下書き）になり、あとの文字で単語の一部になれば色が入る。待ちのまま終わると1枚 −15点。</li>
           <li>袋の中身はお題6語の文字とおまけ。手数が尽きると残りは来ない。袋の残りを見て、来る見込みに賭ける。</li>
@@ -73,6 +76,7 @@
           <li>局の前に<b>写本</b>でお題を見る。初めての語はつづりも見える（知る）。壁に向かうと意味と字数だけになる（思い出す）。作れなかった語は復習に回り、一度作れた語はつづりなしでもう一度出る。</li>
           <li>評価は自力で達成したお題の数（5語以上 S、4語 A、2〜3語 B）。</li>
         </ol>
+        </div>
       </section>
 
       <section id="study" hidden>
@@ -113,6 +117,7 @@
       <section id="result" hidden>
         <header class="brand"><span class="gl" data-sign="jackal" aria-hidden="true"></span><h1>検分</h1><span class="note" id="resmode"></span></header>
         <div class="fret" aria-hidden="true"></div>
+        <div class="col">
         <div class="card reshead">
           <div id="grade" class="grade" data-sign="eye">A</div>
           <div class="rows" id="resrows"></div>
@@ -124,10 +129,13 @@
           <button id="tohome">ホーム</button>
         </div>
         <div id="resnew"></div>
+        </div>
+        <div class="col">
         <h2 data-sign="roll">お題</h2>
         <ul id="resmissions" class="wordlist"></ul>
         <h2 id="foundhead" data-sign="palette">見つけた受験語</h2>
         <ul id="resfound" class="wordlist"></ul>
+        </div>
       </section>
 
       <div id="picker" hidden role="dialog" aria-label="★を何の文字にするか選ぶ">

@@ -2,7 +2,7 @@ import { HERO, ICON } from './art';
 import { cellsOf } from './core/board';
 import { DEFAULTS, Game, type Placement, WILD } from './core/game';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, makeRng } from './core/words';
-import { burst, buzz, confetti, countUp, popup, setSound, sfx } from './fx';
+import { boom, burst, buzz, confetti, countUp, flashScreen, fly, popup, rays, ring, setSound, sfx, spotlight } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
@@ -270,7 +270,7 @@ function tapCell(r: number, c: number): void {
 }
 
 function tapTile(i: number): void {
-  if (ending || i >= game.hand.length) return;
+  if (suppressClick || ending || i >= game.hand.length) return;
   if (fixing) {
     fixing = false;
     const before = game.hand.length;
@@ -360,7 +360,9 @@ function celebrate(res: Placement): void {
       if (!mid) return;
       const p = centre(mid);
       popup(appEl, p.x, p.y, w.found.text.toUpperCase(), `call ${w.kind}`, 800);
-      burst(p.px, p.py, w.kind === 'plain' ? 8 : 26);
+      burst(p.px, p.py, w.kind === 'plain' ? 14 : 44);
+      ring(p.px, p.py, w.kind === 'plain' ? 0.6 : 1);
+      fly(p.px, p.py, $('score'), w.kind === 'plain' ? 3 : 9);
       sfx.note(i);
     }, i * CALL_GAP);
   });
@@ -369,29 +371,110 @@ function celebrate(res: Placement): void {
   setTimeout(() => {
     const cell = cellEl(res.r, res.c);
     const wall = boardEl.parentElement!;
+    const power = Math.min(5, res.chain) + (res.cleared.length ? 2 : 0);
     if (cell) {
       const p = centre(cell);
       popup(appEl, p.x, p.y - 20, `+${res.total}`, res.total >= 300 ? 'pts big' : 'pts');
-      if (res.chain >= 2) popup(appEl, p.x, p.y - 62, `${res.chain}連鎖！`, `chain c${Math.min(res.chain, 5)}`, 1500);
-      burst(p.px, p.py, Math.min(90, 10 + res.chain * 14));
+      if (res.chain >= 2) popup(appEl, p.x, p.y - 66, `${res.chain}連鎖！`, `chain slam c${Math.min(res.chain, 5)}`, 1500);
+      burst(p.px, p.py, Math.min(220, 24 + power * 30));
+      ring(p.px, p.py, 1 + power * 0.5);
+      if (power >= 3) setTimeout(() => ring(p.px, p.py, 2 + power * 0.6), 110);
     }
-    if (res.chain >= 3 || res.cleared.length) restart(wall, 'shake');
+    // 連鎖が大きいほど壁が強く揺れ、画面が光る
+    if (res.chain >= 2 || res.cleared.length) {
+      wall.style.setProperty('--amp', String(power));
+      restart(wall, 'shake');
+      boom(power / 3);
+    }
+    if (power >= 3) flashScreen(0.12 * power);
     if (!res.cleared.length) {
       sfx.word(res.chain);
       return;
     }
+    // お題達成: 周りが暗くなり、光の筋を背に単語が叩きつけられる
     sfx.mission();
     restart($('shine'), 'on');
+    const b = centre(boardEl);
+    spotlight(b.px, b.py);
+    rays(b.px, b.py);
     confetti();
+    setTimeout(confetti, 350);
+    for (const k of game.missionCells) {
+      const n = boardEl.querySelector<HTMLElement>(`[data-k="${k}"]`);
+      if (!n) continue;
+      const q = centre(n);
+      for (let t = 0; t < 5; t++) setTimeout(() => burst(q.px, q.py, 10), 200 + t * 160);
+    }
     for (const w of res.cleared) {
       const big = el('div', 'bigword');
       big.append(el('span', 'gl', spell(w.text)), el('b', '', w.text), el('span', 'g', brief(w.gloss)), el('span', 'tag', 'お題達成'));
-      big.style.top = `${boardEl.offsetTop + boardEl.offsetHeight / 2}px`;
+      big.style.left = `${b.x}px`;
+      big.style.top = `${b.y}px`;
       appEl.append(big);
+      setTimeout(() => {
+        boom(1.6);
+        flashScreen(0.5);
+      }, 230);
       setTimeout(() => big.remove(), 1900);
     }
   }, ws.length * CALL_GAP);
 }
+
+// --- ドラッグで置く ---
+let drag: { i: number; src: HTMLElement; ghost: HTMLElement | null; sx: number; sy: number; lift: number; over: HTMLElement | null } | null = null;
+let suppressClick = false;
+function startDrag(e: PointerEvent, i: number): void {
+  if (ending || fixing || e.button > 0) return;
+  // 指で隠れないよう、タッチのときは札を指の少し上に浮かせる
+  drag = { i, src: e.currentTarget as HTMLElement, ghost: null, sx: e.clientX, sy: e.clientY, lift: e.pointerType === 'mouse' ? 0 : 44, over: null };
+}
+function endDrag(drop: boolean): void {
+  const d = drag;
+  drag = null;
+  if (!d?.ghost) return;
+  d.ghost.remove();
+  d.src.classList.remove('lifted');
+  d.over?.classList.remove('drop');
+  suppressClick = true;
+  setTimeout(() => (suppressClick = false), 60);
+  if (!drop || !d.over) return;
+  const [r, c] = d.over.dataset.k!.split(',').map(Number);
+  cursor = { r, c };
+  if (game.hand[d.i] === WILD) {
+    renderPlay();
+    openPicker(d.i);
+  } else doPlace(d.i);
+}
+document.addEventListener(
+  'pointermove',
+  (e) => {
+    const d = drag;
+    if (!d) return;
+    if (!d.ghost) {
+      if (Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 8) return;
+      d.ghost = d.src.cloneNode(true) as HTMLElement;
+      d.ghost.classList.add('ghost');
+      d.ghost.style.width = `${d.src.offsetWidth}px`;
+      d.ghost.style.height = `${d.src.offsetHeight}px`;
+      document.body.append(d.ghost);
+      d.src.classList.add('lifted');
+    }
+    e.preventDefault();
+    const x = e.clientX;
+    const y = e.clientY - d.lift;
+    d.ghost.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(-6deg) scale(1.15)`;
+    const hit = document.elementFromPoint(x, y)?.closest<HTMLElement>('#board .cell') ?? null;
+    const over = hit && hit.getAttribute('role') === 'button' ? hit : null; // 空きマスだけ
+    if (over !== d.over) {
+      d.over?.classList.remove('drop');
+      over?.classList.add('drop');
+      d.over = over;
+    }
+  },
+  { passive: false },
+);
+document.addEventListener('pointerup', () => endDrag(true));
+document.addEventListener('pointercancel', () => endDrag(false));
 
 function endGame(): void {
   const s = game.settle();
@@ -617,7 +700,7 @@ function renderPlay(note = ''): void {
   } else if (fixing) {
     feed.append(el('div', 'hint', '手直し: 捨てる手札か、拾う待ちの文字をタップ（もう一度「手直し」でやめる）。'));
   } else if (!last) {
-    feed.append(el('div', 'hint', 'マスを選んで手札をタップ。同じマスをもう一度タップで向きが変わる。'));
+    feed.append(el('div', 'hint', '手札をドラッグしてマスに置く。マスを選んでから手札をタップしても置ける。'));
   } else if (!last.chain) {
     feed.append(el('div', 'hint', '待ち。この文字を含む単語ができれば色が付く。'));
   } else {
@@ -646,6 +729,7 @@ function renderPlay(note = ''): void {
       if (i >= game.hand.length - drawn) b.classList.add('in');
       b.setAttribute('aria-label', ch === WILD ? '何にでもなる札' : ch);
       b.onclick = () => tapTile(i);
+      b.onpointerdown = (e) => startDrag(e, i);
       return b;
     }),
   );

@@ -178,3 +178,71 @@ export function burst(x: number, y: number, count: number): void {
   };
   requestAnimationFrame(frame);
 }
+
+/** 腹に響く低い一撃（音程が落ちる） */
+export function boom(strength = 1): void {
+  if (!soundOn) return;
+  try {
+    audio ??= new AudioContext();
+    const t = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, t);
+    osc.frequency.exponentialRampToValueAtTime(38, t + 0.28);
+    gain.gain.setValueAtTime(Math.min(0.5, 0.22 * strength), t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+    osc.connect(gain).connect(audio.destination);
+    osc.start(t);
+    osc.stop(t + 0.42);
+  } catch {
+    /* 音が出せない環境でも遊べる */
+  }
+}
+
+function overlay(cls: string, life: number, style: Partial<CSSStyleDeclaration> = {}): HTMLElement | null {
+  if (reduced()) return null;
+  const node = document.createElement('div');
+  node.className = cls;
+  Object.assign(node.style, style);
+  document.body.append(node);
+  setTimeout(() => node.remove(), life);
+  return node;
+}
+/** 画面全体が一瞬光る */
+export const flashScreen = (strength: number) => overlay('fx-flash', 420, { opacity: String(Math.min(0.75, strength)) });
+/** (x, y) から広がる衝撃の輪 */
+export const ring = (x: number, y: number, size = 1) =>
+  overlay('fx-ring', 700, { left: `${x}px`, top: `${y}px`, ['--s' as never]: String(size) });
+/** (x, y) の後ろで回る光の筋 */
+export const rays = (x: number, y: number) => overlay('fx-rays', 1900, { left: `${x}px`, top: `${y}px` });
+/** 周りを暗くして (x, y) だけ照らす */
+export const spotlight = (x: number, y: number) =>
+  overlay('fx-spot', 1900, { background: `radial-gradient(circle at ${x}px ${y}px, #0000 90px, #000c 340px)` });
+
+/** (x, y) から target へ、光の粒が尾を引いて飛び込む */
+export function fly(x: number, y: number, target: HTMLElement, count: number): void {
+  if (reduced()) return;
+  const t = target.getBoundingClientRect();
+  const tx = t.left + t.width / 2;
+  const ty = t.top + t.height / 2;
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'fx-spark';
+    document.body.append(dot);
+    const mx = (x + tx) / 2 + (Math.random() - 0.5) * 260;
+    const my = (y + ty) / 2 + (Math.random() - 0.5) * 260;
+    const anim = dot.animate(
+      [
+        { transform: `translate(${x}px, ${y}px) scale(1.6)`, opacity: 1 },
+        { transform: `translate(${mx}px, ${my}px) scale(1.1)`, opacity: 1, offset: 0.45 },
+        { transform: `translate(${tx}px, ${ty}px) scale(0.3)`, opacity: 0.9 },
+      ],
+      { duration: 520 + Math.random() * 260, delay: i * 22, easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)', fill: 'backwards' },
+    );
+    anim.onfinish = () => {
+      dot.remove();
+      target.animate([{ transform: 'scale(1.35)' }, { transform: 'none' }], { duration: 160 });
+    };
+  }
+}
