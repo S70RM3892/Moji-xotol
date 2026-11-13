@@ -109,8 +109,6 @@ interface Setup {
 let setup: Setup;
 let game: Game;
 let nextCount = 2;
-let cursor: Pos | null = null;
-let down = false; // 置いたあとカーソルが進む向き
 let fixing = false;
 let openMission = -1;
 let last: Placement | null = null;
@@ -135,13 +133,6 @@ const activeAmulets = () => unlocked().filter((a) => chosen.includes(a.id)).slic
 function show(view: 'home' | 'study' | 'play' | 'result'): void {
   for (const v of ['home', 'study', 'play', 'result']) $(v).hidden = v !== view;
   scrollTo(0, 0);
-}
-
-function nextEmpty(from: Pos, dr: number, dc: number): Pos | null {
-  for (let r = from.r + dr, c = from.c + dc; r >= 0 && c >= 0 && r < game.size && c < game.size; r += dr, c += dc) {
-    if (!game.grid[r][c]) return { r, c };
-  }
-  return null;
 }
 
 /** 碑文を刻む。新しく見つけたものだけ知らせる */
@@ -196,7 +187,6 @@ function startGame(s: Setup): void {
   for (const a of amulets) a.apply(opts);
   nextCount = Math.max(2, ...amulets.map((a) => a.next ?? 0));
   game = new Game({ mode: s.mode, ...opts, include: s.include.map((w) => WORD_MAP.get(w)!) }, makeRng(s.seed), valid);
-  down = false;
   fixing = false;
   openMission = -1;
   last = null;
@@ -205,7 +195,6 @@ function startGame(s: Setup): void {
   ending = false;
   gameNew = [];
   fx.clear();
-  cursor = nextEmpty({ r: 3, c: 1 }, 0, 1) ?? nextEmpty({ r: 0, c: -1 }, 0, 1);
   renderStudy();
   show('study');
 }
@@ -258,15 +247,10 @@ function tapCell(r: number, c: number): void {
     if (game.pickUp(r, c)) {
       drawn = 1;
       last = null;
-      cursor = { r, c };
       sfx.bet();
     }
     renderPlay();
-    return;
   }
-  if (cursor?.r === r && cursor.c === c) down = !down; // 同じマスをもう一度 → 向きを切り替え
-  else cursor = { r, c };
-  renderPlay();
 }
 
 function tapTile(i: number): void {
@@ -282,24 +266,16 @@ function tapTile(i: number): void {
     renderPlay();
     return;
   }
-  if (!cursor) {
-    last = null;
-    renderPlay('置くマスを先にタップ。');
-    return;
-  }
-  if (game.hand[i] === WILD) openPicker(i);
-  else doPlace(i);
+  last = null;
+  renderPlay('手札はドラッグして、置きたいマスで離す。');
 }
 
-function doPlace(i: number, as?: string): void {
-  if (!cursor) return;
-  const { r, c } = cursor;
+function doPlace(i: number, { r, c }: Pos, as?: string): void {
   const before = game.hand.length;
   const res = game.place(i, r, c, as);
   if (!res) return;
   drawn = game.hand.length - before + 1;
   last = res;
-  cursor = nextEmpty({ r, c }, down ? 1 : 0, down ? 0 : 1);
   celebrate(res);
   renderPlay();
   if (game.over) {
@@ -439,11 +415,8 @@ function endDrag(drop: boolean): void {
   setTimeout(() => (suppressClick = false), 60);
   if (!drop || !d.over) return;
   const [r, c] = d.over.dataset.k!.split(',').map(Number);
-  cursor = { r, c };
-  if (game.hand[d.i] === WILD) {
-    renderPlay();
-    openPicker(d.i);
-  } else doPlace(d.i);
+  if (game.hand[d.i] === WILD) openPicker(d.i, { r, c });
+  else doPlace(d.i, { r, c });
 }
 document.addEventListener(
   'pointermove',
@@ -464,7 +437,7 @@ document.addEventListener(
     const y = e.clientY - d.lift;
     d.ghost.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(-6deg) scale(1.15)`;
     const hit = document.elementFromPoint(x, y)?.closest<HTMLElement>('#board .cell') ?? null;
-    const over = hit && hit.getAttribute('role') === 'button' ? hit : null; // 空きマスだけ
+    const over = hit?.classList.contains('empty') ? hit : null; // 空きマスだけ
     if (over !== d.over) {
       d.over?.classList.remove('drop');
       over?.classList.add('drop');
@@ -600,8 +573,10 @@ function endGame(): void {
 
 // --- ★の文字選び ---
 let pickFor = -1;
-function openPicker(i: number): void {
+let pickAt: Pos = { r: 0, c: 0 };
+function openPicker(i: number, at: Pos): void {
   pickFor = i;
+  pickAt = at;
   $('picker').hidden = false;
 }
 $('letters').replaceChildren(
@@ -610,7 +585,7 @@ $('letters').replaceChildren(
     lettered(b, ch);
     b.onclick = () => {
       $('picker').hidden = true;
-      doPlace(pickFor, ch);
+      doPlace(pickFor, pickAt, ch);
     };
     return b;
   }),
@@ -670,14 +645,7 @@ function renderPlay(note = ''): void {
           cls.push(`b${game.bonus[r][c]}`);
           d.textContent = `×${game.bonus[r][c]}`;
         }
-        d.tabIndex = 0;
-        d.setAttribute('role', 'button');
-        d.setAttribute('aria-label', `${r + 1}行${c + 1}列`);
-        d.onclick = () => tapCell(r, c);
-      }
-      if (cursor?.r === r && cursor.c === c) {
-        cls.push('cur');
-        d.dataset.dir = down ? '↓' : '→';
+        cls.push('empty');
       }
       d.className = cls.join(' ');
       d.dataset.k = k;
@@ -700,7 +668,7 @@ function renderPlay(note = ''): void {
   } else if (fixing) {
     feed.append(el('div', 'hint', '手直し: 捨てる手札か、拾う待ちの文字をタップ（もう一度「手直し」でやめる）。'));
   } else if (!last) {
-    feed.append(el('div', 'hint', '手札をドラッグしてマスに置く。マスを選んでから手札をタップしても置ける。'));
+    feed.append(el('div', 'hint', '手札をドラッグして、置きたいマスで離す。'));
   } else if (!last.chain) {
     feed.append(el('div', 'hint', '待ち。この文字を含む単語ができれば色が付く。'));
   } else {
@@ -747,7 +715,6 @@ function renderPlay(note = ''): void {
   $<HTMLButtonElement>('fix').disabled = game.fixesLeft <= 0 || ending;
   $('fix').setAttribute('aria-pressed', String(fixing));
   $('fixes').textContent = String(game.fixesLeft);
-  $('turn').textContent = down ? '向き ↓' : '向き →';
 }
 
 function renderHome(): void {
@@ -875,10 +842,6 @@ $('fix').onclick = () => {
   last = null;
   renderPlay();
 };
-$('turn').onclick = () => {
-  down = !down;
-  renderPlay();
-};
 const soundBtn = $('sound');
 const drawSound = () => {
   soundBtn.textContent = soundOn ? '音 ON' : '音 OFF';
@@ -891,25 +854,11 @@ soundBtn.onclick = () => {
 };
 drawSound();
 
-// キーボード: 文字で置く、矢印でマス移動、スペースで向き、Backspace で1手もどす
+// キーボード: Backspace で1手もどす
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey || e.metaKey || e.altKey || $('play').hidden || ending || !$('picker').hidden) return;
-  const arrows: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
-  if (/^[a-zA-Z]$/.test(e.key)) {
-    const i = game.hand.indexOf(e.key.toLowerCase());
-    if (i >= 0) tapTile(i);
-  } else if (arrows[e.key] && cursor) {
-    e.preventDefault();
-    cursor = nextEmpty(cursor, ...arrows[e.key]) ?? cursor;
-    renderPlay();
-  } else if (e.key === ' ') {
-    e.preventDefault();
-    down = !down;
-    renderPlay();
-  } else if (e.key === 'Backspace') {
-    e.preventDefault();
-    $('undo').click();
-  }
+  if (e.key !== 'Backspace' || $('play').hidden || ending || !$('picker').hidden) return;
+  e.preventDefault();
+  $('undo').click();
 });
 
 // 判定辞書: ページに埋め込まれていればそれを使い、なければ読み込む
