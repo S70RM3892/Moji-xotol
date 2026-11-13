@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Moji-xotol</title>
+    <title>Moji-Xoltol</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
@@ -11,20 +11,30 @@
     <!-- app:start -->
     <main id="app">
       <header>
-        <h1>Moji-xotol</h1>
-        <div class="stats">
-          <span><b id="score">0</b>点</span>
-          <span><b id="cleared">0</b>面</span>
-          <span>復習待ち <b id="missed">0</b>語</span>
-        </div>
+        <h1>Moji-Xoltol</h1>
+        <button id="sound" class="mini">音 ON</button>
       </header>
+      <div class="stats">
+        <span class="lv">Lv <b id="lv">1</b></span>
+        <span class="xp" aria-hidden="true"><i id="xpbar"></i></span>
+        <span><b id="score">0</b>点</span>
+        <span><b id="streak">0</b>日連続</span>
+        <span>復習 <b id="missed">0</b></span>
+      </div>
 
       <div class="seg" id="modes" role="group" aria-label="モード"></div>
       <div class="seg" id="levels" role="group" aria-label="難易度"></div>
 
+      <div id="hud">
+        <span class="combo">COMBO <b id="combo">0</b></span>
+        <span class="mult">×<b id="mult">1.0</b></span>
+        <span class="best">最高 <b id="best">0</b></span>
+        <span id="timer">0:00</span>
+      </div>
       <div id="board" aria-label="盤面"></div>
       <p id="clue" aria-live="polite"></p>
       <p id="status" role="status"></p>
+      <div id="result" hidden></div>
       <div id="hand" aria-label="手札"></div>
 
       <div class="actions">
@@ -37,6 +47,7 @@
       <ol id="clues"></ol>
       <footer>
         手札をタップすると枠のマスに入り、次の空きへ進む。置いた文字はタップで外れる。キーボード入力も可。
+        自力で語を完成させるたびにコンボが伸びて得点倍率が上がる（最大×3）。まちがい・ヒント・とばすで切れる。
         語彙レベル: CEFR-J Wordlist 1.5（東京外国語大学 投野由紀夫研究室）／Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）。
         和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE。
       </footer>

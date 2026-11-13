@@ -1,5 +1,6 @@
 import { type Slot, generateBoard } from './core/generator';
 import { type Puzzle, type SlotState, judgeSlot, makePuzzle, slotCells } from './core/puzzle';
+import { buzz, confetti, countUp, popup, setSound, sfx } from './fx';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORD_MAP, type Word, makeRng } from './core/words';
 
 const LEVELS = [
@@ -11,6 +12,16 @@ const LEVELS = [
 const TIER_POINTS = [10, 15, 20];
 /** 1面に混ぜる復習語の上限 */
 const REVIEW_PER_BOARD = 2;
+
+/** コンボ1つにつき +0.1倍、上限 */
+const MAX_MULT = 3;
+/** そのレベルに上がるのに必要な累計点: Lv2=300, Lv3=900, Lv4=1800 … */
+const levelStart = (lv: number) => 150 * lv * (lv - 1);
+function levelOf(xp: number): number {
+  let lv = 1;
+  while (levelStart(lv + 1) <= xp) lv++;
+  return lv;
+}
 
 type Pos = { r: number; c: number };
 
@@ -44,6 +55,14 @@ let cleared = load<number>('cleared', 0);
 /** ヒントや答え表示に頼った語。次の面以降にまた出す */
 const missed = new Set(load<string[]>('missed', []).filter((w) => WORD_MAP.has(w)));
 
+let bestCombo = load<number>('bestCombo', 0);
+let soundOn = load<boolean>('sound', true);
+let days = load<{ last: string; streak: number }>('days', { last: '', streak: 0 });
+/** 自力で連続して完成させた語数。面をまたいで続く */
+let combo = 0;
+const multiplier = (n: number) => Math.min(MAX_MULT, 1 + 0.1 * n);
+setSound(soundOn);
+
 let validWords: Set<string> | null = null;
 const isValid = (w: string) => (validWords ? validWords.has(w) : WORD_MAP.has(w));
 const isTarget = (w: string) => WORD_MAP.has(w);
@@ -64,6 +83,18 @@ let focusSlot: Slot;
 let cursor: Pos | null = null;
 let finished = false;
 let message = '';
+let scored: Set<Slot>; // 完成済みとして処理した語
+let mistakes = 0;
+let hintsUsed = 0;
+let startTime: number | null = null; // 最初の1文字を置いた時刻
+let tally = { words: 0, chain: 0, bonus: 0 };
+let hidden: string[] = []; // 見つけた「かくれ単語」
+let result: { grade: string; sec: number; speed: number; clear: number; perfect: boolean } | null = null;
+/** マスごとの演出。描き直しても途中から続くよう開始時刻で持つ */
+const fx = new Map<string, { name: string; start: number; dur: number }>();
+/** 次の描画の直後に実行する演出（DOM の位置が必要なもの） */
+const after: (() => void)[] = [];
+const appEl = $('app');
 
 const cellsOf = (slot: Slot): Pos[] => slotCells(slot).map(([r, c]) => ({ r, c }));
 const textOf = (slot: Slot) => cellsOf(slot).map(({ r, c }) => cells[r][c]).join('');
@@ -106,6 +137,14 @@ function newPuzzle(): void {
   locked = sol.map((row) => row.map(() => false));
   hand = [...puzzle.hand];
   helped = new Set();
+  scored = new Set();
+  mistakes = 0;
+  hintsUsed = 0;
+  startTime = null;
+  tally = { words: 0, chain: 0, bonus: 0 };
+  hidden = [];
+  result = null;
+  fx.clear();
   finished = false;
   message = '';
   focusSlot = board.slots[0];
@@ -133,12 +172,84 @@ function takeBack(r: number, c: number): void {
 }
 
 /** 盤面が変わった後: 判定してカーソルを次の空きへ進める */
+function popupAt(pos: Pos, text: string, cls: string): void {
+  const el = boardEl.querySelector<HTMLElement>(`[data-k="${pos.r},${pos.c}"]`);
+  if (!el) return;
+  const a = appEl.getBoundingClientRect();
+  const b = el.getBoundingClientRect();
+  popup(appEl, b.left - a.left + b.width / 2, b.top - a.top, text, cls);
+}
+
+/** 語の中に隠れている別の出題語（例: export の中の port） */
+function hiddenWords(text: string): string[] {
+  const out: string[] = [];
+  for (let len = 4; len < text.length; len++) {
+    for (let i = 0; i + len <= text.length; i++) {
+      const sub = text.slice(i, i + len);
+      if (WORD_MAP.has(sub) && !out.includes(sub)) out.push(sub);
+    }
+  }
+  return out;
+}
+
+function completeWord(slot: Slot): void {
+  scored.add(slot);
+  const now = performance.now();
+  cellsOf(slot).forEach(({ r, c }, i) => fx.set(`${r},${c}`, { name: 'wave', start: now + i * 45, dur: 420 }));
+  if (helped.has(slot)) {
+    sfx.word(0);
+    return; // ヒントを使った語は得点なし
+  }
+  const mult = multiplier(combo);
+  combo++;
+  if (combo > bestCombo) save('bestCombo', (bestCombo = combo));
+  const { text, tier } = slot.word;
+  const pts = Math.round(TIER_POINTS[tier] * text.length * mult);
+  const subs = hiddenWords(text).filter((w) => !hidden.includes(w));
+  const chain = Math.round(subs.reduce((sum, w) => sum + 5 * w.length, 0) * mult);
+  hidden.push(...subs);
+  tally.words += pts;
+  tally.chain += chain;
+  score += pts + chain;
+  save('score', score);
+  sfx.word(combo);
+  buzz(15);
+  const mid = cellsOf(slot)[Math.floor(text.length / 2)];
+  after.push(() => {
+    popupAt(mid, `+${pts}`, 'pts');
+    if (subs.length) setTimeout(() => popupAt(mid, `かくれ単語 ${subs.join('・')} +${chain}`, 'chain'), 380);
+    const hud = $('hud');
+    hud.classList.remove('bump');
+    void hud.offsetWidth;
+    hud.classList.add('bump');
+  });
+}
+
+function mistake(slot: Slot): void {
+  mistakes++;
+  combo = 0;
+  const now = performance.now();
+  for (const { r, c } of cellsOf(slot)) fx.set(`${r},${c}`, { name: 'shake', start: now, dur: 320 });
+  sfx.bad();
+  buzz(40);
+}
+
 function afterChange(): void {
+  startTime ??= performance.now();
   relock();
   message = '';
+  const at = cursor;
+  if (at) fx.set(`${at.r},${at.c}`, { name: 'pop', start: performance.now(), dur: 170 });
   const st = states();
+  puzzle.board.slots.forEach((slot, i) => {
+    if (textOf(slot) === slot.word.text) {
+      if (!scored.has(slot)) completeWord(slot);
+    } else if (st[i] === 'invalid' && at && cellsOf(slot).some((p) => p.r === at.r && p.c === at.c)) {
+      mistake(slot);
+    }
+  });
   if (st.every((s) => s === 'target' || s === 'valid')) {
-    finish(st);
+    finish();
     return;
   }
   const idx = cursor ? cellsOf(focusSlot).findIndex((p) => p.r === cursor!.r && p.c === cursor!.c) : -1;
@@ -201,6 +312,7 @@ function tapTile(i: number): void {
   cells[r][c] = hand[i]!;
   from[r][c] = i;
   hand[i] = null;
+  sfx.place(cellsOf(focusSlot).findIndex((p) => p.r === r && p.c === c));
   afterChange();
 }
 
@@ -252,6 +364,8 @@ function hint(): void {
   from[r][c] = i;
   hand[i] = null;
   hinted[r][c] = true;
+  hintsUsed++;
+  combo = 0;
   const list = through(r, c);
   list.forEach((s) => helped.add(s));
   if (!list.includes(focusSlot)) focusSlot = list[0];
@@ -259,26 +373,47 @@ function hint(): void {
   afterChange();
 }
 
-function finish(st: SlotState[]): void {
+function finish(): void {
   finished = true;
   cursor = null;
-  let gained = 0;
-  puzzle.board.slots.forEach((slot, i) => {
+  const sec = startTime ? (performance.now() - startTime) / 1000 : 0;
+  let alt = 0;
+  for (const slot of puzzle.board.slots) {
     const text = textOf(slot);
-    if (helped.has(slot)) {
-      missed.add(slot.word.text);
-      return;
-    }
-    if (text === slot.word.text) missed.delete(text);
-    const w = WORD_MAP.get(text);
-    gained += w && st[i] === 'target' ? TIER_POINTS[w.tier] * text.length : 2 * text.length;
-  });
-  score += gained;
+    if (helped.has(slot)) missed.add(slot.word.text);
+    else if (text === slot.word.text) missed.delete(text);
+    else alt += 2 * text.length; // 別解は少しだけ
+  }
+  const perfect = hintsUsed === 0 && mistakes === 0;
+  const speed = Math.max(0, Math.round((90 - sec) * 2));
+  const clear = perfect ? 100 : 40;
+  const grade = perfect && sec <= 60 ? 'S' : perfect || (hintsUsed === 0 && sec <= 90) ? 'A' : hintsUsed <= 1 ? 'B' : 'C';
+  result = { grade, sec, speed, clear, perfect };
+  tally.bonus = alt + speed + clear;
+  const before = levelOf(score);
+  score += tally.bonus;
   cleared += 1;
+
+  const today = new Date().toLocaleDateString('sv');
+  if (days.last !== today) {
+    const yesterday = new Date(Date.now() - 864e5).toLocaleDateString('sv');
+    days = { last: today, streak: days.last === yesterday ? days.streak + 1 : 1 };
+    save('days', days);
+  }
   save('score', score);
   save('cleared', cleared);
   save('missed', [...missed]);
-  message = `クリア！ +${gained}点`;
+
+  const lv = levelOf(score);
+  sfx.clear();
+  buzz([20, 40, 20]);
+  after.push(() => {
+    confetti();
+    if (lv > before) {
+      sfx.levelUp();
+      setTimeout(() => popup(appEl, appEl.clientWidth / 2, boardEl.offsetTop + 40, `LEVEL UP!  Lv ${lv}`, 'level'), 500);
+    }
+  });
   render();
 }
 
@@ -286,6 +421,7 @@ function giveUp(): void {
   if (finished) return;
   finished = true;
   cursor = null;
+  combo = 0;
   for (const slot of puzzle.board.slots) {
     if (textOf(slot) !== slot.word.text) {
       missed.add(slot.word.text);
@@ -304,9 +440,16 @@ function clueText(slot: Slot, num: number): string {
 }
 
 function render(): void {
-  $('score').textContent = String(score);
-  $('cleared').textContent = String(cleared);
+  countUp($('score'), score);
+  const lv = levelOf(score);
+  $('lv').textContent = String(lv);
+  $('xpbar').style.width = `${(100 * (score - levelStart(lv))) / (levelStart(lv + 1) - levelStart(lv))}%`;
+  $('streak').textContent = String(days.streak);
   $('missed').textContent = String(missed.size);
+  $('combo').textContent = String(combo);
+  $('mult').textContent = multiplier(combo).toFixed(1);
+  $('best').textContent = String(bestCombo);
+  $('hud').classList.toggle('hot', combo >= 3);
   const { board, fixed } = puzzle;
   const sol = board.solution;
   const st = states();
@@ -358,6 +501,13 @@ function render(): void {
       if (hl.has(k)) cls.push('hl');
       if (cursor?.r === r && cursor.c === c) cls.push('cur');
       el.className = cls.join(' ');
+      el.dataset.k = k;
+      const f = fx.get(k);
+      if (f) {
+        const t = performance.now() - f.start;
+        if (t < f.dur) el.style.animation = `${f.name} ${f.dur}ms ${-t}ms both`;
+        else fx.delete(k);
+      }
       el.textContent = cells[r][c];
       const n = numAt.get(k);
       if (n) {
@@ -390,6 +540,7 @@ function render(): void {
     clueEl.append(tier, clueText(focusSlot, nums.get(focusSlot)!));
   }
   statusEl.textContent = message;
+  renderResult();
 
   handEl.replaceChildren();
   hand.forEach((ch, i) => {
@@ -433,7 +584,39 @@ function render(): void {
     };
     cluesEl.append(li);
   });
+  after.splice(0).forEach((f) => f());
 }
+
+function renderResult(): void {
+  const el = $('result');
+  el.hidden = !result;
+  if (!result) return;
+  const row = (label: string, value: string) => {
+    const d = document.createElement('div');
+    const a = document.createElement('span');
+    a.textContent = label;
+    const b = document.createElement('b');
+    b.textContent = value;
+    d.append(a, b);
+    return d;
+  };
+  const grade = document.createElement('div');
+  grade.className = `grade g-${result.grade}`;
+  grade.textContent = result.grade;
+  const list = document.createElement('div');
+  list.className = 'rows';
+  list.append(row('単語', `+${tally.words}`));
+  if (tally.chain) list.append(row(`かくれ単語 ${hidden.join('・')}`, `+${tally.chain}`));
+  list.append(row(`スピード ${fmtTime(result.sec)}`, `+${result.speed}`));
+  list.append(row(result.perfect ? 'パーフェクト' : 'クリア', `+${result.clear}`));
+  list.append(row('合計', `+${tally.words + tally.chain + tally.bonus}`));
+  el.replaceChildren(grade, list);
+}
+
+const fmtTime = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+setInterval(() => {
+  if (started && !finished) $('timer').textContent = fmtTime(startTime ? (performance.now() - startTime) / 1000 : 0);
+}, 250);
 
 function segment<T>(el: HTMLElement, items: { label: string; value: T }[], get: () => T, set: (v: T) => void): void {
   const draw = () => {
@@ -469,7 +652,21 @@ segment(
 $('back').onclick = backspace;
 $('hint').onclick = hint;
 $('giveup').onclick = giveUp;
-$('next').onclick = newPuzzle;
+$('next').onclick = () => {
+  if (!finished) combo = 0; // とばすとコンボは切れる
+  newPuzzle();
+};
+const soundBtn = $('sound');
+const drawSound = () => {
+  soundBtn.textContent = soundOn ? '音 ON' : '音 OFF';
+  soundBtn.setAttribute('aria-pressed', String(soundOn));
+};
+soundBtn.onclick = () => {
+  save('sound', (soundOn = !soundOn));
+  setSound(soundOn);
+  drawSound();
+};
+drawSound();
 
 // キーボード: 文字で手札を置く、Backspace で戻す、クリア後は Enter で次へ
 document.addEventListener('keydown', (e) => {
