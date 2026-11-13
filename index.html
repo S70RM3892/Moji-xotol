@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1b1a17" />
+    <title>Moji-xotol</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header>
+        <h1>Moji-xotol</h1>
+        <div class="score">得点 <b id="score">0</b> ／ <span id="cleared">0</span>面</div>
+      </header>
+
+      <div class="seg" id="modes" role="group" aria-label="モード"></div>
+      <div class="seg" id="levels" role="group" aria-label="難易度"></div>
+
+      <div id="board" aria-label="盤面"></div>
+      <p id="status" role="status"></p>
+      <div id="hand" aria-label="手札"></div>
+
+      <div class="actions">
+        <button id="reset">並べ直す</button>
+        <button id="giveup">答えを見る</button>
+        <button id="next" class="primary">次の面</button>
+      </div>
+
+      <ol id="clues"></ol>
+      <footer>
+        語彙レベル: CEFR-J Wordlist 1.5（東京外国語大学 投野由紀夫研究室）／Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）。
+        和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE。
+      </footer>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
