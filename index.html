@@ -40,14 +40,14 @@
           </div>
         </div>
 
-        <h2>層</h2>
+        <h2 data-sign="sun">層</h2>
         <div class="seg" id="modes" role="group" aria-label="モード"></div>
         <p class="note" id="modenote"></p>
-        <h2>むずかしさ</h2>
+        <h2 data-sign="water">むずかしさ</h2>
         <div class="seg" id="levels" role="group" aria-label="むずかしさ"></div>
         <p class="note" id="levelnote"></p>
 
-        <h2>護符 <span class="count">2つまで持ち込める</span></h2>
+        <h2 data-sign="ankh">護符 <span class="count">2つまで持ち込める</span></h2>
         <div id="amulets" class="grid2"></div>
 
         <button id="daily" class="primary big">今日の盤に挑む</button>
@@ -55,33 +55,37 @@
         <button id="start" class="big">ランダムな盤</button>
 
         <div class="fret" aria-hidden="true"></div>
-        <h2>碑文 <span class="count" id="inscount"></span></h2>
+        <h2 data-sign="roll">碑文 <span class="count" id="inscount"></span></h2>
         <p class="note">盤の上で見つけた技が刻まれる。条件は伏せてあり、謎かけだけが読める。</p>
         <div id="inscriptions" class="grid2"></div>
 
-        <h2>単語図鑑</h2>
+        <h2 data-sign="palette">単語図鑑</h2>
         <div class="card" id="zukan"></div>
 
-        <h2>遊び方</h2>
+        <h2 data-sign="eye">遊び方</h2>
         <ol class="rules">
           <li>マスをタップして場所を選び、手札をタップすると1枚置ける。</li>
           <li>置いた文字を含む英単語が縦か横にできれば得点。並び全体が単語でなくていい。1枚で複数できると<b>連鎖</b>で、合計に連鎖数が掛かる。</li>
-          <li>単語にならなくても置ける。その文字は<b>待ち</b>になり、あとの文字で単語の一部になれば色が付く。待ちのまま終わると1枚 −15点。</li>
+          <li>単語にならなくても置ける。その文字は<b>待ち</b>（点線の下書き）になり、あとの文字で単語の一部になれば色が入る。待ちのまま終わると1枚 −15点。</li>
           <li>袋の中身はお題6語の文字とおまけ。手数が尽きると残りは来ない。袋の残りを見て、来る見込みに賭ける。</li>
-          <li><b>手直し</b>で、手札を捨てるか、待ちの文字を拾って置き直せる。<b>★</b>は好きな文字になる。<b>×2・×3</b>マスに置いて単語を作ると倍。</li>
+          <li><b>手直し</b>で、手札を捨てるか、待ちの文字を拾って置き直せる。星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
           <li>評価は自力で達成したお題の数（5語以上 S、4語 A、2〜3語 B）。</li>
         </ol>
       </section>
 
       <section id="play" hidden>
         <div class="topbar">
-          <div class="scorebox"><b id="score">0</b><span>点</span></div>
+          <div class="scorebox"><span class="gl" data-sign="scarab" aria-hidden="true"></span><b id="score">0</b><span>点</span></div>
           <div class="meter"><span>のこり</span><b id="turns">0</b><span>手</span></div>
           <div class="meter"><span>最大</span><b id="chain">0</b><span>連鎖</span></div>
           <button id="quit" class="mini">おわる</button>
         </div>
         <ul id="missions" aria-label="お題"></ul>
-        <div class="wall"><div id="board" aria-label="盤面"></div></div>
+        <div class="wall">
+          <div class="fret" aria-hidden="true"></div>
+          <div id="board" aria-label="盤面"></div>
+          <div class="fret" aria-hidden="true"></div>
+        </div>
         <div id="feed" aria-live="polite"></div>
         <div class="rack">
           <div id="hand" aria-label="手札"></div>
@@ -96,10 +100,10 @@
       </section>
 
       <section id="result" hidden>
-        <header class="brand"><h1>検分</h1><span class="note" id="resmode"></span></header>
+        <header class="brand"><span class="gl" data-sign="jackal" aria-hidden="true"></span><h1>検分</h1><span class="note" id="resmode"></span></header>
         <div class="fret" aria-hidden="true"></div>
         <div class="card reshead">
-          <div id="grade" class="grade">A</div>
+          <div id="grade" class="grade" data-sign="eye">A</div>
           <div class="rows" id="resrows"></div>
         </div>
         <p class="note" id="resrecord"></p>
@@ -109,9 +113,9 @@
           <button id="tohome">ホーム</button>
         </div>
         <div id="resnew"></div>
-        <h2>お題</h2>
+        <h2 data-sign="roll">お題</h2>
         <ul id="resmissions" class="wordlist"></ul>
-        <h2 id="foundhead">見つけた受験語</h2>
+        <h2 id="foundhead" data-sign="palette">見つけた受験語</h2>
         <ul id="resfound" class="wordlist"></ul>
       </section>
 

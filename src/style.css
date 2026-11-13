@@ -1,64 +1,54 @@
-/* 墓室の壁画。夜は松明に照らされた壁、昼は日の当たる漆喰。石の札に顔料で文字を刻む */
+@import './texture.css';
+
+/* 壁画として描く。地は赤土、形は生成りの面を太い墨線でくくり、金・青緑・群青を差す。
+   夜は松明に照らされた墓室、昼は日の当たる壁。どちらも絵の具の色で通す */
 :root {
-  --bg: #17100b;
-  --wall: #231810;
-  --line: #553a26;
-  --text: #f1e0bb;
-  --muted: #b59c76;
-  --gold: #e3b04b;
-  --gold-edge: #a8741f;
-  --gold-text: #e3b04b;
-  --ink: #2b160b;
-  --stone: #5d4f40;
-  --stone-text: #dccba9;
-  --basalt: #35271c;
-  --basalt-text: #f1e0bb;
-  --terra: #c9542f;
-  --on-terra: #fff1d6;
-  --lapis: #5b93d6;
-  --ruby: #e5603f;
-  --faience: #3fb3a2;
-  --on-faience: #06241f;
+  --bg: #20130b;
+  --panel: #38200f;
+  --ground: #7d3418;
+  --recess: #5a2410;
+  --cream: #ead3a0;
+  --black: #170d07;
+  --ochre: #dc9c36;
+  --red: #c9472a;
+  --teal: #3daa9a;
+  --lapis: #3f74c0;
+  --text: #f0dcb0;
+  --muted: #c2a57a;
+  --gold-text: #e6ad48;
   --font-carve: 'Cinzel', 'Trajan Pro', 'Times New Roman', serif;
   --font-body: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
-    --bg: #ead7ab; --wall: #dfc48d; --line: #b08f58; --text: #2c190f; --muted: #6f5231;
-    --gold: #d9a233; --gold-edge: #8f6414; --gold-text: #875608; --ink: #2b160b;
-    --stone: #b9a47f; --stone-text: #4a3924; --basalt: #4a3525; --basalt-text: #f1e0bb;
-    --terra: #b3471f; --on-terra: #fff1d6;
-    --lapis: #1f5aa6; --ruby: #b8321c; --faience: #1f8f80; --on-faience: #f2fffb;
+    --bg: #e4cb98; --panel: #efdcae; --ground: #b8502a; --recess: #96401f;
+    --cream: #f6e6bf; --black: #22130a; --ochre: #e3a63a; --red: #c53f21; --teal: #2a9a8a; --lapis: #2a62ad;
+    --text: #2a170d; --muted: #6d4f2e; --gold-text: #8a4a0c;
     color-scheme: light;
   }
 }
 :root[data-theme='light'] {
-  --bg: #ead7ab; --wall: #dfc48d; --line: #b08f58; --text: #2c190f; --muted: #6f5231;
-  --gold: #d9a233; --gold-edge: #8f6414; --gold-text: #875608; --ink: #2b160b;
-  --stone: #b9a47f; --stone-text: #4a3924; --basalt: #4a3525; --basalt-text: #f1e0bb;
-  --terra: #b3471f; --on-terra: #fff1d6;
-  --lapis: #1f5aa6; --ruby: #b8321c; --faience: #1f8f80; --on-faience: #f2fffb;
+  --bg: #e4cb98; --panel: #efdcae; --ground: #b8502a; --recess: #96401f;
+  --cream: #f6e6bf; --black: #22130a; --ochre: #e3a63a; --red: #c53f21; --teal: #2a9a8a; --lapis: #2a62ad;
+  --text: #2a170d; --muted: #6d4f2e; --gold-text: #8a4a0c;
   color-scheme: light;
 }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+/* 漆喰のざらつきとひびを、どの色の面にも重ねる */
+body, .painted, .card, .wall, h2, button, .tile, .cell, #missions li, .tablet, .grade, .sheet {
+  background-image: var(--plaster);
+  background-size: 384px;
+  background-blend-mode: overlay;
+}
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
-}
-/* 漆喰のざらつき */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.09;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .4  0 0 0 0 .25  0 0 0 1.4 -.3'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 #app {
   position: relative;
@@ -69,60 +59,78 @@ body::before {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 section { display: flex; flex-direction: column; gap: 10px; }
-h1 { font: 800 1.6rem var(--font-carve); margin: 0; letter-spacing: 0.06em; text-transform: uppercase; }
-h2 {
-  display: flex; align-items: baseline; gap: 8px;
-  font-size: 0.82rem; font-weight: 700; color: var(--terra); margin: 12px 0 0; letter-spacing: 0.12em;
-}
-h2 .count { font-size: 0.7rem; font-weight: 400; color: var(--muted); letter-spacing: 0; }
 p { margin: 0; }
-.brand { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.gl { font-family: 'Glyphs'; font-weight: 400; font-style: normal; text-transform: none; }
+h1 { font: 800 1.6rem var(--font-carve); margin: 0; letter-spacing: 0.06em; text-transform: uppercase; }
+/* 見出しは壁の帯。左右に字形を添える */
+h2 {
+  display: flex; align-items: center; gap: 8px;
+  margin: 12px 0 0; padding: 5px 10px;
+  background-color: var(--ground); color: var(--cream);
+  border-block: 2px solid var(--black);
+  box-shadow: 0 -4px 0 -2px var(--ochre), 0 4px 0 -2px var(--ochre);
+  font-size: 0.86rem; font-weight: 700; letter-spacing: 0.14em;
+}
+h2::before { content: attr(data-g); font: 400 1.25rem 'Glyphs'; letter-spacing: 0; line-height: 1; }
+h2 .count { margin-left: auto; font-size: 0.7rem; font-weight: 400; letter-spacing: 0; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .gl { font-size: 2rem; line-height: 1; color: var(--gold-text); }
+.brand .note { margin-left: auto; }
 .note { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
-.card { background: var(--wall); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
-
-/* 雷文の帯（壁画の縁取り） */
-.fret {
-  height: 12px;
-  background: var(--line);
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12'%3E%3Cpath d='M0 11H21V2H7V7H14' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") repeat-x left center;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12'%3E%3Cpath d='M0 11H21V2H7V7H14' fill='none' stroke='%23000' stroke-width='2'/%3E%3C/svg%3E") repeat-x left center;
+.card {
+  background-color: var(--panel); border: 2px solid var(--black); padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 8px;
 }
 
+/* 雷文の帯（壁画の上下の縁取り）: 赤土の地に、生成りでふちどった墨の線 */
+.fret {
+  height: 26px;
+  border-block: 2px solid var(--black);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='26'%3E%3Crect width='40' height='26' fill='%23a8431f'/%3E%3Cpath d='M0 2.5H40M0 23.5H40' stroke='%23dc9c36' stroke-width='1.5'/%3E%3Cpath d='M-2 19H32V8H12V14H23' fill='none' stroke='%23ecd6a4' stroke-width='6.5'/%3E%3Cpath d='M-2 19H32V8H12V14H23' fill='none' stroke='%231c1009' stroke-width='3.5'/%3E%3C/svg%3E") repeat-x center / auto 100%;
+}
+
+/* 押せるものは生成りの塗り面。墨の輪郭と、ずらした墨の影 */
 button {
-  background: var(--wall);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-bottom-width: 3px;
-  border-radius: 4px;
-  padding: 10px 8px;
+  background-color: var(--cream);
+  color: var(--black);
+  border: 2px solid var(--black);
+  border-radius: 3px;
+  box-shadow: 0 3px 0 var(--black);
+  padding: 9px 8px;
   font: inherit;
+  font-weight: 600;
   cursor: pointer;
 }
-button:disabled { opacity: 0.4; cursor: default; }
-button[aria-pressed='true'], button.primary {
-  background: var(--terra); color: var(--on-terra); border-color: var(--terra); border-bottom-color: var(--ink); font-weight: 700;
-}
-button.mini { padding: 4px 10px; font-size: 0.72rem; border-bottom-width: 1px; }
-button.big { padding: 14px; font-size: 1.02rem; letter-spacing: 0.08em; }
-button:focus-visible, .cell:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+button:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--black); }
+button:disabled { opacity: 0.45; cursor: default; }
+button[aria-pressed='true'] { background-color: var(--ochre); }
+button.primary { background-color: var(--red); color: var(--cream); }
+button.mini { padding: 3px 10px; font-size: 0.72rem; box-shadow: 0 2px 0 var(--black); }
+button.big { padding: 13px; font-size: 1.02rem; letter-spacing: 0.1em; }
+button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); outline-offset: 2px; }
 .seg { display: flex; gap: 6px; }
-.seg button { flex: 1; padding: 9px 4px; font-size: 0.82rem; }
+.seg button { flex: 1; padding: 8px 4px; font-size: 0.82rem; }
 .actions { display: flex; gap: 6px; }
 .actions button { flex: 1; font-size: 0.82rem; white-space: nowrap; }
-.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 6px; }
 
 /* --- ホーム --- */
-.hero { position: relative; border: 1px solid var(--line); overflow: hidden; background: var(--wall); }
+.hero { position: relative; border: 3px solid var(--black); border-bottom: none; overflow: hidden; background: var(--ground); }
 .hero img { display: block; width: 100%; aspect-ratio: 720 / 403; object-fit: cover; }
 .herotext {
-  position: absolute; inset: auto 0 0 0; padding: 36px 14px 10px;
-  background: linear-gradient(to top, #17100bee 35%, #17100b00);
-  color: #f1e0bb;
+  position: absolute; inset: auto 0 0 0; padding: 40px 12px 8px;
+  background: linear-gradient(to top, #1c1009f2 30%, #1c100900);
+  color: #f3e2b8;
+}
+.herotext h1 {
+  font-size: 1.9rem; color: #f3e2b8;
+  text-shadow: 2px 0 0 #1c1009, -2px 0 0 #1c1009, 0 2px 0 #1c1009, 0 -2px 0 #1c1009, 1.5px 1.5px 0 #1c1009, -1.5px 1.5px 0 #1c1009, 1.5px -1.5px 0 #1c1009, -1.5px -1.5px 0 #1c1009, 0 4px 0 #1c1009;
 }
 .herotext p { font-size: 0.8rem; margin-top: 2px; }
 .hero #sound { position: absolute; top: 8px; right: 8px; }
+.hero + .fret { margin-top: -10px; border-inline: 3px solid var(--black); }
 .rank { flex-direction: row; align-items: center; gap: 12px; }
-.rank img { flex: none; width: 64px; height: 64px; border: 2px solid var(--gold-edge); border-radius: 4px; }
+.rank img { flex: none; width: 66px; height: 66px; border: 2px solid var(--black); box-shadow: 0 0 0 2px var(--ochre); }
 .rankbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .lvrow { display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
 .lv { font: 800 1rem var(--font-carve); }
@@ -130,25 +138,22 @@ button:focus-visible, .cell:focus-visible { outline: 2px solid var(--gold); outl
 .statrow { display: flex; flex-wrap: wrap; gap: 2px 12px; font-size: 0.74rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .statrow b, .num b { color: var(--gold-text); font-size: 0.9rem; }
 .num { font-size: 0.74rem; color: var(--muted); }
-.bar { display: block; height: 6px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; }
-.bar i { display: block; height: 100%; background: var(--gold); transition: width 0.5s ease-out; }
+.bar { display: block; height: 8px; background: var(--recess); border: 2px solid var(--black); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ochre); transition: width 0.5s ease-out; }
 
-.chip {
-  display: flex; gap: 8px; align-items: flex-start; text-align: left;
-  padding: 8px; font-size: 0.72rem; line-height: 1.45; border-bottom-width: 1px;
-}
+.chip { display: flex; gap: 8px; align-items: center; text-align: left; padding: 6px 8px; font-size: 0.7rem; font-weight: 400; line-height: 1.4; }
 .chip .sign {
-  flex: none; width: 30px; height: 30px; display: grid; place-items: center;
-  background: var(--basalt); color: var(--basalt-text); border-radius: 50%; font-size: 0.95rem; font-weight: 700;
+  flex: none; width: 36px; height: 40px; display: grid; place-items: center;
+  background: var(--black); color: var(--ochre); border-radius: 18px / 20px; font: 400 1.5rem 'Glyphs'; line-height: 1;
 }
 .chip b { display: block; font-size: 0.8rem; }
-.chip span.t { color: var(--muted); }
-.chip[aria-pressed='true'] span.t { color: var(--on-terra); }
-.chip.locked { opacity: 0.55; }
-.tablet { background: var(--wall); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; font-size: 0.72rem; line-height: 1.5; color: var(--muted); }
-.tablet b { display: block; font-size: 0.8rem; color: var(--muted); letter-spacing: 0.2em; }
-.tablet.got { border-color: var(--gold-edge); color: var(--text); }
-.tablet.got b { color: var(--gold-text); letter-spacing: 0.04em; }
+.chip.locked { background-color: var(--panel); color: var(--muted); border-style: dashed; box-shadow: none; opacity: 1; }
+.chip.locked .sign { color: var(--muted); }
+/* 碑文は石板。未解読のうちは字形だけが並ぶ */
+.tablet { background-color: var(--panel); border: 2px dashed var(--muted); padding: 7px 10px; font-size: 0.72rem; line-height: 1.5; color: var(--muted); }
+.tablet b { display: block; font-size: 0.82rem; }
+.tablet b.gl { font-size: 1.25rem; line-height: 1.3; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; }
+.tablet.got { background-color: var(--cream); border: 2px solid var(--black); color: var(--black); box-shadow: 3px 3px 0 var(--black); }
 .zrow { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; font-variant-numeric: tabular-nums; }
 .zrow span:first-child { width: 4.2em; }
 .zrow .bar { flex: 1; }
@@ -157,99 +162,112 @@ button:focus-visible, .cell:focus-visible { outline: 2px solid var(--gold); outl
 .rules b { color: var(--gold-text); }
 
 /* --- プレイ --- */
-#play { gap: 8px; }
-.topbar { display: flex; align-items: baseline; gap: 14px; font-variant-numeric: tabular-nums; }
-.scorebox { margin-right: auto; }
+#play { gap: 7px; }
+.topbar { display: flex; align-items: baseline; gap: 12px; font-variant-numeric: tabular-nums; }
+.scorebox { margin-right: auto; display: flex; align-items: baseline; gap: 4px; }
+.scorebox .gl { font-size: 1.5rem; color: var(--gold-text); align-self: center; }
 .scorebox b { font: 800 1.7rem var(--font-carve); color: var(--gold-text); }
-.scorebox span, .meter span { font-size: 0.7rem; color: var(--muted); }
+.scorebox span:last-child, .meter span { font-size: 0.7rem; color: var(--muted); }
 .meter b { font: 800 1.15rem var(--font-carve); margin: 0 2px; }
-.meter.low b { color: var(--ruby); }
+.meter.low b { color: var(--red); }
 
-/* お題はカルトゥーシュ（王名枠）に入れる */
-#missions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+/* お題はカルトゥーシュ（王名枠）: 長円の枠と、端の結び目 */
+#missions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 #missions li {
   position: relative;
   display: flex; align-items: baseline; gap: 5px; min-width: 0;
-  padding: 3px 18px 3px 10px; border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 2px 20px 2px 10px;
+  background-color: var(--cream); color: var(--black);
+  border: 2px solid var(--black); border-radius: 999px;
   font-size: 0.78rem; line-height: 1.4; cursor: pointer;
 }
-#missions li::after { content: ''; position: absolute; right: 7px; top: 3px; bottom: 3px; width: 2px; background: var(--line); }
-#missions li.open { flex-wrap: wrap; border-radius: 12px; padding-block: 6px; }
+#missions li::after { content: ''; position: absolute; right: 8px; top: -2px; bottom: -2px; width: 3px; background: var(--black); }
+#missions li.open { flex-wrap: wrap; border-radius: 14px; padding-block: 6px; }
 #missions .gloss { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 #missions li.open .gloss { white-space: normal; flex-basis: 60%; }
-#missions .len { flex: none; color: var(--muted); font-variant-numeric: tabular-nums; }
-#missions li.done { background: var(--faience); border-color: var(--faience); color: var(--on-faience); }
-#missions li.done::after { background: var(--on-faience); }
-#missions li.done .tier { color: var(--on-faience); border-color: var(--on-faience); }
+#missions .len { flex: none; font-variant-numeric: tabular-nums; opacity: 0.7; }
+#missions li.done { background-color: var(--teal); }
 #missions .spell { font: 800 0.8rem var(--font-carve); letter-spacing: 0.06em; text-transform: uppercase; }
 #missions li.open button { flex: none; margin-left: auto; }
-.tier {
-  flex: none; font-size: 0.62rem; color: var(--muted);
-  border: 1px solid var(--line); border-radius: 3px; padding: 0 3px; white-space: nowrap;
-}
+.tier { flex: none; font-size: 0.62rem; border: 1px solid currentColor; border-radius: 2px; padding: 0 3px; white-space: nowrap; opacity: 0.8; }
 
-.wall { padding: 5px; background: var(--wall); border: 2px solid var(--line); outline: 1px solid var(--line); outline-offset: 2px; margin: 3px auto; width: 100%; max-width: 410px; }
+/* 盤は壁そのもの: 赤土の地を帯ではさむ */
+.wall { width: 100%; max-width: 420px; margin: 0 auto; border: 3px solid var(--black); background-color: var(--ground); }
+.wall .fret { height: 16px; border: none; }
+.wall .fret:first-child { border-bottom: 2px solid var(--black); }
+.wall .fret:last-child { border-top: 2px solid var(--black); }
 #board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   aspect-ratio: 1;
   gap: 3px;
+  padding: 5px;
   touch-action: manipulation;
 }
 .cell {
   position: relative;
   display: grid;
   place-items: center;
-  border-radius: 3px;
-  background: var(--bg);
-  font: 800 clamp(1rem, 5.2vw, 1.45rem) var(--font-carve);
+  border-radius: 2px;
+  background-color: var(--recess);
+  box-shadow: inset 0 0 0 1px #0000004d;
+  color: var(--black);
+  font: 800 clamp(0.95rem, 5vw, 1.4rem) var(--font-carve);
+  line-height: 1;
   text-transform: uppercase;
   user-select: none;
   cursor: pointer;
 }
-.cell.b2, .cell.b3 { font: 700 0.7rem var(--font-body); text-transform: none; }
-.cell.b2 { color: var(--lapis); box-shadow: inset 0 0 0 1.5px var(--lapis); }
-.cell.b3 { color: var(--ruby); box-shadow: inset 0 0 0 1.5px var(--ruby); }
-.cell.seed { background: var(--basalt); color: var(--basalt-text); }
-.cell.wait { background: var(--stone); color: var(--stone-text); box-shadow: inset 0 0 0 1.5px var(--line); }
-.cell.lit { background: var(--gold); color: var(--ink); box-shadow: 0 2px 0 var(--gold-edge); }
-.cell.won { background: var(--faience); color: var(--on-faience); box-shadow: 0 2px 0 var(--ink); }
-.cell.star::after { content: '★'; position: absolute; top: 1px; right: 3px; font-size: 0.5rem; }
-.cell.cur { outline: 3px solid var(--gold); outline-offset: -1px; }
-.cell.cur::before { content: attr(data-dir); font: 700 1rem var(--font-body); color: var(--gold-text); }
-.cell.cur.b2::before, .cell.cur.b3::before { position: absolute; bottom: 0; right: 3px; font-size: 0.7rem; }
-.fixing .cell.wait { outline: 2px dashed var(--ruby); outline-offset: -2px; }
+.cell .gl { position: absolute; right: 2px; bottom: 1px; font-size: 0.62em; line-height: 1; opacity: 0.55; pointer-events: none; }
+/* 倍率マス: 群青と金で塗ってある */
+.cell.b2, .cell.b3 { font: 800 0.72rem var(--font-body); text-transform: none; border: 2px solid var(--black); box-shadow: none; }
+.cell.b2 { background-color: var(--lapis); color: var(--cream); }
+.cell.b3 { background-color: var(--ochre); color: var(--black); }
+/* 種: 玄武岩の黒 */
+.cell.seed { background-color: var(--black); color: var(--cream); box-shadow: inset 0 0 0 1.5px var(--cream); }
+/* 待ち: まだ色を入れていない下書きの線 */
+.cell.wait { background-color: transparent; background-image: none; color: var(--cream); box-shadow: none; border: 2px dashed var(--cream); }
+/* 成立: 生成りで塗って墨でくくる */
+.cell.lit { background-color: var(--cream); border: 2px solid var(--black); box-shadow: 2px 2px 0 var(--black); }
+/* お題達成: 青緑の焼き物の色 */
+.cell.won { background-color: var(--teal); border: 2px solid var(--black); box-shadow: 2px 2px 0 var(--black); }
+.cell.star::after { content: '★'; position: absolute; top: 0; left: 2px; font: 0.5rem var(--font-body); }
+.cell.cur { outline: 3px solid var(--ochre); outline-offset: 0; box-shadow: 0 0 0 5px var(--black); z-index: 1; }
+.cell.cur::before { content: attr(data-dir); font: 700 1rem var(--font-body); color: var(--ochre); }
+.cell.cur.b2::before, .cell.cur.b3::before { position: absolute; bottom: 0; right: 2px; font-size: 0.7rem; color: inherit; }
+.fixing .cell.wait { border-color: var(--ochre); color: var(--ochre); }
 
 #feed { min-height: 3.9em; display: flex; flex-direction: column; gap: 1px; font-size: 0.8rem; line-height: 1.3; }
 #feed .sum { font: 800 0.95rem var(--font-carve); color: var(--gold-text); }
 #feed .w { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
 #feed .w b { font: 800 0.82rem var(--font-carve); letter-spacing: 0.05em; text-transform: uppercase; }
+#feed .w .gl { flex: none; font-size: 0.95rem; line-height: 1; color: var(--muted); }
 #feed .w .g { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); }
 #feed .w .p { font-variant-numeric: tabular-nums; }
-#feed .w.target b, #feed .w.mission b { color: var(--faience); }
+#feed .w.target b, #feed .w.mission b { color: var(--teal); }
 #feed .w.plain { color: var(--muted); }
-#feed .new { font-size: 0.6rem; font-weight: 700; color: var(--on-terra); background: var(--terra); border-radius: 2px; padding: 0 3px; }
+#feed .new { font-size: 0.6rem; font-weight: 700; color: var(--cream); background: var(--red); border-radius: 2px; padding: 0 3px; }
 #feed .hint { color: var(--muted); }
 
 .rack { display: flex; align-items: flex-end; gap: 10px; }
-#hand { flex: 1; display: flex; gap: 5px; min-height: 50px; }
+#hand { flex: 1; display: flex; gap: 5px; min-height: 58px; }
 .tile {
-  flex: 1; max-width: 50px; height: 50px; padding: 0;
-  background: var(--gold); color: var(--ink);
-  border: none; border-bottom: 3px solid var(--gold-edge); border-radius: 3px;
-  font: 800 1.4rem var(--font-carve); text-transform: uppercase;
+  flex: 1; max-width: 50px; height: 56px; padding: 2px 0 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  font: 800 1.35rem var(--font-carve); line-height: 1; text-transform: uppercase;
 }
-.tile.wild { background: var(--lapis); color: var(--bg); border-bottom-color: var(--ink); font-family: var(--font-body); }
-.tile:active { transform: translateY(2px); border-bottom-width: 1px; }
+.tile .gl { font-size: 0.95rem; line-height: 1; opacity: 0.7; }
+.tile.wild { background-color: var(--lapis); color: var(--cream); }
+.tile.wild .gl { font-size: 1.7rem; opacity: 1; }
 .tile.in { animation: drawin 0.25s ease-out; }
-.fixing .tile { outline: 2px dashed var(--ruby); outline-offset: 1px; }
-.next { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.fixing .tile { background-color: var(--ochre); }
+.next { flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 3px; }
 .next span { font: 600 0.6rem var(--font-carve); color: var(--muted); letter-spacing: 0.14em; }
 #next { display: flex; gap: 2px; }
 #next i {
   width: 20px; height: 26px; display: grid; place-items: center;
-  background: var(--wall); border: 1px solid var(--line); border-radius: 2px;
+  border: 1.5px dashed var(--muted); border-radius: 2px;
   font: 800 0.78rem var(--font-carve); font-style: normal; text-transform: uppercase; color: var(--muted);
 }
 #bag b { font-family: var(--font-carve); color: var(--text); letter-spacing: 0.04em; }
@@ -257,26 +275,30 @@ button:focus-visible, .cell:focus-visible { outline: 2px solid var(--gold); outl
 /* --- 検分（結果） --- */
 .reshead { flex-direction: row; align-items: center; gap: 16px; }
 .grade {
-  flex: none; width: 72px; height: 80px; display: grid; place-items: center;
-  background: var(--gold); color: var(--ink); border-bottom: 4px solid var(--gold-edge); border-radius: 3px;
-  font: 800 3rem var(--font-carve);
+  flex: none; width: 70px; height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background-color: var(--cream); color: var(--black); border: 3px solid var(--black); border-radius: 35px / 30px;
+  box-shadow: 0 0 0 2px var(--ochre);
+  font: 800 2.6rem var(--font-carve); line-height: 1;
   animation: stamp 0.45s 0.15s cubic-bezier(0.2, 1.6, 0.4, 1) both;
 }
-.grade.g-S { background: var(--faience); color: var(--on-faience); border-bottom-color: var(--ink); }
-.grade.g-C { background: var(--stone); color: var(--stone-text); border-bottom-color: var(--line); }
+.grade::before { content: attr(data-g); font: 400 1.5rem 'Glyphs'; line-height: 1; }
+.grade.g-S { background-color: var(--teal); }
+.grade.g-A { background-color: var(--ochre); }
+.grade.g-C { background-color: var(--panel); color: var(--muted); border-style: dashed; box-shadow: none; }
 .rows { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 0.8rem; color: var(--muted); }
 .rows div { display: flex; justify-content: space-between; gap: 8px; }
 .rows b { color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.rows div:last-child { margin-top: 4px; padding-top: 5px; border-top: 1px solid var(--line); font-size: 1rem; color: var(--text); }
+.rows div:last-child { margin-top: 4px; padding-top: 5px; border-top: 2px solid var(--black); font-size: 1rem; color: var(--text); }
 .rows div:last-child b { color: var(--gold-text); }
-#resnew { display: flex; flex-direction: column; gap: 6px; }
+#resnew { display: flex; flex-direction: column; gap: 8px; }
 #resnew:empty { display: none; }
 .wordlist { list-style: none; margin: 0; padding: 0; }
-.wordlist li { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--line); font-size: 0.84rem; line-height: 1.45; }
+.wordlist li { display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; padding: 7px 2px; border-bottom: 1px solid var(--muted); font-size: 0.84rem; line-height: 1.45; }
 .wordlist .mark { flex: none; width: 1.2em; font-weight: 700; }
-.wordlist li.ok .mark { color: var(--faience); }
-.wordlist li.ng .mark { color: var(--ruby); }
+.wordlist li.ok .mark { color: var(--teal); }
+.wordlist li.ng .mark { color: var(--red); }
 .wordlist .word { flex: none; font: 800 0.9rem var(--font-carve); letter-spacing: 0.05em; text-transform: uppercase; }
+.wordlist .gl { flex: none; font-size: 1.05rem; line-height: 1; color: var(--muted); }
 .wordlist .g { flex: 1; min-width: 55%; color: var(--muted); }
 .wordlist .why { flex-basis: 100%; padding-left: 1.7em; font-size: 0.74rem; }
 .wordlist .why.skill { color: var(--gold-text); }
@@ -284,30 +306,32 @@ button:focus-visible, .cell:focus-visible { outline: 2px solid var(--gold); outl
 .wordlist .empty { color: var(--muted); }
 
 /* --- ★の文字選び --- */
-#picker { position: fixed; inset: 0; z-index: 30; display: grid; place-items: end center; background: color-mix(in srgb, var(--bg) 70%, transparent); }
+#picker { position: fixed; inset: 0; z-index: 30; display: grid; place-items: end center; background: color-mix(in srgb, var(--black) 70%, transparent); }
 .sheet {
-  width: 100%; max-width: 480px; background: var(--wall); border-top: 2px solid var(--line);
+  width: 100%; max-width: 480px; background-color: var(--panel); border-top: 3px solid var(--black);
   padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   display: flex; flex-direction: column; gap: 10px;
 }
-#letters { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
-#letters button { padding: 10px 0; font: 800 1.05rem var(--font-carve); text-transform: uppercase; background: var(--gold); color: var(--ink); border: none; border-bottom: 3px solid var(--gold-edge); }
+#letters { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+#letters button { padding: 6px 0 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; font: 800 1rem var(--font-carve); line-height: 1; text-transform: uppercase; }
+#letters .gl { font-size: 0.85rem; opacity: 0.7; }
 
 /* --- 演出 --- */
 .popup {
   position: absolute; z-index: 5; pointer-events: none; white-space: nowrap;
   transform: translate(-50%, -50%);
-  font: 800 1.5rem var(--font-carve); color: var(--gold-text);
-  text-shadow: 0 2px 0 var(--bg), 0 0 8px var(--bg);
+  font: 800 1.6rem var(--font-carve); color: var(--ochre);
+  text-shadow: 2px 0 0 var(--black), -2px 0 0 var(--black), 0 2px 0 var(--black), 0 -2px 0 var(--black), 1.5px 1.5px 0 var(--black), -1.5px 1.5px 0 var(--black), 1.5px -1.5px 0 var(--black), -1.5px -1.5px 0 var(--black), 0 4px 0 var(--black);
   animation: float 1.2s ease-out forwards;
 }
-.popup.chain { font: 800 1.7rem var(--font-body); color: var(--text); }
+.popup.chain { font: 800 1.7rem var(--font-body); color: var(--cream); }
 .popup.banner, .popup.found {
-  font: 700 0.95rem var(--font-body); padding: 5px 14px; border-radius: 999px; text-shadow: none;
+  font: 700 0.95rem var(--font-body); padding: 5px 16px; border: 2px solid var(--black); border-radius: 999px;
+  text-shadow: none; box-shadow: 0 3px 0 var(--black);
   animation-duration: 2.2s;
 }
-.popup.banner { background: var(--faience); color: var(--on-faience); }
-.popup.found { background: var(--terra); color: var(--on-terra); }
+.popup.banner { background: var(--teal); color: var(--black); }
+.popup.found { background: var(--red); color: var(--cream); }
 .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
 footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height: 1.6; }
 
@@ -315,7 +339,7 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 @keyframes wave { 0% { transform: none; } 40% { transform: translateY(-9px) scale(1.12); } 100% { transform: none; } }
 @keyframes revive { 0% { transform: rotateX(90deg); } 60% { transform: rotateX(-12deg) scale(1.1); } 100% { transform: none; } }
 @keyframes float { 0% { opacity: 0; transform: translate(-50%, -20%) scale(0.7); } 15% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -190%); } }
-@keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(-12deg); } 100% { opacity: 1; transform: rotate(-4deg); } }
+@keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(-12deg); } 100% { opacity: 1; transform: rotate(-3deg); } }
 @keyframes drawin { 0% { opacity: 0; transform: translateX(14px); } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .cell, .grade, .tile.in { animation: none !important; }

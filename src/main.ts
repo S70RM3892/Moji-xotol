@@ -3,6 +3,7 @@ import { cellsOf } from './core/board';
 import { DEFAULTS, Game, type Placement, WILD } from './core/game';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, makeRng } from './core/words';
 import { buzz, confetti, countUp, popup, setSound, sfx } from './fx';
+import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
 const LEVELS = [
@@ -30,6 +31,16 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = '', text = ''):
 };
 const appEl = $('app');
 const boardEl = $('board');
+// 見出しや飾りの字形（HTML には名前だけ書いてある）
+for (const node of document.querySelectorAll<HTMLElement>('[data-sign]')) {
+  const sign = SIGN[node.dataset.sign as keyof typeof SIGN];
+  if (node.classList.contains('gl')) node.textContent = sign;
+  else node.dataset.g = sign;
+}
+/** 文字と、それに添える字形 */
+function lettered(host: HTMLElement, ch: string): void {
+  host.append(ch, el('span', 'gl', glyphOf(ch)));
+}
 $<HTMLImageElement>('heroimg').src = HERO;
 $<HTMLImageElement>('iconimg').src = ICON;
 
@@ -390,6 +401,7 @@ function endGame(): void {
       li.append(
         el('span', 'mark', ok ? '○' : m.done ? '△' : '×'),
         el('span', 'word', m.word.text),
+        el('span', 'gl', spell(m.word.text)),
         el('span', 'tier', TIER_LABEL[m.word.tier]),
         el('span', 'g', m.word.gloss),
       );
@@ -433,7 +445,8 @@ function openPicker(i: number): void {
 }
 $('letters').replaceChildren(
   ...[...'abcdefghijklmnopqrstuvwxyz'].map((ch) => {
-    const b = el('button', '', ch);
+    const b = el('button');
+    lettered(b, ch);
     b.onclick = () => {
       $('picker').hidden = true;
       doPlace(pickFor, ch);
@@ -489,7 +502,7 @@ function renderPlay(note = ''): void {
         if (game.missionCells.includes(k)) cls.push('won');
         else cls.push(game.lit[r][c] ? 'lit' : game.seed[r][c] ? 'seed' : 'wait');
         if (game.wild[r][c]) cls.push('star');
-        d.textContent = ch;
+        lettered(d, ch);
         if (game.isWaiting(r, c)) d.onclick = () => tapCell(r, c);
       } else {
         if (game.bonus[r][c] > 1) {
@@ -549,7 +562,9 @@ function renderPlay(note = ''): void {
   // 手札・NEXT・袋
   $('hand').replaceChildren(
     ...game.hand.map((ch, i) => {
-      const b = el('button', ch === WILD ? 'tile wild' : 'tile', ch === WILD ? '★' : ch);
+      const b = el('button', ch === WILD ? 'tile wild' : 'tile');
+      if (ch === WILD) b.append(el('span', 'gl', SIGN.star));
+      else lettered(b, ch);
       if (i >= game.hand.length - drawn) b.classList.add('in');
       b.setAttribute('aria-label', ch === WILD ? '何にでもなる札' : ch);
       b.onclick = () => tapTile(i);
@@ -598,7 +613,7 @@ function renderHome(): void {
       const b = el('button', open ? 'chip' : 'chip locked');
       const body = el('span');
       body.append(el('b', '', open ? a.name : '？？？'), el('span', 't', open ? a.text : `Lv ${a.level} で手に入る`));
-      b.append(el('span', 'sign', open ? a.sign : '封'), body);
+      b.append(el('span', 'sign', open ? a.sign : SIGN.bolt), body);
       b.disabled = !open;
       b.setAttribute('aria-pressed', String(chosen.includes(a.id)));
       b.onclick = () => {
@@ -616,7 +631,8 @@ function renderHome(): void {
     ...INSCRIPTIONS.map((ins) => {
       const got = earned.has(ins.id);
       const t = el('div', got ? 'tablet got' : 'tablet');
-      t.append(el('b', '', got ? ins.name : '？？？'), got ? ins.text : ins.hint);
+      // 未解読のうちは、名前の代わりに字形の並びが見える
+      t.append(got ? el('b', '', ins.name) : el('b', 'gl', spell(ins.id)), got ? ins.text : ins.hint);
       return t;
     }),
   );

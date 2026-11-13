@@ -1,5 +1,6 @@
 // 局をまたいで続く要素: 称号・護符（持ち込む道具）・碑文（見つける技）
 import type { Game, GameOptions, Placement } from './core/game';
+import { SIGN } from './glyphs';
 
 /** そのレベルに上がるのに必要な累計点: Lv2=1000, Lv3=3000, Lv4=6000 … */
 export const levelStart = (lv: number) => 500 * lv * (lv - 1);
@@ -24,7 +25,7 @@ export const titleOf = (lv: number) => TITLES.filter(([need]) => lv >= need).pop
 export interface Amulet {
   id: string;
   name: string;
-  sign: string; // 盤面や一覧に出す1文字の印
+  sign: string; // 一覧に出すヒエログリフ
   level: number;
   text: string;
   apply: (o: Required<Pick<GameOptions, 'wilds' | 'fixes' | 'turns' | 'bonus3' | 'handSize' | 'deadPenalty' | 'mirror'>>) => void;
@@ -33,14 +34,14 @@ export interface Amulet {
 }
 export const MAX_AMULETS = 2;
 export const AMULETS: Amulet[] = [
-  { id: 'scarab', name: 'スカラベ', sign: '甲', level: 1, text: '★が2枚増える。', apply: (o) => (o.wilds += 2) },
-  { id: 'eye', name: 'ホルスの目', sign: '目', level: 1, text: 'NEXT が5枚先まで見える。', apply: () => {}, next: 5 },
-  { id: 'palette', name: '書記のパレット', sign: '筆', level: 2, text: '手直しが3回増える。', apply: (o) => (o.fixes += 3) },
-  { id: 'ankh', name: 'アンク', sign: '命', level: 3, text: '待ちのまま終わっても減点されない。', apply: (o) => (o.deadPenalty = 0) },
-  { id: 'nile', name: 'ナイルの恵み', sign: '河', level: 4, text: '手数が4手増える。', apply: (o) => (o.turns += 4) },
-  { id: 'mirror', name: '鏡文字', sign: '鏡', level: 5, text: '右から左、下から上に読んでも単語として成立する。', apply: (o) => (o.mirror = true) },
-  { id: 'lapis', name: '紅玉の床', sign: '玉', level: 6, text: '×3マスが3つ増える。', apply: (o) => (o.bonus3 += 3) },
-  { id: 'hand', name: '大きな手', sign: '手', level: 7, text: '手札が7枚になる。', apply: (o) => (o.handSize += 1) },
+  { id: 'scarab', name: 'スカラベ', sign: SIGN.scarab, level: 1, text: '星の札が2枚増える。', apply: (o) => (o.wilds += 2) },
+  { id: 'eye', name: 'ホルスの目', sign: SIGN.eye, level: 1, text: 'NEXT が5枚先まで見える。', apply: () => {}, next: 5 },
+  { id: 'palette', name: '書記のパレット', sign: SIGN.palette, level: 2, text: '手直しが3回増える。', apply: (o) => (o.fixes += 3) },
+  { id: 'ankh', name: 'アンク', sign: SIGN.ankh, level: 3, text: '待ちのまま終わっても減点されない。', apply: (o) => (o.deadPenalty = 0) },
+  { id: 'nile', name: 'ナイルの恵み', sign: SIGN.water, level: 4, text: '手数が4手増える。', apply: (o) => (o.turns += 4) },
+  { id: 'mirror', name: '鏡文字', sign: SIGN.eye2, level: 5, text: '右から左、下から上に読んでも単語として成立する。', apply: (o) => (o.mirror = true) },
+  { id: 'lapis', name: '黄金の床', sign: SIGN.sun, level: 6, text: '×3マスが3つ増える。', apply: (o) => (o.bonus3 += 3) },
+  { id: 'hand', name: '大きな手', sign: SIGN.arm, level: 7, text: '手札が7枚になる。', apply: (o) => (o.handSize += 1) },
 ];
 
 // --- 碑文: 条件は伏せてあり、ヒントだけが読める。達成すると名前と中身が現れる ---
@@ -59,7 +60,7 @@ export const INSCRIPTIONS: Inscription[] = [
   { id: 'cross', name: '十字', hint: '縦と横は同時に読める。', text: '1枚で縦と横の両方に単語を作った。' },
   { id: 'shared', name: '相乗り', hint: '1文字を2つのお題が使ってもいい。', text: '先に達成したお題と文字を共有して、別のお題を達成した。札が1枚浮く。' },
   { id: 'revive', name: '蘇り', hint: '眠っていた石が一斉に目を覚ます。', text: '1枚で待ちの文字を4枚以上まとめて成立させた。' },
-  { id: 'ruby', name: '紅玉の仕上げ', hint: '赤いマスは最後の1枚のためにある。', text: '×3マスに置いてお題を達成した。' },
+  { id: 'ruby', name: '黄金の仕上げ', hint: '金のマスは最後の1枚のためにある。', text: '×3マスに置いてお題を達成した。' },
   { id: 'star', name: '星の一筆', hint: '来なかった文字は、星が埋める。', text: '★でお題を達成した。' },
   { id: 'kilo', name: '千の一手', hint: '1手に千点。', text: '1手で1000点以上を取った。' },
   { id: 'long', name: '長い言葉', hint: '盤の端から端まで。', text: '8文字の単語を作った。' },

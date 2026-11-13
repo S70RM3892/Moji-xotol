@@ -100,7 +100,7 @@ export function confetti(): void {
   if (!g) return canvas.remove();
   g.scale(dpr, dpr);
   const css = getComputedStyle(document.documentElement);
-  const colors = ['--gold', '--faience', '--terra', '--lapis'].map((v) => css.getPropertyValue(v).trim());
+  const colors = ['--ochre', '--teal', '--red', '--lapis', '--cream'].map((v) => css.getPropertyValue(v).trim());
   const parts = Array.from({ length: 90 }, (_, i) => ({
     x: w / 2 + (Math.random() - 0.5) * w * 0.5,
     y: h * 0.3,

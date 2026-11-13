@@ -13,3 +13,5 @@ C1/C2 の語を含むため、生成物を再配布するときは CC BY-SA 4.0 
 和訳を直すときは `data/gloss-overrides.tsv`（`単語<TAB>和訳`、`#` 始まりはコメント）に書いて `npm run dict` を実行する。
 
 `assets/xolotl.webp` はこのゲームの持ち主が用意したイラスト。アイコンとホームの帯に使う（`src/art.ts` に切り出して埋め込み）。
+
+`src/texture.css` には、漆喰のテクスチャ（このリポジトリで生成した画像）と、文字に添えるヒエログリフの字形を埋め込んでいる。字形は Noto Sans Egyptian Hieroglyphs の一部（SIL Open Font License 1.1）。
