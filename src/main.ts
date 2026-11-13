@@ -1,22 +1,22 @@
-import { type Slot, generateBoard } from './core/generator';
-import { type Puzzle, type SlotState, judgeSlot, makePuzzle, slotCells } from './core/puzzle';
+import { cellsOf } from './core/board';
+import { Game, type Placement, WILD } from './core/game';
+import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng } from './core/words';
 import { buzz, confetti, countUp, popup, setSound, sfx } from './fx';
-import { MODE_LABEL, type Mode, TIER_LABEL, WORD_MAP, type Word, makeRng } from './core/words';
 
 const LEVELS = [
-  { label: 'やさしい', reveal: 0.5 },
-  { label: 'ふつう', reveal: 0.3 },
-  { label: 'むずかしい', reveal: 0.12 },
+  { label: 'やさしい', turns: 38, wilds: 3, note: '38手・★3枚。待ちの9回に1回は外れる。' },
+  { label: 'ふつう', turns: 34, wilds: 2, note: '34手・★2枚。待ちの6回に1回は外れる。' },
+  { label: 'むずかしい', turns: 30, wilds: 1, note: '30手・★1枚。待ちの3回に1回は外れる。追うお題を絞れ。' },
 ];
-/** 層ごとの基礎点 × 文字数 */
-const TIER_POINTS = [10, 15, 20];
-/** 1面に混ぜる復習語の上限 */
-const REVIEW_PER_BOARD = 2;
-
-/** コンボ1つにつき +0.1倍、上限 */
-const MAX_MULT = 3;
-/** そのレベルに上がるのに必要な累計点: Lv2=300, Lv3=900, Lv4=1800 … */
-const levelStart = (lv: number) => 150 * lv * (lv - 1);
+const MODE_NOTE: Record<Mode, string> = {
+  kyote: 'お題の7割が共通テスト水準（CEFR A1〜B1）。',
+  nankan: 'お題の6割が難関大2次水準（CEFR B2）。',
+  kyodai: 'お題の6割が京大水準（CEFR C1〜C2）。',
+};
+/** 1局のお題に混ぜる復習語の上限 */
+const REVIEW_PER_GAME = 2;
+/** そのレベルに上がるのに必要な累計点: Lv2=1000, Lv3=3000, Lv4=6000 … */
+const levelStart = (lv: number) => 500 * lv * (lv - 1);
 function levelOf(xp: number): number {
   let lv = 1;
   while (levelStart(lv + 1) <= xp) lv++;
@@ -24,13 +24,15 @@ function levelOf(xp: number): number {
 }
 
 type Pos = { r: number; c: number };
-
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls = '', text = ''): HTMLElementTagNameMap[K] => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text) e.textContent = text;
+  return e;
+};
+const appEl = $('app');
 const boardEl = $('board');
-const handEl = $('hand');
-const cluesEl = $('clues');
-const clueEl = $('clue');
-const statusEl = $('status');
 
 function load<T>(key: string, fallback: T): T {
   try {
@@ -48,587 +50,424 @@ function save(key: string, value: unknown): void {
   }
 }
 
+// --- 続けて遊ぶための記録（このブラウザにだけ残る） ---
 let mode = load<Mode>('mode', 'kyote');
 let level = load<number>('level', 1);
-let score = load<number>('score', 0);
-let cleared = load<number>('cleared', 0);
-/** ヒントや答え表示に頼った語。次の面以降にまた出す */
-const missed = new Set(load<string[]>('missed', []).filter((w) => WORD_MAP.has(w)));
-
-let bestCombo = load<number>('bestCombo', 0);
+let xp = load<number>('xp', 0);
+let games = load<number>('games', 0);
+let best = load<number>('best', 0);
 let soundOn = load<boolean>('sound', true);
 let days = load<{ last: string; streak: number }>('days', { last: '', streak: 0 });
-/** 自力で連続して完成させた語数。面をまたいで続く */
-let combo = 0;
-const multiplier = (n: number) => Math.min(MAX_MULT, 1 + 0.1 * n);
+/** つづりを見た・作れなかったお題。あとの局でまた出す */
+const missed = new Set(load<string[]>('missed', []).filter((w) => WORD_MAP.has(w)));
+/** 一度でも盤面で作った受験語 */
+const zukan = new Set(load<string[]>('zukan', []).filter((w) => WORD_MAP.has(w)));
 setSound(soundOn);
 
-let validWords: Set<string> | null = null;
-const isValid = (w: string) => (validWords ? validWords.has(w) : WORD_MAP.has(w));
-const isTarget = (w: string) => WORD_MAP.has(w);
+// --- 判定辞書（単語 → 短い和訳） ---
+const glossOf = new Map<string, string>();
+const valid = new Set<string>();
+function loadValid(text: string): void {
+  for (const line of text.split('\n')) {
+    const [w, g] = line.split('\t');
+    if (!w) continue;
+    valid.add(w);
+    if (g) glossOf.set(w, g);
+  }
+}
+/** 1行に収めるための短い和訳: 最初の語義だけ、補足の括弧を外す */
+const brief = (g: string) => g.split('／')[0].replace(/[〈〉]/g, '');
+const gloss = (w: string) => WORD_MAP.get(w)?.gloss.split('／')[0] ?? glossOf.get(w) ?? '';
 
-// ?seed=数値 を付けると同じ盤面を再現できる
-const seedParam = Number(new URLSearchParams(location.search).get('seed'));
-const rng = makeRng(seedParam || (Date.now() ^ (Math.random() * 2 ** 32)) >>> 0);
-
-let puzzle: Puzzle;
-let started = false;
-let cells: string[][]; // 現在の盤面
-let hand: (string | null)[]; // null = 盤面に置いた
-let from: (number | null)[][]; // 置いたマス → 手札の位置
-let hinted: boolean[][]; // ヒントで開けたマス
-let locked: boolean[][]; // 正解して確定した語のマス
-let helped: Set<Slot>; // ヒントを使った語
-let focusSlot: Slot;
+// --- 1局の状態 ---
+const rng = makeRng((Number(new URLSearchParams(location.search).get('seed')) || Date.now() ^ (Math.random() * 2 ** 32)) >>> 0);
+let game: Game;
 let cursor: Pos | null = null;
-let finished = false;
-let message = '';
-let scored: Set<Slot>; // 完成済みとして処理した語
-let mistakes = 0;
-let hintsUsed = 0;
-let startTime: number | null = null; // 最初の1文字を置いた時刻
-let tally = { words: 0, chain: 0, bonus: 0 };
-let hidden: string[] = []; // 見つけた「かくれ単語」
-let result: { grade: string; sec: number; speed: number; clear: number; perfect: boolean } | null = null;
+let down = false; // 置いたあとカーソルが進む向き
+let discarding = false;
+let openMission = -1;
+let last: Placement | null = null;
+let fresh = new Set<string>(); // 直前の1手で初めて図鑑に入った語
+let drawn = 0; // 直前の1手で引いた枚数（手札の右端から数える）
+let ending = false;
 /** マスごとの演出。描き直しても途中から続くよう開始時刻で持つ */
 const fx = new Map<string, { name: string; start: number; dur: number }>();
-/** 次の描画の直後に実行する演出（DOM の位置が必要なもの） */
-const after: (() => void)[] = [];
-const appEl = $('app');
 
-const cellsOf = (slot: Slot): Pos[] => slotCells(slot).map(([r, c]) => ({ r, c }));
-const textOf = (slot: Slot) => cellsOf(slot).map(({ r, c }) => cells[r][c]).join('');
-const through = (r: number, c: number) =>
-  puzzle.board.slots.filter((s) => cellsOf(s).some((p) => p.r === r && p.c === c));
-const editable = (r: number, c: number) =>
-  !!puzzle.board.solution[r][c] && !puzzle.fixed[r][c] && !hinted[r][c] && !locked[r][c];
-
-/** idx より後の最初の空きマス。なければ先頭から探す */
-function firstBlank(slot: Slot, idx = -1): Pos | null {
-  const list = cellsOf(slot);
-  const order = [...list.slice(idx + 1), ...list.slice(0, idx + 1)];
-  return order.find(({ r, c }) => !cells[r][c]) ?? null;
+function show(view: 'home' | 'play' | 'result'): void {
+  for (const v of ['home', 'play', 'result']) $(v).hidden = v !== view;
+  scrollTo(0, 0);
 }
-function nextOpenSlot(): Slot | null {
-  const { slots } = puzzle.board;
-  const start = slots.indexOf(focusSlot);
-  for (let i = 1; i <= slots.length; i++) {
-    const s = slots[(start + i) % slots.length];
-    if (firstBlank(s)) return s;
+
+function nextEmpty(from: Pos, dr: number, dc: number): Pos | null {
+  for (let r = from.r + dr, c = from.c + dc; r >= 0 && c >= 0 && r < game.size && c < game.size; r += dr, c += dc) {
+    if (!game.grid[r][c]) return { r, c };
   }
   return null;
 }
 
-function newPuzzle(): void {
+function startGame(): void {
   const include: Word[] = [...missed]
-    .map((w) => ({ w, k: rng() }))
+    .map((w) => ({ w: WORD_MAP.get(w)!, k: rng() }))
+    .filter(({ w }) => w.text.length <= 7)
     .sort((a, b) => a.k - b.k)
-    .slice(0, REVIEW_PER_BOARD)
-    .map(({ w }) => WORD_MAP.get(w)!);
-  const { board } = generateBoard({ mode, size: 10, wordCount: 5, include }, rng);
-  // 番号順（上→下、左→右）に並べる
-  board.slots.sort((a, b) => a.row - b.row || a.col - b.col);
-  puzzle = makePuzzle(board, LEVELS[level].reveal, rng);
-
-  const sol = board.solution;
-  cells = sol.map((row, r) => row.map((ch, c) => (puzzle.fixed[r][c] ? ch : '')));
-  from = sol.map((row) => row.map(() => null));
-  hinted = sol.map((row) => row.map(() => false));
-  locked = sol.map((row) => row.map(() => false));
-  hand = [...puzzle.hand];
-  helped = new Set();
-  scored = new Set();
-  mistakes = 0;
-  hintsUsed = 0;
-  startTime = null;
-  tally = { words: 0, chain: 0, bonus: 0 };
-  hidden = [];
-  result = null;
+    .slice(0, REVIEW_PER_GAME)
+    .map(({ w }) => w);
+  const { turns, wilds } = LEVELS[level];
+  game = new Game({ mode, turns, wilds, include }, rng, valid);
+  down = false;
+  discarding = false;
+  openMission = -1;
+  last = null;
+  fresh = new Set();
+  drawn = game.hand.length;
+  ending = false;
   fx.clear();
-  finished = false;
-  message = '';
-  focusSlot = board.slots[0];
-  cursor = firstBlank(focusSlot);
-  started = true;
-  render();
+  cursor = nextEmpty({ r: 3, c: 1 }, 0, 1) ?? nextEmpty({ r: 0, c: -1 }, 0, 1);
+  show('play');
+  renderPlay();
 }
 
-function states(): SlotState[] {
-  return puzzle.board.slots.map((s) => judgeSlot(s, cells, isValid, isTarget));
-}
-
-function relock(): void {
-  locked = locked.map((row) => row.map(() => false));
-  for (const slot of puzzle.board.slots) {
-    // 出題どおりの語だけ確定する。別解は必要な文字を食うことがあるので外せるままにする
-    if (textOf(slot) === slot.word.text) for (const { r, c } of cellsOf(slot)) locked[r][c] = true;
-  }
-}
-
-function takeBack(r: number, c: number): void {
-  hand[from[r][c]!] = cells[r][c];
-  cells[r][c] = '';
-  from[r][c] = null;
-}
-
-/** 盤面が変わった後: 判定してカーソルを次の空きへ進める */
-function popupAt(pos: Pos, text: string, cls: string): void {
-  const el = boardEl.querySelector<HTMLElement>(`[data-k="${pos.r},${pos.c}"]`);
-  if (!el) return;
-  const a = appEl.getBoundingClientRect();
-  const b = el.getBoundingClientRect();
-  popup(appEl, b.left - a.left + b.width / 2, b.top - a.top, text, cls);
-}
-
-/** 語の中に隠れている別の出題語（例: export の中の port） */
-function hiddenWords(text: string): string[] {
-  const out: string[] = [];
-  for (let len = 4; len < text.length; len++) {
-    for (let i = 0; i + len <= text.length; i++) {
-      const sub = text.slice(i, i + len);
-      if (WORD_MAP.has(sub) && !out.includes(sub)) out.push(sub);
-    }
-  }
-  return out;
-}
-
-function completeWord(slot: Slot): void {
-  scored.add(slot);
-  const now = performance.now();
-  cellsOf(slot).forEach(({ r, c }, i) => fx.set(`${r},${c}`, { name: 'wave', start: now + i * 45, dur: 420 }));
-  if (helped.has(slot)) {
-    sfx.word(0);
-    return; // ヒントを使った語は得点なし
-  }
-  const mult = multiplier(combo);
-  combo++;
-  if (combo > bestCombo) save('bestCombo', (bestCombo = combo));
-  const { text, tier } = slot.word;
-  const pts = Math.round(TIER_POINTS[tier] * text.length * mult);
-  const subs = hiddenWords(text).filter((w) => !hidden.includes(w));
-  const chain = Math.round(subs.reduce((sum, w) => sum + 5 * w.length, 0) * mult);
-  hidden.push(...subs);
-  tally.words += pts;
-  tally.chain += chain;
-  score += pts + chain;
-  save('score', score);
-  sfx.word(combo);
-  buzz(15);
-  const mid = cellsOf(slot)[Math.floor(text.length / 2)];
-  after.push(() => {
-    popupAt(mid, `+${pts}`, 'pts');
-    if (subs.length) setTimeout(() => popupAt(mid, `かくれ単語 ${subs.join('・')} +${chain}`, 'chain'), 380);
-    const hud = $('hud');
-    hud.classList.remove('bump');
-    void hud.offsetWidth;
-    hud.classList.add('bump');
-  });
-}
-
-function mistake(slot: Slot): void {
-  mistakes++;
-  combo = 0;
-  const now = performance.now();
-  for (const { r, c } of cellsOf(slot)) fx.set(`${r},${c}`, { name: 'shake', start: now, dur: 320 });
-  sfx.bad();
-  buzz(40);
-}
-
-function afterChange(): void {
-  startTime ??= performance.now();
-  relock();
-  message = '';
-  const at = cursor;
-  if (at) fx.set(`${at.r},${at.c}`, { name: 'pop', start: performance.now(), dur: 170 });
-  const st = states();
-  puzzle.board.slots.forEach((slot, i) => {
-    if (textOf(slot) === slot.word.text) {
-      if (!scored.has(slot)) completeWord(slot);
-    } else if (st[i] === 'invalid' && at && cellsOf(slot).some((p) => p.r === at.r && p.c === at.c)) {
-      mistake(slot);
-    }
-  });
-  if (st.every((s) => s === 'target' || s === 'valid')) {
-    finish();
-    return;
-  }
-  const idx = cursor ? cellsOf(focusSlot).findIndex((p) => p.r === cursor!.r && p.c === cursor!.c) : -1;
-  const blank = firstBlank(focusSlot, idx);
-  if (blank) {
-    cursor = blank;
-  } else if (st[puzzle.board.slots.indexOf(focusSlot)] === 'invalid') {
-    cursor = null;
-    message = '単語になっていない。外したい文字をタップしろ';
-  } else {
-    const next = nextOpenSlot();
-    if (next) {
-      focusSlot = next;
-      cursor = firstBlank(next);
-    } else {
-      cursor = null;
-      message = '赤い並びが単語になっていない';
-    }
-  }
-  render();
-}
-
+// --- 操作 ---
 function tapCell(r: number, c: number): void {
-  if (finished) return;
-  const list = through(r, c);
-  if (!list.length) return;
-  if (cells[r][c] && editable(r, c)) {
-    takeBack(r, c);
-    if (!list.includes(focusSlot)) focusSlot = list[0];
-    cursor = { r, c };
-    relock();
-    message = '';
-    render();
-    return;
-  }
-  const onCursor = cursor?.r === r && cursor?.c === c;
-  if (list.includes(focusSlot) && onCursor && list.length > 1) {
-    focusSlot = list.find((s) => s !== focusSlot)!; // 同じマスをもう一度 → 縦横を切り替え
-  } else if (!list.includes(focusSlot)) {
-    focusSlot = list.find((s) => firstBlank(s)) ?? list[0];
-  }
-  cursor = !cells[r][c] ? { r, c } : firstBlank(focusSlot);
-  render();
+  if (ending || game.grid[r][c]) return;
+  if (cursor?.r === r && cursor.c === c) down = !down; // 同じマスをもう一度 → 向きを切り替え
+  else cursor = { r, c };
+  renderPlay();
 }
 
 function tapTile(i: number): void {
-  if (finished || hand[i] === null) return;
+  if (ending || i >= game.hand.length) return;
+  if (discarding) {
+    discarding = false;
+    const before = game.hand.length;
+    if (game.discard(i)) {
+      drawn = game.hand.length - before + 1;
+      last = null;
+      sfx.bet();
+    }
+    renderPlay();
+    return;
+  }
   if (!cursor) {
-    const slot = firstBlank(focusSlot) ? focusSlot : nextOpenSlot();
-    if (!slot) {
-      message = '空きマスがない。外したい文字をタップしろ';
-      render();
-      return;
-    }
-    focusSlot = slot;
-    cursor = firstBlank(slot);
+    last = null;
+    renderPlay('置くマスを先にタップしろ');
+    return;
   }
-  const { r, c } = cursor!;
-  if (cells[r][c]) takeBack(r, c);
-  cells[r][c] = hand[i]!;
-  from[r][c] = i;
-  hand[i] = null;
-  sfx.place(cellsOf(focusSlot).findIndex((p) => p.r === r && p.c === c));
-  afterChange();
+  if (game.hand[i] === WILD) openPicker(i);
+  else doPlace(i);
 }
 
-function backspace(): void {
-  if (finished) return;
-  const list = cellsOf(focusSlot);
-  let idx = cursor ? list.findIndex((p) => p.r === cursor!.r && p.c === cursor!.c) : list.length - 1;
-  if (cursor && !cells[cursor.r][cursor.c]) idx--;
-  for (; idx >= 0; idx--) {
-    const { r, c } = list[idx];
-    if (cells[r][c] && editable(r, c)) {
-      takeBack(r, c);
-      cursor = { r, c };
-      relock();
-      message = '';
-      render();
-      return;
-    }
+function doPlace(i: number, as?: string): void {
+  if (!cursor) return;
+  const { r, c } = cursor;
+  const before = game.hand.length;
+  const res = game.place(i, r, c, as);
+  if (!res) return;
+  drawn = game.hand.length - before + 1;
+  last = res;
+  cursor = nextEmpty({ r, c }, down ? 1 : 0, down ? 0 : 1);
+  celebrate(res);
+  renderPlay();
+  if (game.over) {
+    ending = true;
+    setTimeout(endGame, res.chain ? 1400 : 700);
   }
 }
 
-function hint(): void {
-  if (finished) return;
-  const sol = puzzle.board.solution;
-  const wrong = ({ r, c }: Pos) => cells[r][c] !== sol[r][c];
-  const target =
-    (cursor && wrong(cursor) ? cursor : null) ??
-    cellsOf(focusSlot).find(wrong) ??
-    puzzle.board.slots.flatMap(cellsOf).find(wrong);
-  if (!target) return;
-  const { r, c } = target;
-  if (cells[r][c]) takeBack(r, c);
-  const letter = sol[r][c];
-  let i = hand.indexOf(letter);
-  if (i < 0) {
-    // 手札にないなら、間違った場所に置かれている同じ文字を持ってくる
-    outer: for (let r2 = 0; r2 < sol.length; r2++) {
-      for (let c2 = 0; c2 < sol.length; c2++) {
-        if (cells[r2][c2] === letter && sol[r2][c2] !== letter && from[r2][c2] !== null) {
-          i = from[r2][c2]!;
-          takeBack(r2, c2);
-          break outer;
-        }
-      }
+function celebrate(res: Placement): void {
+  const now = performance.now();
+  const key = (r: number, c: number) => `${r},${c}`;
+  fx.set(key(res.r, res.c), { name: 'pop', start: now, dur: 170 });
+  fresh = new Set();
+  if (!res.chain) {
+    sfx.bet();
+    return;
+  }
+  // 待ちだった文字が生き返る → 単語の文字が順に跳ねる
+  for (const [r, c] of res.lit) {
+    if (r !== res.r || c !== res.c) fx.set(key(r, c), { name: 'revive', start: now, dur: 420 });
+  }
+  const longest = res.words.reduce((a, b) => (b.found.text.length > a.found.text.length ? b : a));
+  cellsOf(longest.found).forEach(([r, c], i) => {
+    if (!fx.has(key(r, c)) || fx.get(key(r, c))!.name === 'pop') fx.set(key(r, c), { name: 'wave', start: now + i * 45, dur: 420 });
+  });
+  for (const w of res.words) {
+    if (w.kind !== 'plain' && !zukan.has(w.found.text)) {
+      zukan.add(w.found.text);
+      fresh.add(w.found.text);
     }
   }
-  if (i < 0) return;
-  cells[r][c] = letter;
-  from[r][c] = i;
-  hand[i] = null;
-  hinted[r][c] = true;
-  hintsUsed++;
-  combo = 0;
-  const list = through(r, c);
-  list.forEach((s) => helped.add(s));
-  if (!list.includes(focusSlot)) focusSlot = list[0];
-  cursor = { r, c };
-  afterChange();
+  if (fresh.size) save('zukan', [...zukan]);
+
+  if (res.cleared.length) {
+    sfx.mission();
+    buzz([20, 40, 20]);
+  } else {
+    sfx.word(res.chain);
+    buzz(12);
+  }
+  requestAnimationFrame(() => {
+    const cell = boardEl.querySelector<HTMLElement>(`[data-k="${res.r},${res.c}"]`);
+    if (!cell) return;
+    const a = appEl.getBoundingClientRect();
+    const b = cell.getBoundingClientRect();
+    const x = b.left - a.left + b.width / 2;
+    const y = b.top - a.top;
+    popup(appEl, x, y, `+${res.total}`, 'pts');
+    if (res.chain >= 2) setTimeout(() => popup(appEl, x, y - 34, `${res.chain}連鎖！`, 'chain'), 120);
+    if (res.cleared.length) {
+      setTimeout(() => popup(appEl, appEl.clientWidth / 2, boardEl.offsetTop + 60, `お題達成  ${res.cleared.map((w) => w.text).join('・')}`, 'banner'), 300);
+      confetti();
+    }
+  });
 }
 
-function finish(): void {
-  finished = true;
-  cursor = null;
-  const sec = startTime ? (performance.now() - startTime) / 1000 : 0;
-  let alt = 0;
-  for (const slot of puzzle.board.slots) {
-    const text = textOf(slot);
-    if (helped.has(slot)) missed.add(slot.word.text);
-    else if (text === slot.word.text) missed.delete(text);
-    else alt += 2 * text.length; // 別解は少しだけ
+function endGame(): void {
+  const s = game.settle();
+  const before = levelOf(xp);
+  xp += s.total;
+  games += 1;
+  best = Math.max(best, s.total);
+  for (const m of game.missions) {
+    if (m.done && !m.revealed) missed.delete(m.word.text);
+    else missed.add(m.word.text);
   }
-  const perfect = hintsUsed === 0 && mistakes === 0;
-  const speed = Math.max(0, Math.round((90 - sec) * 2));
-  const clear = perfect ? 100 : 40;
-  const grade = perfect && sec <= 60 ? 'S' : perfect || (hintsUsed === 0 && sec <= 90) ? 'A' : hintsUsed <= 1 ? 'B' : 'C';
-  result = { grade, sec, speed, clear, perfect };
-  tally.bonus = alt + speed + clear;
-  const before = levelOf(score);
-  score += tally.bonus;
-  cleared += 1;
-
   const today = new Date().toLocaleDateString('sv');
   if (days.last !== today) {
     const yesterday = new Date(Date.now() - 864e5).toLocaleDateString('sv');
     days = { last: today, streak: days.last === yesterday ? days.streak + 1 : 1 };
     save('days', days);
   }
-  save('score', score);
-  save('cleared', cleared);
+  save('xp', xp);
+  save('games', games);
+  save('best', best);
   save('missed', [...missed]);
 
-  const lv = levelOf(score);
-  sfx.clear();
-  buzz([20, 40, 20]);
-  after.push(() => {
-    confetti();
-    if (lv > before) {
-      sfx.levelUp();
-      setTimeout(() => popup(appEl, appEl.clientWidth / 2, boardEl.offsetTop + 40, `LEVEL UP!  Lv ${lv}`, 'level'), 500);
-    }
-  });
-  render();
-}
+  // 評価は自力で達成したお題の数で決まる（全部知っている自動プレイの平均が4語）
+  const solo = game.missions.filter((m) => m.done && !m.revealed).length;
+  const grade = solo >= 5 ? 'S' : solo >= 4 ? 'A' : solo >= 2 ? 'B' : 'C';
 
-function giveUp(): void {
-  if (finished) return;
-  finished = true;
-  cursor = null;
-  combo = 0;
-  for (const slot of puzzle.board.slots) {
-    if (textOf(slot) !== slot.word.text) {
-      missed.add(slot.word.text);
-      helped.add(slot);
-    }
+  $('resmode').textContent = `${MODE_LABEL[mode]}・${LEVELS[level].label}`;
+  const g = $('grade');
+  g.className = `grade g-${grade}`;
+  g.textContent = grade;
+  const row = (label: string, value: string) => {
+    const d = el('div');
+    d.append(el('span', '', label), el('b', '', value));
+    return d;
+  };
+  const done = game.missions.filter((m) => m.done).length;
+  const rows = [row(`単語の得点（最大${game.maxChain}連鎖）`, `${game.score}`)];
+  if (s.dead) rows.push(row(`待ちのまま終わった文字 ${s.dead}枚`, `−${s.penalty}`));
+  if (s.allMissions) rows.push(row('お題を全部達成', `+${s.allMissions}`));
+  if (s.noDead) rows.push(row('待ちゼロ', `+${s.noDead}`));
+  rows.push(row(`合計（お題 ${done}/${game.missions.length}）`, `${s.total}`));
+  $('resrows').replaceChildren(...rows);
+
+  const item = (w: Word, ok: boolean | null, extra = '') => {
+    const li = el('li', ok === null ? '' : ok ? 'ok' : 'ng');
+    if (ok !== null) li.append(el('span', 'mark', ok ? '○' : '×'));
+    li.append(el('span', 'word', w.text), el('span', 'tier', TIER_LABEL[w.tier]), el('span', 'g', w.gloss + extra));
+    return li;
+  };
+  $('resmissions').replaceChildren(
+    ...game.missions.map((m) => item(m.word, m.done && !m.revealed, m.revealed ? '（つづりを見た）' : '')),
+  );
+  const found = game.made.filter((m) => m.kind === 'target').map((m) => WORD_MAP.get(m.text)!);
+  $('foundhead').textContent = `見つけた受験語（${found.length}語）`;
+  $('resfound').replaceChildren(
+    ...(found.length ? found.map((w) => item(w, null)) : [el('li', 'empty', 'お題のほかに受験語はできなかった')]),
+  );
+  show('result');
+  if (grade === 'S' || grade === 'A') confetti();
+  if (levelOf(xp) > before) {
+    sfx.mission();
+    setTimeout(() => popup(appEl, appEl.clientWidth / 2, 120, `LEVEL UP!  Lv ${levelOf(xp)}`, 'banner'), 400);
   }
-  save('missed', [...missed]);
-  cells = puzzle.board.solution.map((row) => [...row]);
-  hand = hand.map(() => null);
-  message = '答えを表示した。解けなかった語は後の面でまた出る';
-  render();
 }
 
-function clueText(slot: Slot, num: number): string {
-  return `${num}${slot.dir === 'across' ? '→' : '↓'} ${slot.word.gloss}（${slot.word.text.length}字）`;
+// --- ★の文字選び ---
+let pickFor = -1;
+function openPicker(i: number): void {
+  pickFor = i;
+  $('picker').hidden = false;
 }
+$('letters').replaceChildren(
+  ...[...'abcdefghijklmnopqrstuvwxyz'].map((ch) => {
+    const b = el('button', '', ch);
+    b.onclick = () => {
+      $('picker').hidden = true;
+      doPlace(pickFor, ch);
+    };
+    return b;
+  }),
+);
+$('pickcancel').onclick = () => ($('picker').hidden = true);
 
-function render(): void {
-  countUp($('score'), score);
-  const lv = levelOf(score);
-  $('lv').textContent = String(lv);
-  $('xpbar').style.width = `${(100 * (score - levelStart(lv))) / (levelStart(lv + 1) - levelStart(lv))}%`;
-  $('streak').textContent = String(days.streak);
-  $('missed').textContent = String(missed.size);
-  $('combo').textContent = String(combo);
-  $('mult').textContent = multiplier(combo).toFixed(1);
-  $('best').textContent = String(bestCombo);
-  $('hud').classList.toggle('hot', combo >= 3);
-  const { board, fixed } = puzzle;
-  const sol = board.solution;
-  const st = states();
+// --- 描画 ---
+function renderPlay(note = ''): void {
+  countUp($('score'), game.score);
+  $('turns').textContent = String(game.turnsLeft);
+  $('turns').parentElement!.classList.toggle('low', game.turnsLeft <= 5);
+  $('chain').textContent = String(game.maxChain);
 
-  // マスごとの状態: 悪い判定を優先して色を付ける
-  const mark = new Map<string, SlotState>();
-  const rank: Record<SlotState, number> = { open: 0, target: 1, valid: 2, invalid: 3 };
-  board.slots.forEach((slot, i) => {
-    for (const { r, c } of cellsOf(slot)) {
-      const k = `${r},${c}`;
-      const cur = mark.get(k);
-      if (!cur || rank[st[i]] > rank[cur]) mark.set(k, st[i]);
-    }
-  });
-  const hl = new Set(finished ? [] : cellsOf(focusSlot).map(({ r, c }) => `${r},${c}`));
-  const nums = new Map<Slot, number>();
-  const numAt = new Map<string, number>();
-  for (const s of board.slots) {
-    const k = `${s.row},${s.col}`;
-    if (!numAt.has(k)) numAt.set(k, numAt.size + 1);
-    nums.set(s, numAt.get(k)!);
-  }
-
-  // 使っている範囲だけ描く（マスを大きくするため）
-  const used = board.slots.flatMap(cellsOf);
-  const minR = Math.min(...used.map((p) => p.r));
-  const maxR = Math.max(...used.map((p) => p.r));
-  const minC = Math.min(...used.map((p) => p.c));
-  const maxC = Math.max(...used.map((p) => p.c));
-  boardEl.style.setProperty('--cols', String(maxC - minC + 1));
-  boardEl.style.setProperty('--rows', String(maxR - minR + 1));
-  boardEl.replaceChildren();
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const el = document.createElement('div');
-      const k = `${r},${c}`;
-      if (!sol[r][c]) {
-        el.className = 'cell void';
-        boardEl.append(el);
-        continue;
+  // お題
+  $('missions').replaceChildren(
+    ...game.missions.map((m, i) => {
+      const open = openMission === i;
+      const li = el('li', [m.done ? 'done' : '', open ? 'open' : ''].join(' ').trim());
+      li.append(el('span', 'tier', TIER_LABEL[m.word.tier]));
+      if (m.done || m.revealed) li.append(el('span', 'spell', m.word.text));
+      li.append(el('span', 'gloss', open ? m.word.gloss : brief(m.word.gloss)));
+      if (!m.done) li.append(el('span', 'len', `${m.word.text.length}字`));
+      if (open && !m.done && !m.revealed) {
+        const b = el('button', 'mini', 'つづりを見る（得点1/3）');
+        b.onclick = (e) => {
+          e.stopPropagation();
+          game.reveal(i);
+          renderPlay();
+        };
+        li.append(b);
       }
-      const m = mark.get(k);
-      const given = fixed[r][c] || hinted[r][c];
-      const cls = ['cell', given ? 'fixed' : cells[r][c] ? 'placed' : 'blank'];
-      if (hinted[r][c]) cls.push('hinted');
-      if (m === 'target') cls.push('ok');
-      if (m === 'valid') cls.push('alt');
-      if (m === 'invalid') cls.push('bad');
-      if (hl.has(k)) cls.push('hl');
-      if (cursor?.r === r && cursor.c === c) cls.push('cur');
-      el.className = cls.join(' ');
-      el.dataset.k = k;
+      li.onclick = () => {
+        openMission = open ? -1 : i;
+        renderPlay();
+      };
+      return li;
+    }),
+  );
+
+  // 盤面
+  const cells: HTMLElement[] = [];
+  for (let r = 0; r < game.size; r++) {
+    for (let c = 0; c < game.size; c++) {
+      const ch = game.grid[r][c];
+      const k = `${r},${c}`;
+      const cls = ['cell'];
+      const d = el('div');
+      if (ch) {
+        cls.push(game.seed[r][c] && !game.lit[r][c] ? 'seed' : game.lit[r][c] ? 'lit' : 'wait');
+        if (game.wild[r][c]) cls.push('star');
+        d.textContent = ch;
+      } else {
+        if (game.bonus[r][c] > 1) {
+          cls.push(`b${game.bonus[r][c]}`);
+          d.textContent = `×${game.bonus[r][c]}`;
+        }
+        d.tabIndex = 0;
+        d.setAttribute('role', 'button');
+        d.setAttribute('aria-label', `${r + 1}行${c + 1}列`);
+        d.onclick = () => tapCell(r, c);
+      }
+      if (cursor?.r === r && cursor.c === c) {
+        cls.push('cur');
+        d.dataset.dir = down ? '↓' : '→';
+      }
+      d.className = cls.join(' ');
+      d.dataset.k = k;
       const f = fx.get(k);
       if (f) {
         const t = performance.now() - f.start;
-        if (t < f.dur) el.style.animation = `${f.name} ${f.dur}ms ${-t}ms both`;
+        if (t < f.dur) d.style.animation = `${f.name} ${f.dur}ms ${-t}ms both`;
         else fx.delete(k);
       }
-      el.textContent = cells[r][c];
-      const n = numAt.get(k);
-      if (n) {
-        const num = document.createElement('span');
-        num.className = 'num';
-        num.textContent = String(n);
-        el.append(num);
-      }
-      if (!finished) {
-        el.tabIndex = 0;
-        el.setAttribute('role', 'button');
-        el.setAttribute('aria-label', `${r + 1}行${c + 1}列 ${cells[r][c] || '空き'}`);
-        el.onclick = () => tapCell(r, c);
-        el.onkeydown = (e) => {
-          if (e.key === ' ') {
-            e.preventDefault();
-            tapCell(r, c);
-          }
-        };
-      }
-      boardEl.append(el);
+      cells.push(d);
     }
   }
+  boardEl.replaceChildren(...cells);
 
-  clueEl.replaceChildren();
-  if (!finished) {
-    const tier = document.createElement('span');
-    tier.className = 'tier';
-    tier.textContent = TIER_LABEL[focusSlot.word.tier];
-    clueEl.append(tier, clueText(focusSlot, nums.get(focusSlot)!));
-  }
-  statusEl.textContent = message;
-  renderResult();
-
-  handEl.replaceChildren();
-  hand.forEach((ch, i) => {
-    if (ch === null) return;
-    const b = document.createElement('button');
-    b.className = 'tile';
-    b.textContent = ch;
-    b.onclick = () => tapTile(i);
-    handEl.append(b);
-  });
-
-  $<HTMLButtonElement>('back').disabled = finished;
-  $<HTMLButtonElement>('hint').disabled = finished;
-  $<HTMLButtonElement>('giveup').disabled = finished;
-  $('next').classList.toggle('primary', finished);
-  $('next').textContent = finished ? '次の面へ' : 'とばす';
-
-  cluesEl.replaceChildren();
-  board.slots.forEach((slot, i) => {
-    const li = document.createElement('li');
-    if (slot === focusSlot && !finished) li.classList.add('hl');
-    const tier = document.createElement('span');
-    tier.className = 'tier';
-    tier.textContent = TIER_LABEL[slot.word.tier];
-    const gloss = document.createElement('span');
-    gloss.className = 'gloss';
-    gloss.textContent = clueText(slot, nums.get(slot)!);
-    li.append(tier, gloss);
-    if (finished || st[i] === 'target') {
-      const ans = document.createElement('span');
-      ans.className = 'ans';
-      ans.textContent = slot.word.text;
-      if (helped.has(slot)) li.classList.add('missed');
-      li.append(ans);
+  // 直前の1手でできた単語
+  const feed = $('feed');
+  feed.replaceChildren();
+  if (note) {
+    feed.append(el('div', 'hint', note));
+  } else if (!last) {
+    feed.append(el('div', 'hint', discarding ? '捨てる手札をタップ（もう一度「すてる」でやめる）' : 'マスを選んで手札をタップ。同じマスをもう一度タップで向きが変わる。'));
+  } else if (!last.chain) {
+    feed.append(el('div', 'hint', '待ち。この文字を含む単語ができれば生き返る。'));
+  } else {
+    const parts = [`+${last.total}`];
+    if (last.chain > 1) parts.push(`${last.chain}連鎖 ×${last.chainMult}`);
+    if (last.cellMult > 1) parts.push(`マス ×${last.cellMult}`);
+    feed.append(el('div', 'sum', parts.join('  ')));
+    const order = { mission: 0, target: 1, plain: 2 };
+    const ws = [...last.words].sort((a, b) => order[a.kind] - order[b.kind] || b.pts - a.pts);
+    for (const w of ws.slice(0, 3)) {
+      const line = el('div', `w ${w.kind}`);
+      line.append(el('b', '', w.found.text));
+      if (fresh.has(w.found.text)) line.append(el('span', 'new', 'NEW'));
+      line.append(el('span', 'g', gloss(w.found.text)), el('span', 'p', `${w.pts}`));
+      feed.append(line);
     }
-    li.onclick = () => {
-      if (finished) return;
-      focusSlot = slot;
-      cursor = firstBlank(slot);
-      render();
-    };
-    cluesEl.append(li);
-  });
-  after.splice(0).forEach((f) => f());
+    if (ws.length > 3) feed.lastElementChild!.querySelector('.g')!.textContent += `　ほか${ws.length - 3}語`;
+  }
+
+  // 手札・NEXT・袋
+  const hand = $('hand');
+  hand.classList.toggle('discarding', discarding);
+  hand.replaceChildren(
+    ...game.hand.map((ch, i) => {
+      const b = el('button', ch === WILD ? 'tile wild' : 'tile', ch === WILD ? '★' : ch);
+      if (i >= game.hand.length - drawn) b.classList.add('in');
+      b.setAttribute('aria-label', ch === WILD ? '何にでもなる札' : ch);
+      b.onclick = () => tapTile(i);
+      return b;
+    }),
+  );
+  drawn = 0;
+  $('next').replaceChildren(...game.queue.slice(0, 2).map((ch) => el('i', '', ch === WILD ? '★' : ch)));
+  const counts = new Map<string, number>();
+  for (const ch of game.queue) counts.set(ch, (counts.get(ch) ?? 0) + 1);
+  const coming = Math.max(0, Math.min(game.queue.length, game.turnsLeft));
+  const bag = $('bag');
+  bag.replaceChildren(
+    `袋 ${game.queue.length}枚（このうち来るのはあと${coming}枚）: `,
+    el('b', '', [...counts].sort().map(([ch, n]) => (ch === WILD ? '★' : ch.toUpperCase()) + (n > 1 ? n : '')).join(' ')),
+  );
+
+  $<HTMLButtonElement>('undo').disabled = !game.canUndo || ending;
+  $<HTMLButtonElement>('discard').disabled = game.discardsLeft <= 0 || ending;
+  $('discard').setAttribute('aria-pressed', String(discarding));
+  $('discards').textContent = String(game.discardsLeft);
+  $('turn').textContent = down ? '向き ↓' : '向き →';
 }
 
-function renderResult(): void {
-  const el = $('result');
-  el.hidden = !result;
-  if (!result) return;
-  const row = (label: string, value: string) => {
-    const d = document.createElement('div');
-    const a = document.createElement('span');
-    a.textContent = label;
-    const b = document.createElement('b');
-    b.textContent = value;
-    d.append(a, b);
-    return d;
-  };
-  const grade = document.createElement('div');
-  grade.className = `grade g-${result.grade}`;
-  grade.textContent = result.grade;
-  const list = document.createElement('div');
-  list.className = 'rows';
-  list.append(row('単語', `+${tally.words}`));
-  if (tally.chain) list.append(row(`かくれ単語 ${hidden.join('・')}`, `+${tally.chain}`));
-  list.append(row(`スピード ${fmtTime(result.sec)}`, `+${result.speed}`));
-  list.append(row(result.perfect ? 'パーフェクト' : 'クリア', `+${result.clear}`));
-  list.append(row('合計', `+${tally.words + tally.chain + tally.bonus}`));
-  el.replaceChildren(grade, list);
+function renderHome(): void {
+  const lv = levelOf(xp);
+  $('lv').textContent = String(lv);
+  $('xp').textContent = String(xp);
+  $('xpbar').style.width = `${(100 * (xp - levelStart(lv))) / (levelStart(lv + 1) - levelStart(lv))}%`;
+  $('games').textContent = String(games);
+  $('streak').textContent = String(days.streak);
+  $('best').textContent = String(best);
+  $('missed').textContent = String(missed.size);
+  $('modenote').textContent = MODE_NOTE[mode];
+  $('levelnote').textContent = LEVELS[level].note;
+  $('zukan').replaceChildren(
+    ...TIER_LABEL.map((label, tier) => {
+      const total = WORDS.filter((w) => w.tier === tier).length;
+      const got = [...zukan].filter((w) => WORD_MAP.get(w)!.tier === tier).length;
+      const row = el('div', 'zrow');
+      const bar = el('span', 'bar');
+      const fill = el('i');
+      fill.style.width = `${(100 * got) / total}%`;
+      bar.append(fill);
+      row.append(el('span', '', label), bar, el('span', '', `${got} / ${total}`));
+      return row;
+    }),
+  );
 }
 
-const fmtTime = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
-setInterval(() => {
-  if (started && !finished) $('timer').textContent = fmtTime(startTime ? (performance.now() - startTime) / 1000 : 0);
-}, 250);
-
-function segment<T>(el: HTMLElement, items: { label: string; value: T }[], get: () => T, set: (v: T) => void): void {
+function segment<T>(host: HTMLElement, items: { label: string; value: T }[], get: () => T, set: (v: T) => void): void {
   const draw = () => {
-    el.replaceChildren(
+    host.replaceChildren(
       ...items.map(({ label, value }) => {
-        const b = document.createElement('button');
-        b.textContent = label;
+        const b = el('button', '', label);
         b.setAttribute('aria-pressed', String(get() === value));
         b.onclick = () => {
           set(value);
           draw();
-          newPuzzle();
+          renderHome();
         };
         return b;
       }),
@@ -636,7 +475,6 @@ function segment<T>(el: HTMLElement, items: { label: string; value: T }[], get: 
   };
   draw();
 }
-
 segment(
   $('modes'),
   (Object.keys(MODE_LABEL) as Mode[]).map((m) => ({ label: MODE_LABEL[m], value: m })),
@@ -649,12 +487,31 @@ segment(
   () => level,
   (l) => save('level', (level = l)),
 );
-$('back').onclick = backspace;
-$('hint').onclick = hint;
-$('giveup').onclick = giveUp;
-$('next').onclick = () => {
-  if (!finished) combo = 0; // とばすとコンボは切れる
-  newPuzzle();
+
+$('start').onclick = startGame;
+$('again').onclick = startGame;
+$('tohome').onclick = () => {
+  renderHome();
+  show('home');
+};
+$('quit').onclick = () => {
+  if (ending) return;
+  ending = true;
+  endGame();
+};
+$('undo').onclick = () => {
+  if (ending || !game.undo()) return;
+  last = null;
+  renderPlay('1手もどした');
+};
+$('discard').onclick = () => {
+  discarding = !discarding;
+  last = null;
+  renderPlay();
+};
+$('turn').onclick = () => {
+  down = !down;
+  renderPlay();
 };
 const soundBtn = $('sound');
 const drawSound = () => {
@@ -668,36 +525,44 @@ soundBtn.onclick = () => {
 };
 drawSound();
 
-// キーボード: 文字で手札を置く、Backspace で戻す、クリア後は Enter で次へ
+// キーボード: 文字で置く、矢印でマス移動、スペースで向き、Backspace で1手もどす
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if ($('play').hidden) {
+    if (e.key === 'Enter' && !(e.target instanceof HTMLButtonElement)) startGame();
+    return;
+  }
+  if (ending || !$('picker').hidden) return;
+  const arrows: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
   if (/^[a-zA-Z]$/.test(e.key)) {
-    const i = hand.indexOf(e.key.toLowerCase());
+    const i = game.hand.indexOf(e.key.toLowerCase());
     if (i >= 0) tapTile(i);
+  } else if (arrows[e.key] && cursor) {
+    e.preventDefault();
+    cursor = nextEmpty(cursor, ...arrows[e.key]) ?? cursor;
+    renderPlay();
+  } else if (e.key === ' ') {
+    e.preventDefault();
+    down = !down;
+    renderPlay();
   } else if (e.key === 'Backspace') {
     e.preventDefault();
-    backspace();
-  } else if (e.key === 'Enter' && finished && !(e.target instanceof HTMLButtonElement)) {
-    newPuzzle();
+    $('undo').click();
   }
 });
 
-// 判定辞書: ページに埋め込まれていればそれを使い、なければ後から読み込む
-function setValid(text: string): void {
-  validWords = new Set(text.split('\n'));
-  if (started) render(); // 埋め込みの場合は最初の盤面より先に届く
-}
+// 判定辞書: ページに埋め込まれていればそれを使い、なければ読み込む
 const embedded = document.getElementById('valid-words');
-if (embedded?.textContent) {
-  setValid(embedded.textContent.trim());
-} else {
-  fetch(`${import.meta.env.BASE_URL}valid.txt`)
-    .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
-    .then(setValid)
-    .catch(() => {
-      message = '判定辞書を読み込めなかった。別解の判定は出題語だけになる';
-      render();
-    });
-}
-
-newPuzzle();
+const ready = embedded?.textContent
+  ? Promise.resolve(embedded.textContent)
+  : fetch(`${import.meta.env.BASE_URL}valid.txt`).then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))));
+$<HTMLButtonElement>('start').disabled = true;
+ready
+  .then((text) => {
+    loadValid(text.trim());
+    $<HTMLButtonElement>('start').disabled = false;
+  })
+  .catch(() => {
+    $('start').textContent = '辞書を読み込めなかった。再読み込みしてくれ';
+  });
+renderHome();

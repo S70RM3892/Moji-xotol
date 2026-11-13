@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { generateBoard } from '../src/core/generator';
-import { judgeSlot, makePuzzle, slotCells } from '../src/core/puzzle';
+import { emptyGrid, emptyMask, findWords } from '../src/core/board';
+import { DEAD_PENALTY, Game, WILD } from '../src/core/game';
+import { bestMove, makeLexicon } from '../src/core/solver';
 import { MODE_WEIGHTS, type Mode, WORD_MAP, makeRng, sampleWord } from '../src/core/words';
+
+const lex = makeLexicon(['rat', 'rate', 'ate', 'at', 'tea', 'eat', 'export', 'port', 'or', 'ox']);
+
+/** 盤面を空にして、決まった手札で始める */
+function blank(hand: string[], queue: string[] = []): Game {
+  const g = new Game({ mode: 'kyote', seeds: 0, bonus2: 0, bonus3: 0, wilds: 0 }, makeRng(1), lex.valid);
+  g.hand = hand;
+  g.queue = queue;
+  return g;
+}
 
 describe('sampleWord', () => {
   it.each(Object.keys(MODE_WEIGHTS) as Mode[])('%s は狙いの層分布になる', (mode) => {
@@ -13,71 +24,94 @@ describe('sampleWord', () => {
   });
 });
 
-describe('generateBoard', () => {
-  it('完成形の縦横の並びは、置いた語とちょうど一致する', () => {
-    const rng = makeRng(7);
-    for (let n = 0; n < 200; n++) {
-      const { board } = generateBoard({ mode: 'kyodai' }, rng);
-      const runs: string[] = [];
-      const lines = [
-        ...board.solution,
-        ...board.solution.map((_, c) => board.solution.map((row) => row[c])),
-      ];
-      for (const line of lines) {
-        for (const run of line.map((ch) => ch || ' ').join('').split(/ +/)) {
-          if (run.length >= 2) runs.push(run);
-        }
-      }
-      expect(runs.sort()).toEqual(board.slots.map((s) => s.word.text).sort());
-      // どの語も他の語と交差してつながっている
-      if (board.slots.length > 1) {
-        for (const slot of board.slots) {
-          const crossed = slotCells(slot).some(([r, c]) =>
-            board.slots.some((o) => o !== slot && slotCells(o).some(([r2, c2]) => r === r2 && c === c2)),
-          );
-          expect(crossed).toBe(true);
-        }
+describe('findWords', () => {
+  it('置いた文字を含む部分だけを、縦横とも拾う', () => {
+    const grid = emptyGrid(8);
+    'rate'.split('').forEach((ch, i) => (grid[2][i] = ch));
+    grid[3][3] = 'a';
+    grid[4][3] = 't';
+    const fresh = emptyMask(8);
+    fresh[2][3] = true; // 最後に置いた e
+    const words = findWords(grid, fresh, lex.valid).map((w) => `${w.text}${w.down ? '↓' : '→'}`);
+    expect(words.sort()).toEqual(['ate→', 'eat↓', 'rate→']);
+  });
+});
+
+describe('Game', () => {
+  it('単語にならない1枚は待ちになり、あとの1枚で生き返って連鎖になる', () => {
+    const g = blank(['r', 'a', 'e', 't']);
+    expect(g.place(0, 0, 0)!.chain).toBe(0); // r
+    expect(g.place(0, 0, 1)!.chain).toBe(0); // a
+    expect(g.place(0, 0, 3)!.chain).toBe(0); // e を1マス空けて置く
+    expect(g.waiting).toHaveLength(3);
+    const res = g.place(0, 0, 2)!; // 真ん中に t
+    expect(res.words.map((w) => w.found.text).sort()).toEqual(['at', 'ate', 'rat', 'rate']);
+    expect(res.chain).toBe(4);
+    expect(res.total).toBe((2 + 3 + 3 + 40) * 4); // rate は共テ語 10×4、ほかは文字数
+    expect(g.waiting).toHaveLength(0);
+  });
+
+  it('お題は3倍、つづりを見たお題は通常の点になる', () => {
+    const play = (reveal: boolean) => {
+      const g = blank(['r', 'a', 't', 'e']);
+      g.missions[0] = { word: WORD_MAP.get('rate')!, done: false, revealed: false };
+      if (reveal) g.reveal(0);
+      'rat'.split('').forEach((_, i) => g.place(0, 0, i));
+      const res = g.place(0, 0, 3)!;
+      expect(res.cleared.map((w) => w.text)).toEqual(['rate']);
+      return res.words.find((w) => w.found.text === 'rate')!.pts;
+    };
+    expect(play(false)).toBe(120);
+    expect(play(true)).toBe(40);
+  });
+
+  it('倍率マス・★・手数・減点', () => {
+    const g = blank(['o', WILD, 'q'], []);
+    g.bonus[0][1] = 3;
+    g.turnsLeft = 3;
+    g.place(0, 0, 0); // o
+    expect(g.place(0, 0, 1)).toBeNull(); // ★は文字の指定が要る
+    const res = g.place(0, 0, 1, 'x')!; // ox を×3マスで
+    expect(res.total).toBe(2 * 3);
+    expect(g.wild[0][1]).toBe(true);
+    g.place(0, 5, 5); // q は待ちのまま
+    expect(g.over).toBe(true);
+    const s = g.settle();
+    expect(s.dead).toBe(1);
+    expect(s.total).toBe(Math.max(0, 6 - DEAD_PENALTY));
+  });
+
+  it('1手もどすと盤面・手札・得点が元に戻る', () => {
+    const g = blank(['a', 't'], ['e']);
+    g.place(0, 0, 0);
+    g.place(0, 0, 1); // at
+    expect(g.score).toBe(2);
+    expect(g.undo()).toBe(true);
+    expect(g.score).toBe(0);
+    expect(g.hand).toEqual(['t', 'e']); // a を置いたときに e を引いている
+    expect(g.grid[0][1]).toBe('');
+    expect(g.undo()).toBe(false); // もどせるのは1手だけ
+  });
+
+  it('袋はお題の文字をすべて含む', () => {
+    const g = new Game({ mode: 'kyodai' }, makeRng(9), lex.valid);
+    const pool = [...g.hand, ...g.queue];
+    for (const m of g.missions) {
+      for (const ch of m.word.text) {
+        const i = pool.indexOf(ch);
+        expect(i).toBeGreaterThanOrEqual(0);
+        pool.splice(i, 1);
       }
     }
   });
 });
 
-describe('makePuzzle / judgeSlot', () => {
-  it('手札を正解どおりに戻すと全語が target になる', () => {
-    const rng = makeRng(3);
-    const { board } = generateBoard({ mode: 'kyote' }, rng);
-    const puzzle = makePuzzle(board, 0.3, rng);
-    const hidden = board.solution.flat().filter((ch, i) => ch && !puzzle.fixed.flat()[i]);
-    expect([...puzzle.hand].sort()).toEqual(hidden.sort());
-    for (const slot of board.slots) {
-      expect(slotCells(slot).filter(([r, c]) => !puzzle.fixed[r][c]).length).toBeGreaterThanOrEqual(2);
-      expect(judgeSlot(slot, board.solution, () => true, (w) => WORD_MAP.has(w))).toBe('target');
-    }
-  });
-
-  it('未完成は open、実在語は valid、でたらめは invalid', () => {
-    const rng = makeRng(5);
-    const { board } = generateBoard({ mode: 'kyote' }, rng);
-    const slot = board.slots[0];
-    const cells = board.solution.map((row) => [...row]);
-    const [r, c] = slotCells(slot)[0];
-    cells[r][c] = '';
-    expect(judgeSlot(slot, cells, () => true, () => false)).toBe('open');
-    cells[r][c] = 'q';
-    expect(judgeSlot(slot, cells, () => true, () => false)).toBe('valid');
-    expect(judgeSlot(slot, cells, () => false, () => false)).toBe('invalid');
-  });
-});
-
-describe('include', () => {
-  it('復習語は盤面に入る', () => {
-    const rng = makeRng(11);
-    const include = [WORD_MAP.get('abandon')!, WORD_MAP.get('scrutiny')!];
-    let hit = 0;
-    for (let i = 0; i < 100; i++) {
-      const { board } = generateBoard({ mode: 'kyote', wordCount: 5, include }, rng);
-      if (board.slots.some((s) => s.word.text === 'abandon')) hit++;
-    }
-    expect(hit).toBe(100);
+describe('bestMove', () => {
+  it('手札1枚で作れる最高点の手を返す', () => {
+    const grid = emptyGrid(8);
+    'rat'.split('').forEach((ch, i) => (grid[2][i + 1] = ch));
+    const mv = bestMove(grid, ['e', 'x'], lex, lex.valid, (ws) => ws.length, 1)!;
+    expect(mv.tiles).toEqual([{ r: 2, c: 4, ch: 'e' }]);
+    expect(mv.words.map((w) => w.text).sort()).toEqual(['ate', 'rate']);
   });
 });

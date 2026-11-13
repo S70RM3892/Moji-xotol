@@ -31,11 +31,15 @@ function tone(semitone: number, at: number, dur: number, type: OscillatorType = 
 export const sfx = {
   /** 文字を置く。語の中で進むほど高くなる */
   place: (step: number) => tone(-5 + step * 2, 0, 0.07, 'square', 0.025),
-  /** 語の完成。コンボが伸びるほど高い和音になる */
-  word: (combo: number) => {
-    const base = 3 + Math.min(combo, 12);
+  /** 単語の成立。連鎖が大きいほど高い和音になる */
+  word: (chain: number) => {
+    const base = 1 + 2 * Math.min(chain, 8);
     [0, 4, 7, 12].forEach((s, i) => tone(base + s, i * 0.06, 0.22));
   },
+  /** 単語にならない「待ち」の1枚 */
+  bet: () => tone(-14, 0, 0.12, 'sine', 0.06),
+  /** お題達成 */
+  mission: () => [3, 7, 10, 15, 19, 22].forEach((s, i) => tone(s, i * 0.07, 0.45)),
   bad: () => tone(-19, 0, 0.2, 'sawtooth', 0.05),
   clear: () => [3, 7, 10, 15, 19].forEach((s, i) => tone(s, i * 0.09, 0.4)),
   levelUp: () => [3, 8, 12, 15, 20, 24].forEach((s, i) => tone(s, 0.5 + i * 0.07, 0.35, 'square', 0.04)),
@@ -96,7 +100,7 @@ export function confetti(): void {
   if (!g) return canvas.remove();
   g.scale(dpr, dpr);
   const css = getComputedStyle(document.documentElement);
-  const colors = ['--accent', '--ok', '--tile', '--alt'].map((v) => css.getPropertyValue(v).trim());
+  const colors = ['--accent', '--ok', '--tile', '--cool'].map((v) => css.getPropertyValue(v).trim());
   const parts = Array.from({ length: 90 }, (_, i) => ({
     x: w / 2 + (Math.random() - 0.5) * w * 0.5,
     y: h * 0.3,
