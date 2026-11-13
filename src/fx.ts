@@ -40,6 +40,8 @@ export const sfx = {
   bet: () => tone(-14, 0, 0.12, 'sine', 0.06),
   /** お題達成 */
   mission: () => [3, 7, 10, 15, 19, 22].forEach((s, i) => tone(s, i * 0.07, 0.45)),
+  /** 連鎖の読み上げ: 1語ごとに音階を上がる */
+  note: (i: number) => tone([0, 2, 4, 7, 9, 12, 14, 16, 19][Math.min(i, 8)] + 3, 0, 0.18, 'triangle', 0.08),
   bad: () => tone(-19, 0, 0.2, 'sawtooth', 0.05),
   clear: () => [3, 7, 10, 15, 19].forEach((s, i) => tone(s, i * 0.09, 0.4)),
   levelUp: () => [3, 8, 12, 15, 20, 24].forEach((s, i) => tone(s, 0.5 + i * 0.07, 0.35, 'square', 0.04)),
@@ -54,14 +56,14 @@ export function buzz(pattern: number | number[]): void {
 }
 
 /** host（position: relative）の中の (x, y) から浮き上がって消える文字 */
-export function popup(host: HTMLElement, x: number, y: number, text: string, cls: string): void {
+export function popup(host: HTMLElement, x: number, y: number, text: string, cls: string, life = 1300): void {
   const el = document.createElement('div');
   el.className = `popup ${cls}`;
   el.textContent = text;
   el.style.left = `${Math.max(48, Math.min(host.clientWidth - 48, x))}px`;
   el.style.top = `${y}px`;
   host.append(el);
-  setTimeout(() => el.remove(), reduced() ? 900 : 1300);
+  setTimeout(() => el.remove(), reduced() ? 900 : life);
 }
 
 /** 数字を to まで数え上げる。同じ値への呼び出しは何もしない */
@@ -130,6 +132,49 @@ export function confetti(): void {
     }
     if (t < 1600) requestAnimationFrame(frame);
     else canvas.remove();
+  };
+  requestAnimationFrame(frame);
+}
+
+/** 画面上の (x, y) から顔料の粉がはじける。1枚の canvas を使い回す */
+interface Dust { x: number; y: number; vx: number; vy: number; size: number; life: number; color: string }
+let dustCanvas: HTMLCanvasElement | null = null;
+let dust: Dust[] = [];
+export function burst(x: number, y: number, count: number): void {
+  if (reduced()) return;
+  const css = getComputedStyle(document.documentElement);
+  const colors = ['--ochre', '--cream', '--teal', '--red'].map((v) => css.getPropertyValue(v).trim());
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const v = 2 + Math.random() * 6;
+    dust.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2, size: 3 + Math.random() * 5, life: 1, color: colors[i % colors.length] });
+  }
+  if (dustCanvas) return;
+  const canvas = (dustCanvas = document.createElement('canvas'));
+  canvas.className = 'confetti';
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  canvas.width = innerWidth * dpr;
+  canvas.height = innerHeight * dpr;
+  document.body.append(canvas);
+  const g = canvas.getContext('2d')!;
+  g.scale(dpr, dpr);
+  const frame = () => {
+    g.clearRect(0, 0, innerWidth, innerHeight);
+    dust = dust.filter((p) => p.life > 0);
+    for (const p of dust) {
+      p.vy += 0.3;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.028;
+      g.globalAlpha = Math.max(0, p.life);
+      g.fillStyle = p.color;
+      g.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    }
+    if (dust.length) requestAnimationFrame(frame);
+    else {
+      canvas.remove();
+      dustCanvas = null;
+    }
   };
   requestAnimationFrame(frame);
 }

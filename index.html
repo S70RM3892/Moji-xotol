@@ -35,6 +35,7 @@
               <span><b id="games">0</b>局</span>
               <span><b id="streak">0</b>日連続</span>
               <span>最高 <b id="best">0</b></span>
+              <span>覚えた <b id="learned">0</b>語</span>
               <span>復習待ち <b id="missed">0</b>語</span>
             </div>
           </div>
@@ -69,8 +70,17 @@
           <li>単語にならなくても置ける。その文字は<b>待ち</b>（点線の下書き）になり、あとの文字で単語の一部になれば色が入る。待ちのまま終わると1枚 −15点。</li>
           <li>袋の中身はお題6語の文字とおまけ。手数が尽きると残りは来ない。袋の残りを見て、来る見込みに賭ける。</li>
           <li><b>手直し</b>で、手札を捨てるか、待ちの文字を拾って置き直せる。星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
+          <li>局の前に<b>写本</b>でお題を見る。初めての語はつづりも見える（知る）。壁に向かうと意味と字数だけになる（思い出す）。作れなかった語は復習に回り、一度作れた語はつづりなしでもう一度出る。</li>
           <li>評価は自力で達成したお題の数（5語以上 S、4語 A、2〜3語 B）。</li>
         </ol>
+      </section>
+
+      <section id="study" hidden>
+        <header class="brand"><span class="gl" data-sign="roll" aria-hidden="true"></span><h1>写本</h1><span class="note">知る → 思い出す</span></header>
+        <div class="fret" aria-hidden="true"></div>
+        <p class="note" id="studynote"></p>
+        <ul id="studylist"></ul>
+        <button id="begin" class="primary big">覚えた。壁に向かう</button>
       </section>
 
       <section id="play" hidden>
@@ -84,6 +94,7 @@
         <div class="wall">
           <div class="fret" aria-hidden="true"></div>
           <div id="board" aria-label="盤面"></div>
+          <div id="shine" aria-hidden="true"></div>
           <div class="fret" aria-hidden="true"></div>
         </div>
         <div id="feed" aria-live="polite"></div>

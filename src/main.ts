@@ -2,7 +2,7 @@ import { HERO, ICON } from './art';
 import { cellsOf } from './core/board';
 import { DEFAULTS, Game, type Placement, WILD } from './core/game';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, makeRng } from './core/words';
-import { buzz, confetti, countUp, popup, setSound, sfx } from './fx';
+import { burst, buzz, confetti, countUp, popup, setSound, sfx } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
@@ -73,6 +73,8 @@ let chosen = load<string[]>('amulets', []);
 let boards = load<Record<string, number>>('boards', {});
 /** つづりを見た・作れなかったお題。あとの局でまた出す */
 const missed = new Set(load<string[]>('missed', []).filter((w) => WORD_MAP.has(w)));
+/** 自力でお題として作った回数。0回の語は、局の前につづりを見せる（知る → 思い出す） */
+const learned = load<Record<string, number>>('learned', {});
 /** 一度でも盤面で作った受験語 */
 const zukan = new Set(load<string[]>('zukan', []).filter((w) => WORD_MAP.has(w)));
 /** 見つけた碑文 */
@@ -130,8 +132,8 @@ const dailySeed = () => hash(`${today()}|${mode}|${level}`);
 const unlocked = () => AMULETS.filter((a) => a.level <= levelOf(xp));
 const activeAmulets = () => unlocked().filter((a) => chosen.includes(a.id)).slice(0, MAX_AMULETS);
 
-function show(view: 'home' | 'play' | 'result'): void {
-  for (const v of ['home', 'play', 'result']) $(v).hidden = v !== view;
+function show(view: 'home' | 'study' | 'play' | 'result'): void {
+  for (const v of ['home', 'study', 'play', 'result']) $(v).hidden = v !== view;
   scrollTo(0, 0);
 }
 
@@ -170,6 +172,11 @@ function newSetup(daily: boolean): Setup {
         .sort((a, b) => a.k - b.k)
         .slice(0, REVIEW_PER_GAME)
         .map(({ w }) => w);
+  if (!daily) {
+    // 一度だけ作れた語を1つ混ぜて、今度はつづりを見ずに思い出せるか確かめる
+    const once = Object.keys(learned).filter((w) => learned[w] === 1 && !missed.has(w) && WORD_MAP.has(w) && w.length <= DEFAULTS.maxMissionLen);
+    if (once.length) include.push(once[Math.floor(pick() * once.length)]);
+  }
   return { seed, mode, level, amulets: activeAmulets().map((a) => a.id), include, daily, retry: false };
 }
 
@@ -199,9 +206,43 @@ function startGame(s: Setup): void {
   gameNew = [];
   fx.clear();
   cursor = nextEmpty({ r: 3, c: 1 }, 0, 1) ?? nextEmpty({ r: 0, c: -1 }, 0, 1);
+  renderStudy();
+  show('study');
+}
+
+/** 知る: 局の前にお題を見せる。まだ自力で作ったことのない語はつづりも見せる */
+function renderStudy(): void {
+  const fresh = game.missions.filter((m) => !learned[m.word.text]).length;
+  $('studynote').textContent = fresh
+    ? `初めての語が${fresh}つある。つづりと意味を声に出して覚えろ。壁に向かったら、見えるのは意味と字数だけになる。`
+    : '全部、前に自力で作った語だ。つづりは見せない。意味から思い出せ。';
+  $('studylist').replaceChildren(
+    ...game.missions.map((m) => {
+      const known = !!learned[m.word.text];
+      const li = el('li', known ? 'known' : 'new');
+      const head = el('div', 'head');
+      const word = el('span', 'word', known ? '？'.repeat(m.word.text.length) : m.word.text);
+      head.append(word, el('span', 'gl', spell(m.word.text)), el('span', 'tier', TIER_LABEL[m.word.tier]));
+      if (known) {
+        const b = el('button', 'mini', '確かめる');
+        b.onclick = () => {
+          word.textContent = m.word.text;
+          b.remove();
+        };
+        head.append(el('span', 'tag', `自力で${learned[m.word.text]}回`), b);
+      } else {
+        head.append(el('span', 'tag fresh', missed.has(m.word.text) ? '復習' : '初めて'));
+      }
+      li.append(head, el('div', 'g', m.word.gloss));
+      return li;
+    }),
+  );
+}
+$('begin').onclick = () => {
   show('play');
   renderPlay();
-}
+};
+
 
 // --- 操作 ---
 function tapCell(r: number, c: number): void {
@@ -263,28 +304,38 @@ function doPlace(i: number, as?: string): void {
   renderPlay();
   if (game.over) {
     ending = true;
-    setTimeout(endGame, res.chain ? 1500 : 700);
+    setTimeout(endGame, 700 + showTime(res));
   }
 }
 
+/** 連鎖の読み上げで、1語あたりにかける時間 */
+const CALL_GAP = 190;
+/** 単語ができたときの演出にかかる時間 */
+const showTime = (res: Placement) => (res.chain ? res.chain * CALL_GAP + (res.cleared.length ? 2000 : 800) : 0);
+const cellEl = (r: number, c: number) => boardEl.querySelector<HTMLElement>(`[data-k="${r},${c}"]`);
+/** 要素の中心。app 内の座標（ポップアップ用）と画面上の座標（粉用） */
+function centre(node: HTMLElement) {
+  const a = appEl.getBoundingClientRect();
+  const b = node.getBoundingClientRect();
+  return { x: b.left - a.left + b.width / 2, y: b.top - a.top + b.height / 2, px: b.left + b.width / 2, py: b.top + b.height / 2 };
+}
+function restart(node: HTMLElement, cls: string): void {
+  node.classList.remove(cls);
+  void node.offsetWidth;
+  node.classList.add(cls);
+}
+
 function celebrate(res: Placement): void {
-  const now = performance.now();
   const key = (r: number, c: number) => `${r},${c}`;
-  fx.set(key(res.r, res.c), { name: 'pop', start: now, dur: 170 });
+  fx.set(key(res.r, res.c), { name: 'pop', start: performance.now(), dur: 170 });
   fresh = new Set();
   if (!res.chain) {
     sfx.bet();
     return;
   }
-  // 待ちだった文字が生き返り、いちばん長い単語の文字が順に跳ねる
   for (const [r, c] of res.lit) {
-    if (r !== res.r || c !== res.c) fx.set(key(r, c), { name: 'revive', start: now, dur: 420 });
+    if (r !== res.r || c !== res.c) fx.set(key(r, c), { name: 'revive', start: performance.now(), dur: 420 });
   }
-  const longest = res.words.reduce((a, b) => (b.found.text.length > a.found.text.length ? b : a));
-  cellsOf(longest.found).forEach(([r, c], i) => {
-    const cur = fx.get(key(r, c));
-    if (!cur || cur.name === 'pop') fx.set(key(r, c), { name: 'wave', start: now + i * 45, dur: 420 });
-  });
   for (const w of res.words) {
     if (w.kind !== 'plain' && !zukan.has(w.found.text)) {
       zukan.add(w.found.text);
@@ -292,30 +343,54 @@ function celebrate(res: Placement): void {
     }
   }
   if (fresh.size) save('zukan', [...zukan]);
-
-  if (res.cleared.length) {
-    sfx.mission();
-    buzz([20, 40, 20]);
-  } else {
-    sfx.word(res.chain);
-    buzz(12);
-  }
   earn(inscriptionsForPlacement(res, game));
-  requestAnimationFrame(() => {
-    const cell = boardEl.querySelector<HTMLElement>(`[data-k="${res.r},${res.c}"]`);
-    if (!cell) return;
-    const a = appEl.getBoundingClientRect();
-    const b = cell.getBoundingClientRect();
-    const x = b.left - a.left + b.width / 2;
-    const y = b.top - a.top;
-    popup(appEl, x, y, `+${res.total}`, 'pts');
-    if (res.chain >= 2) setTimeout(() => popup(appEl, x, y - 34, `${res.chain}連鎖！`, 'chain'), 120);
-    if (res.cleared.length) {
-      const names = res.cleared.map((w) => w.text.toUpperCase()).join('・');
-      setTimeout(() => popup(appEl, appEl.clientWidth / 2, boardEl.offsetTop + 60, `お題達成　${names}`, 'banner'), 300);
-      confetti();
-    }
+  buzz(res.cleared.length ? [20, 40, 20, 40, 60] : 12);
+
+  // できた単語を短い順に1語ずつ読み上げる: マスが光り、単語が浮かび、粉が散り、音階が上がる
+  const ws = [...res.words].sort((a, b) => a.found.text.length - b.found.text.length);
+  ws.forEach((w, i) => {
+    setTimeout(() => {
+      const nodes = cellsOf(w.found).map(([r, c]) => cellEl(r, c)).filter((n): n is HTMLElement => !!n);
+      nodes.forEach((n, k) => {
+        n.style.animation = '';
+        n.style.setProperty('--d', `${k * 28}ms`);
+        restart(n, 'flash');
+      });
+      const mid = nodes[Math.floor(nodes.length / 2)];
+      if (!mid) return;
+      const p = centre(mid);
+      popup(appEl, p.x, p.y, w.found.text.toUpperCase(), `call ${w.kind}`, 800);
+      burst(p.px, p.py, w.kind === 'plain' ? 8 : 26);
+      sfx.note(i);
+    }, i * CALL_GAP);
   });
+
+  // 読み上げのあと: 合計点、連鎖数、壁の揺れ。お題なら壁に光が走り、単語が大きく掲げられる
+  setTimeout(() => {
+    const cell = cellEl(res.r, res.c);
+    const wall = boardEl.parentElement!;
+    if (cell) {
+      const p = centre(cell);
+      popup(appEl, p.x, p.y - 20, `+${res.total}`, res.total >= 300 ? 'pts big' : 'pts');
+      if (res.chain >= 2) popup(appEl, p.x, p.y - 62, `${res.chain}連鎖！`, `chain c${Math.min(res.chain, 5)}`, 1500);
+      burst(p.px, p.py, Math.min(90, 10 + res.chain * 14));
+    }
+    if (res.chain >= 3 || res.cleared.length) restart(wall, 'shake');
+    if (!res.cleared.length) {
+      sfx.word(res.chain);
+      return;
+    }
+    sfx.mission();
+    restart($('shine'), 'on');
+    confetti();
+    for (const w of res.cleared) {
+      const big = el('div', 'bigword');
+      big.append(el('span', 'gl', spell(w.text)), el('b', '', w.text), el('span', 'g', brief(w.gloss)), el('span', 'tag', 'お題達成'));
+      big.style.top = `${boardEl.offsetTop + boardEl.offsetHeight / 2}px`;
+      appEl.append(big);
+      setTimeout(() => big.remove(), 1900);
+    }
+  }, ws.length * CALL_GAP);
 }
 
 function endGame(): void {
@@ -325,8 +400,10 @@ function endGame(): void {
   games += 1;
   best = Math.max(best, s.total);
   for (const m of game.missions) {
-    if (m.done && !m.revealed) missed.delete(m.word.text);
-    else missed.add(m.word.text);
+    if (m.done && !m.revealed) {
+      missed.delete(m.word.text);
+      learned[m.word.text] = (learned[m.word.text] ?? 0) + 1;
+    } else missed.add(m.word.text);
   }
   if (days.last !== today()) {
     const yesterday = new Date(Date.now() - 864e5).toLocaleDateString('sv');
@@ -345,6 +422,7 @@ function endGame(): void {
   save('games', games);
   save('best', best);
   save('missed', [...missed]);
+  save('learned', learned);
 
   // 評価は自力で達成したお題の数で決まる（全部知っている自動プレイの平均が4語）
   const solo = game.missions.filter((m) => m.done && !m.revealed).length;
@@ -598,6 +676,7 @@ function renderHome(): void {
   $('streak').textContent = String(days.streak);
   $('best').textContent = String(best);
   $('missed').textContent = String(missed.size);
+  $('learned').textContent = String(Object.keys(learned).length);
   $('modenote').textContent = MODE_NOTE[mode];
   $('levelnote').textContent = LEVELS[level].note;
   const dailyBest = boards[`${dailySeed()}:${mode}:${level}`];

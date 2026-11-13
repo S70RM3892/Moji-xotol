@@ -192,7 +192,7 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .tier { flex: none; font-size: 0.62rem; border: 1px solid currentColor; border-radius: 2px; padding: 0 3px; white-space: nowrap; opacity: 0.8; }
 
 /* 盤は壁そのもの: 赤土の地を帯ではさむ */
-.wall { width: 100%; max-width: 420px; margin: 0 auto; border: 3px solid var(--black); background-color: var(--ground); }
+.wall { position: relative; width: 100%; max-width: 420px; margin: 0 auto; border: 3px solid var(--black); background-color: var(--ground); }
 .wall .fret { height: 16px; border: none; }
 .wall .fret:first-child { border-bottom: 2px solid var(--black); }
 .wall .fret:last-child { border-top: 2px solid var(--black); }
@@ -335,6 +335,76 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
 footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height: 1.6; }
 
+/* 単語ができた瞬間 */
+.cell.flash { animation: flash 0.55s var(--d, 0ms) ease-out both; z-index: 2; }
+.wall.shake { animation: shake 0.45s ease-out; }
+#shine { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+#shine.on::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(105deg, #fff0 30%, #fff8 50%, #fff0 70%);
+  animation: sweep 0.9s ease-out both;
+}
+.popup.big { font-size: 2.3rem; }
+.popup.call { font-size: 1.15rem; letter-spacing: 0.08em; color: var(--cream); animation: call 0.8s ease-out forwards; }
+.popup.call.target, .popup.call.mission { color: var(--teal); font-size: 1.45rem; }
+.popup.chain.c3 { font-size: 2.1rem; color: var(--ochre); }
+.popup.chain.c4 { font-size: 2.5rem; color: var(--ochre); }
+.popup.chain.c5 { font-size: 3rem; color: var(--red); }
+.bigword {
+  position: absolute; left: 50%; z-index: 6; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 12px 30px 10px; max-width: 92%;
+  background-color: var(--cream); background-image: var(--plaster); background-size: 384px; background-blend-mode: overlay;
+  color: var(--black); border: 3px solid var(--black); border-radius: 999px;
+  box-shadow: 0 0 0 3px var(--ochre), 0 0 0 5px var(--black), 0 8px 0 5px #0006;
+  animation: bigword 1.9s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.bigword b { font: 800 2rem var(--font-carve); letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.1; }
+.bigword .gl { font-size: 1.4rem; line-height: 1; }
+.bigword .g { font-size: 0.8rem; text-align: center; }
+.bigword .tag { font-size: 0.65rem; font-weight: 700; background: var(--teal); border: 1.5px solid var(--black); border-radius: 999px; padding: 0 8px; }
+
+/* --- 写本（局の前の予習） --- */
+#studylist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#studylist li {
+  background-color: var(--cream); background-image: var(--plaster); background-size: 384px; background-blend-mode: overlay;
+  color: var(--black); border: 2px solid var(--black); box-shadow: 3px 3px 0 var(--black); padding: 8px 12px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+#studylist .head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+#studylist .word { font: 800 1.35rem var(--font-carve); letter-spacing: 0.08em; text-transform: uppercase; }
+#studylist .gl { font-size: 1.15rem; line-height: 1; opacity: 0.75; }
+#studylist .tag { margin-left: auto; font-size: 0.65rem; font-weight: 700; border: 1.5px solid var(--black); border-radius: 999px; padding: 0 7px; }
+#studylist .tag.fresh { background: var(--ochre); }
+#studylist .g { font-size: 0.84rem; line-height: 1.5; }
+#studylist li.known .word { letter-spacing: 0.02em; opacity: 0.5; }
+
+@keyframes flash {
+  0% { transform: none; filter: none; }
+  30% { transform: scale(1.25) rotate(-4deg); filter: brightness(1.7) saturate(1.5); box-shadow: 0 0 0 3px var(--ochre), 0 0 16px 6px var(--ochre); }
+  100% { transform: none; filter: none; }
+}
+@keyframes shake {
+  0%, 100% { transform: none; }
+  15% { transform: translate(-5px, 2px) rotate(-0.6deg); }
+  30% { transform: translate(5px, -2px) rotate(0.6deg); }
+  45% { transform: translate(-4px, 1px); }
+  60% { transform: translate(3px, -1px); }
+  80% { transform: translate(-2px, 0); }
+}
+@keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes call {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  25% { opacity: 1; transform: translate(-50%, -70%) scale(1.3); }
+  70% { opacity: 1; transform: translate(-50%, -90%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -130%) scale(1); }
+}
+@keyframes bigword {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(-8deg); }
+  18% { opacity: 1; transform: translate(-50%, -50%) scale(1.08) rotate(1deg); }
+  28%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -90%) scale(0.9); }
+}
 @keyframes pop { 0% { transform: scale(0.6); } 70% { transform: scale(1.12); } 100% { transform: none; } }
 @keyframes wave { 0% { transform: none; } 40% { transform: translateY(-9px) scale(1.12); } 100% { transform: none; } }
 @keyframes revive { 0% { transform: rotateX(90deg); } 60% { transform: rotateX(-12deg) scale(1.1); } 100% { transform: none; } }
@@ -342,6 +412,7 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 @keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(-12deg); } 100% { opacity: 1; transform: rotate(-3deg); } }
 @keyframes drawin { 0% { opacity: 0; transform: translateX(14px); } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .cell, .grade, .tile.in { animation: none !important; }
+  .cell, .grade, .tile.in, .wall.shake, #shine.on::after { animation: none !important; }
+  .bigword { animation: none; transform: translate(-50%, -50%); }
   .popup { animation-duration: 0.9s; }
 }
