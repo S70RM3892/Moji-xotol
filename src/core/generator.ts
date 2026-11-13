@@ -23,6 +23,8 @@ export interface GenOptions {
   /** 1回の試行で引く候補語数 */
   pool?: number;
   maxAttempts?: number;
+  /** 必ず候補の先頭に入れる語（復習用） */
+  include?: Word[];
 }
 
 const ACROSS = 1;
@@ -71,13 +73,14 @@ class Grid {
 }
 
 function attempt(opts: Required<GenOptions>, rng: Rng): Board {
-  const { size, wordCount, pool, mode } = opts;
+  const { size, wordCount, pool, mode, include } = opts;
   const grid = new Grid(size);
   const slots: Slot[] = [];
   const used = new Set<string>();
 
   for (let n = 0; n < pool && slots.length < wordCount; n++) {
-    const word = sampleWord(mode, rng, size);
+    const word = n < include.length ? include[n] : sampleWord(mode, rng, size);
+    if (word.text.length > size) continue;
     if (used.has(word.text)) continue;
     const text = word.text;
 
@@ -138,6 +141,7 @@ export function generateBoard(options: GenOptions, rng: Rng): GenResult {
     wordCount: 6,
     pool: 30,
     maxAttempts: 20,
+    include: [],
     ...options,
   };
   let best: Board | null = null;

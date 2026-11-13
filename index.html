@@ -3,36 +3,45 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#1b1a17" />
     <title>Moji-xotol</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
+    <!-- app:start -->
     <main id="app">
       <header>
         <h1>Moji-xotol</h1>
-        <div class="score">得点 <b id="score">0</b> ／ <span id="cleared">0</span>面</div>
+        <div class="stats">
+          <span><b id="score">0</b>点</span>
+          <span><b id="cleared">0</b>面</span>
+          <span>復習待ち <b id="missed">0</b>語</span>
+        </div>
       </header>
 
       <div class="seg" id="modes" role="group" aria-label="モード"></div>
       <div class="seg" id="levels" role="group" aria-label="難易度"></div>
 
       <div id="board" aria-label="盤面"></div>
+      <p id="clue" aria-live="polite"></p>
       <p id="status" role="status"></p>
       <div id="hand" aria-label="手札"></div>
 
       <div class="actions">
-        <button id="reset">並べ直す</button>
-        <button id="giveup">答えを見る</button>
-        <button id="next" class="primary">次の面</button>
+        <button id="back" aria-label="1文字戻す">⌫ 戻す</button>
+        <button id="hint">ヒント</button>
+        <button id="giveup">答え</button>
+        <button id="next">とばす</button>
       </div>
 
       <ol id="clues"></ol>
       <footer>
+        手札をタップすると枠のマスに入り、次の空きへ進む。置いた文字はタップで外れる。キーボード入力も可。
         語彙レベル: CEFR-J Wordlist 1.5（東京外国語大学 投野由紀夫研究室）／Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）。
         和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE。
       </footer>
     </main>
+    <!-- app:end -->
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

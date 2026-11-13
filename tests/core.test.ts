@@ -68,3 +68,16 @@ describe('makePuzzle / judgeSlot', () => {
     expect(judgeSlot(slot, cells, () => false, () => false)).toBe('invalid');
   });
 });
+
+describe('include', () => {
+  it('復習語は盤面に入る', () => {
+    const rng = makeRng(11);
+    const include = [WORD_MAP.get('abandon')!, WORD_MAP.get('scrutiny')!];
+    let hit = 0;
+    for (let i = 0; i < 100; i++) {
+      const { board } = generateBoard({ mode: 'kyote', wordCount: 5, include }, rng);
+      if (board.slots.some((s) => s.word.text === 'abandon')) hit++;
+    }
+    expect(hit).toBe(100);
+  });
+});
