@@ -214,3 +214,42 @@ describe('Eater（喰らうモード）', () => {
     expect(g.task!.hints).toBe(1);
   });
 });
+
+describe('語の難しさ', () => {
+  it('中学初級（A1）はお題に出ない。京大重点では共テ水準の語が出ない', () => {
+    const rng = makeRng(2);
+    for (let i = 0; i < 5000; i++) {
+      expect(sampleWord('kyote', rng).cefr).not.toBe('A1');
+      expect(sampleWord('kyodai', rng).tier).not.toBe(0);
+    }
+  });
+
+  it('文字数の範囲を守る', () => {
+    const rng = makeRng(2);
+    for (let i = 0; i < 2000; i++) {
+      const n = sampleWord('nankan', rng, 8, 6).text.length;
+      expect(n).toBeGreaterThanOrEqual(6);
+      expect(n).toBeLessThanOrEqual(8);
+    }
+    const g = new Game({ mode: 'kyodai', minLen: 6, maxLen: 8 }, makeRng(4), valid);
+    for (const t of g.tasks) expect(t.word.text.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('「もう知ってる」で語を替えると、見るお題も思い出すお題も新しい語になる', async () => {
+    const g = new Game({ mode: 'kyote' }, makeRng(5), valid);
+    const old = g.task!.word;
+    const next = WORD_MAP.get('scrutiny')!;
+    g.place(0, 4, 4); // 置きかけの文字
+    g.swap(next);
+    expect(g.tasks.filter((t) => t.word === old)).toHaveLength(0);
+    expect(g.tasks.filter((t) => t.word === next).map((t) => t.shown)).toEqual([true, false]);
+    expect(g.waiting).toHaveLength(0);
+    for (const ch of new Set('scrutiny')) expect([...g.hand, ...g.queue]).toContain(ch);
+
+    const { Eater } = await import('../src/core/eater');
+    const e = new Eater({ mode: 'kyote', maxLen: 10, newWords: 3 }, makeRng(5));
+    e.swap(next);
+    expect(e.task!.word).toBe(next);
+    expect(e.path.map(([r, c]) => e.grid[r][c]).join('')).toBe('scrutiny');
+  });
+});

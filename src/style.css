@@ -538,7 +538,7 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 .trail .gl { padding: 0 6px; border: 1.5px solid var(--muted); border-radius: 999px; color: var(--muted); }
 .trail .gl.ok { color: var(--teal); border-color: var(--teal); }
 .trail .gl.ng { color: var(--red); border-color: var(--red); }
-.bigword.intro { animation-duration: 1.5s; border-radius: 22px; }
+.bigword.intro { animation-duration: 1.2s; border-radius: 22px; }
 .bigword.intro b { letter-spacing: 0.16em; }
 .bigword.intro .tag { background: var(--ochre); order: -1; font-size: 0.75rem; }
 .bigword.intro.recall { box-shadow: 0 0 0 3px var(--lapis), 0 0 0 5px var(--black), 0 8px 0 5px #0006; }

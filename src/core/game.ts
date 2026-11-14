@@ -3,7 +3,7 @@
 // 初めての語は、まずつづりを見ながら作り（知る）、少しあとでつづりなしでもう一度作る（思い出す）。
 // 置いた文字を含む単語ができれば得点（複数なら連鎖）。単語にならない文字は「待ち」で、自由に動かせる。
 import { type Found, type Grid, type Mask, type WordSet, cellsOf, emptyGrid, emptyMask, findWords } from './board';
-import { type Task, cueOf, planTasks, taskMult } from './tasks';
+import { type Task, cueOf, planTasks, swapWord, taskMult } from './tasks';
 import { type Mode, type Rng, type Word, WORD_MAP } from './words';
 
 export { type Task, taskMult } from './tasks';
@@ -11,8 +11,9 @@ export { type Task, taskMult } from './tasks';
 export interface GameOptions {
   mode: Mode;
   size?: number;
-  /** お題にする語の最大文字数 */
+  /** お題にする語の文字数の範囲 */
   maxLen?: number;
+  minLen?: number;
   /** 1局で新しく覚える語数 */
   newWords?: number;
   handSize?: number;
@@ -44,6 +45,7 @@ export interface GameOptions {
 export const DEFAULTS = {
   size: 8,
   maxLen: 6,
+  minLen: 4,
   newWords: 3,
   handSize: 7,
   fillersPerTask: 1,
@@ -330,6 +332,19 @@ export class Game {
     if (!t || t.shown || t.state !== 'todo' || this.cueLetters + t.hints >= t.word.text.length) return false;
     t.hints++;
     return true;
+  }
+
+  /** いまのお題の語を別の語に替える。置きかけの文字と手札は片づけて、新しい語の文字を配る */
+  swap(next: Word): void {
+    const t = this.task;
+    if (!t || t.state !== 'todo' || this.pending) return;
+    swapWord(this.tasks, t.word, next);
+    for (const [r, c] of this.waiting) {
+      this.grid[r][c] = '';
+      this.wild[r][c] = false;
+    }
+    this.hand = [];
+    this.feed();
   }
 
   /** いまのお題をあきらめる（advance() で次へ進む） */

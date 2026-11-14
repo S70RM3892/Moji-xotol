@@ -13,8 +13,9 @@ export interface Task {
 
 export interface PlanOptions {
   mode: Mode;
-  /** お題にする語の最大文字数 */
+  /** お題にする語の文字数の範囲 */
   maxLen: number;
+  minLen?: number;
   /** 1局で新しく覚える語数 */
   newWords: number;
   /** 覚え直す語（前に思い出せなかった語）。新しい語と同じ扱いで、見てから思い出す */
@@ -28,13 +29,14 @@ export interface PlanOptions {
 export function planTasks(o: PlanOptions, rng: Rng): Task[] {
   // 語を選ぶ: 覚え直す語 → 新しい語（合わせて newWords 語）、それとは別に、前に思い出せた語を2語まで
   const isNew = o.isNew ?? (() => true);
-  const fits = (w: Word) => w.text.length <= o.maxLen;
+  const minLen = o.minLen ?? 4;
+  const fits = (w: Word) => w.text.length <= o.maxLen && w.text.length >= minLen;
   const fresh: Word[] = [];
   const known: Word[] = [];
   for (const w of o.relearn ?? []) if (fits(w) && !fresh.includes(w) && fresh.length < o.newWords - 1) fresh.push(w);
   for (const w of o.recall ?? []) if (fits(w) && !known.includes(w) && !fresh.includes(w) && known.length < 2) known.push(w);
   for (let tries = 0; fresh.length < o.newWords && tries < 200; tries++) {
-    const w = sampleWord(o.mode, rng, o.maxLen);
+    const w = sampleWord(o.mode, rng, o.maxLen, minLen);
     if (fresh.includes(w) || known.includes(w)) continue;
     if (isNew(w)) fresh.push(w);
     else if (known.length < 2) known.push(w);
@@ -59,6 +61,11 @@ export function planTasks(o: PlanOptions, rng: Rng): Task[] {
   }
   if (waiting) tasks.push(task(waiting, false));
   return tasks;
+}
+
+/** まだ始めていない語を別の語に差し替える（「もう知ってる」と言われたとき）。同じ語の「思い出す」も一緒に替わる */
+export function swapWord(tasks: Task[], old: Word, next: Word): void {
+  for (const t of tasks) if (t.word === old && t.state === 'todo') t.word = next;
 }
 
 /** お題の語の倍率。見ながら=1倍、ヒントを使って思い出す=1.5倍、自力で思い出す=3倍 */

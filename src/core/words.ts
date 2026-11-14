@@ -19,13 +19,14 @@ export const MODE_LABEL: Record<Mode, string> = {
 
 /** モードごとの層の出題確率 [共テ, 難関2次, 京大] */
 export const MODE_WEIGHTS: Record<Mode, [number, number, number]> = {
-  kyote: [0.7, 0.2, 0.1],
-  nankan: [0.2, 0.6, 0.2],
-  kyodai: [0.1, 0.3, 0.6],
+  kyote: [0.6, 0.3, 0.1],
+  nankan: [0.1, 0.65, 0.25],
+  kyodai: [0, 0.25, 0.75],
 };
 
 /** 層の中での出やすさ。易しすぎる語と稀すぎる語を下げる */
-const CEFR_WEIGHT: Record<string, number> = { A1: 0.3, A2: 1, B1: 1.5, B2: 1, C1: 1, C2: 0.3 };
+// A1（中学初級）はお題にしない。A2 もほとんど出さない
+const CEFR_WEIGHT: Record<string, number> = { A1: 0, A2: 0.2, B1: 1.5, B2: 1, C1: 1, C2: 0.6 };
 
 export const WORDS: Word[] = (raw as [string, Tier, string, string][]).map(
   ([text, tier, cefr, gloss]) => ({ text, tier, cefr, gloss }),
@@ -70,12 +71,12 @@ function pickFrom(table: TierTable, rng: Rng): Word {
 }
 
 /** まず層をモードの確率で選び、次に層内で1語選ぶ。層の語数に確率が左右されない */
-export function sampleWord(mode: Mode, rng: Rng, maxLen = 10): Word {
+export function sampleWord(mode: Mode, rng: Rng, maxLen = 10, minLen = 4): Word {
   const [a, b] = MODE_WEIGHTS[mode];
   for (;;) {
     const x = rng();
     const tier = x < a ? 0 : x < a + b ? 1 : 2;
     const w = pickFrom(TABLES[tier], rng);
-    if (w.text.length <= maxLen) return w;
+    if (w.text.length <= maxLen && w.text.length >= minLen) return w;
   }
 }

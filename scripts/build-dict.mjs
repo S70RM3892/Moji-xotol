@@ -6,7 +6,8 @@ const RAW = new URL('../data/raw/', import.meta.url);
 const read = (f) => readFileSync(new URL(f, RAW), 'utf8').replace(/^﻿/, '');
 
 const MIN_LEN = 4;
-const MAX_LEN = 8; // 盤面が8マスなので、それより長い語は置けない
+const MAX_LEN = 10; // 出題語の上限（喰らうモードは長い語も出せる）
+const VALID_MAX = 8; // 判定辞書の上限。刻むモードの盤面が8マスなので、それより長い語は置けない
 /** 2文字語は学習者が実際に目にするものだけ（aa や xu のような競技用の語は入れない） */
 const TWO = 'ad ah am an as at ax be by do eh go ha he hi if in is it ma me my no of oh on or ow ox pa so to uh um up us we ye yo'.split(' ');
 const CEFR_ORDER = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -53,15 +54,26 @@ function cleanGloss(raw) {
     .replace(/[『』]/g, '')
     .replace(/\([^)]*\)/g, '')
     .split(' / ')
-    .map((s) => s.replace(/^=.*$/, '').replace(/^[\s,;]+|[\s,;]+$/g, '').replace(/\s+/g, ''))
+    .map((s) => s.replace(/^=.*$/, '').replace(/\s+/g, ''))
     .filter((s) => s && !/[a-zA-Z]{3,}/.test(s));
-  let out = '';
-  for (const s of senses.slice(0, 3)) {
-    const next = out ? `${out}／${s}` : s;
-    if (next.length > 30 && out) break;
-    out = next;
+  // 語義ごとに言い換えを3つまで。同じ訳語が何度も出てくるので、全体で重複を除く
+  const seen = new Set();
+  const out = [];
+  for (const sense of senses) {
+    const words = [];
+    for (const w of sense.split(/[,;・]/)) {
+      const t = w.replace(/^[\s,;]+|[\s,;]+$/g, '');
+      if (!t || seen.has(t)) continue;
+      seen.add(t);
+      if (words.length < 3) words.push(t);
+    }
+    if (!words.length) continue;
+    const next = words.join('、');
+    if (out.length && out.join('／').length + next.length > 34) break;
+    out.push(next);
+    if (out.length >= 3) break;
   }
-  return out.slice(0, 40);
+  return out.join('／').slice(0, 44);
 }
 const overrides = new Map();
 const ovPath = new URL('../data/gloss-overrides.tsv', import.meta.url);
@@ -87,10 +99,10 @@ writeFileSync(new URL('../src/data/words.json', import.meta.url), JSON.stringify
 
 // --- 判定辞書: ENABLE（3文字以上） + 厳選2文字語 + 出題語。行は「単語<TAB>短い和訳」 ---
 // 実在する英単語なら成立させる。頻出語だけに絞ると、正しい単語が弾かれて窮屈になる。
-const valid = new Set(words.map((w) => w[0]));
+const valid = new Set(words.map((w) => w[0]).filter((w) => w.length <= VALID_MAX));
 for (const w of TWO) valid.add(w);
 for (const w of read('enable1.txt').split(/\r?\n/)) {
-  if (w.length >= 3 && w.length <= MAX_LEN && /^[a-z]+$/.test(w)) valid.add(w);
+  if (w.length >= 3 && w.length <= VALID_MAX && /^[a-z]+$/.test(w)) valid.add(w);
 }
 const target = new Map(words.map((w) => [w[0], w[3]]));
 /** 変化形は元の形の和訳を借りる */

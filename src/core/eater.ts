@@ -2,8 +2,8 @@
 // 正しい文字のマスへは進めて、食べたマスは空く。違う文字には進めず、命が1つ減る。
 // 壁はお題ごとに作り直す。邪神の隣から、つづりどおりにたどれる道が必ず1本だけ通っている。
 import { type Mask, emptyGrid, emptyMask } from './board';
-import { type PlanOptions, type Task, cueOf, planTasks, taskMult } from './tasks';
-import type { Rng } from './words';
+import { type PlanOptions, type Task, cueOf, planTasks, swapWord, taskMult } from './tasks';
+import type { Rng, Word } from './words';
 
 export interface EaterOptions extends PlanOptions {
   size?: number;
@@ -209,6 +209,16 @@ export class Eater {
     if (!t || t.state !== 'todo') return null;
     if (!t.shown) t.hints++;
     return this.path[this.progress] ?? null;
+  }
+
+  /** いまのお題の語を別の語に替えて、壁を作り直す */
+  swap(next: Word): void {
+    const t = this.task;
+    if (!t || t.state !== 'todo') return;
+    swapWord(this.tasks, t.word, next);
+    this.progress = 0;
+    this.wordWrongs = 0;
+    this.layout();
   }
 
   /** いまのお題をあきらめる */

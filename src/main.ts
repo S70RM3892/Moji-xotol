@@ -2,20 +2,23 @@ import { HERO, ICON } from './art';
 import { cellsOf } from './core/board';
 import { Eater } from './core/eater';
 import { DEFAULTS, Game, type Placement, type Task, WILD } from './core/game';
-import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng } from './core/words';
+import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng, sampleWord } from './core/words';
 import { boom, burst, buzz, confetti, countUp, flashScreen, fly, popup, rays, ring, setSound, sfx, spotlight } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
+type Kind = 'tile' | 'eat';
+/** むずかしさ。お題の文字数の範囲は遊ぶ形で変わる（刻むは盤面の幅、喰らうは道の長さが上限） */
 const LEVELS = [
-  { label: 'やさしい', maxLen: 5, cue: 2, wilds: 3, note: 'お題は4〜5文字。思い出すときは頭の2文字が見える。星の札3枚。' },
-  { label: 'ふつう', maxLen: 6, cue: 1, wilds: 2, note: 'お題は4〜6文字。思い出すときは頭の1文字が見える。星の札2枚。' },
-  { label: 'むずかしい', maxLen: 7, cue: 0, wilds: 1, note: 'お題は7文字まで。思い出すときの手がかりは意味と字数だけ。星の札1枚。' },
+  { label: 'やさしい', min: 4, tileMax: 6, eatMax: 6, cue: 2, wilds: 3, note: 'お題は4〜6文字。思い出すときは頭の2文字が見える。' },
+  { label: 'ふつう', min: 5, tileMax: 7, eatMax: 8, cue: 1, wilds: 2, note: 'お題は5文字以上（刻むは7、喰らうは8文字まで）。思い出すときは頭の1文字が見える。' },
+  { label: 'むずかしい', min: 6, tileMax: 8, eatMax: 10, cue: 0, wilds: 1, note: 'お題は6文字以上（刻むは8、喰らうは10文字まで）。思い出すときの手がかりは意味と字数だけ。' },
 ];
+const lengths = (k: Kind, lv: number) => ({ minLen: LEVELS[lv].min, maxLen: k === 'eat' ? LEVELS[lv].eatMax : LEVELS[lv].tileMax });
 const MODE_NOTE: Record<Mode, string> = {
-  kyote: 'お題の7割が共通テスト水準（CEFR A1〜B1）。',
-  nankan: 'お題の6割が難関大2次水準（CEFR B2）。',
-  kyodai: 'お題の6割が京大水準（CEFR C1〜C2）。',
+  kyote: 'お題の6割が共通テスト水準（CEFR B1 中心）、3割が難関2次水準。中学初級の語は出ない。',
+  nankan: 'お題の65%が難関大2次水準（CEFR B2）、25%が京大水準。',
+  kyodai: 'お題の75%が京大水準（CEFR C1〜C2）、残りは難関2次水準。共テ水準の語は出ない。',
 };
 /** 盤ごとの自己ベストを覚えておく数 */
 const BOARDS_KEPT = 60;
@@ -61,13 +64,12 @@ function save(key: string, value: unknown): void {
 }
 
 // --- 続けて遊ぶための記録（このブラウザにだけ残る） ---
-type Kind = 'tile' | 'eat';
 const KINDS: { value: Kind; label: string; note: string }[] = [
   { value: 'tile', label: '刻む', note: '手札の文字をドラッグして、壁に語を並べる。連鎖と倍率マスで点を伸ばす。' },
   { value: 'eat', label: '喰らう', note: '壁いっぱいの文字の中で文字食い邪神を動かし、語をつづりの順に食べさせる。' },
 ];
 let kind = load<Kind>('kind', 'tile');
-let mode = load<Mode>('mode', 'kyote');
+let mode = load<Mode>('mode', 'kyodai');
 let level = load<number>('level', 1);
 let xp = load<number>('xp', 0);
 let games = load<number>('games', 0);
@@ -159,12 +161,35 @@ function earn(ids: string[]): void {
   save('inscriptions', [...earned]);
 }
 
+/** まだ自力で思い出したことのない語か（思い出せなかった語は、覚え直すので新しい語と同じ扱い） */
+const isNew = (w: Word) => !learned[w.text] || missed.has(w.text);
+
+/** 「もう知ってる」: いまの語を知っている語として記録し、別の新しい語に差し替える */
+function knowWord(tasks: Task[], current: Task, swap: (next: Word) => void): string {
+  const old = current.word;
+  const pick = makeRng((Date.now() ^ (Math.random() * 2 ** 32)) >>> 0);
+  const { minLen, maxLen } = lengths(setup.kind, setup.level);
+  let next: Word | null = null;
+  for (let tries = 0; tries < 400 && !next; tries++) {
+    const w = sampleWord(setup.mode, pick, maxLen, minLen);
+    if (isNew(w) && !tasks.some((t) => t.word === w)) next = w;
+  }
+  if (!next) return 'この条件で出せる新しい語が、もう残っていない。';
+  // 知っている語は「3回思い出した」扱いにして、当分お題に出さない
+  learned[old.text] = Math.max(learned[old.text] ?? 0, 3);
+  missed.delete(old.text);
+  save('learned', learned);
+  save('missed', [...missed]);
+  swap(next);
+  return `${old.text.toUpperCase()} は知っている語として記録した。代わりの語を出す。`;
+}
+
 function newSetup(daily: boolean): Setup {
   const seed = daily ? dailySeed() : (Date.now() ^ (Math.random() * 2 ** 32)) >>> 0;
   const pick = makeRng(seed ^ 0x9e3779b9);
   const sample = (words: string[], n: number) =>
     words
-      .filter((w) => WORD_MAP.has(w) && w.length <= LEVELS[level].maxLen)
+      .filter((w) => WORD_MAP.has(w) && w.length <= lengths(kind, level).maxLen && w.length >= lengths(kind, level).minLen)
       .map((w) => ({ w, k: pick() }))
       .sort((a, b) => a.k - b.k)
       .slice(0, n)
@@ -199,11 +224,11 @@ function startGame(s: Setup): void {
     {
       mode: s.mode,
       ...opts,
-      maxLen: L.maxLen,
+      ...lengths('tile', s.level),
       cueLetters: L.cue,
       relearn: s.relearn.map((w) => WORD_MAP.get(w)!),
       recall: s.recall.map((w) => WORD_MAP.get(w)!),
-      isNew: (w) => !learned[w.text] || missed.has(w.text),
+      isNew,
     },
     makeRng(s.seed),
     valid,
@@ -228,9 +253,9 @@ function announce(t: Task | undefined, cue: string, board: HTMLElement): void {
     el('span', 'g', brief(t.word.gloss)),
   );
   card.style.left = `${b.x}px`;
-  card.style.top = `${b.y}px`;
+  card.style.top = `${b.y - board.offsetHeight * 0.26}px`; // 手元の盤面を隠さないよう上に寄せる
   appEl.append(card);
-  setTimeout(() => card.remove(), 1500);
+  setTimeout(() => card.remove(), 1200);
   if (t.shown) sfx.word(1);
   else sfx.bet();
 }
@@ -662,12 +687,12 @@ function startEat(s: Setup): void {
   eater = new Eater(
     {
       mode: s.mode,
-      maxLen: L.maxLen,
+      ...lengths('eat', s.level),
       newWords: DEFAULTS.newWords,
       cueLetters: L.cue,
       relearn: s.relearn.map((w) => WORD_MAP.get(w)!),
       recall: s.recall.map((w) => WORD_MAP.get(w)!),
-      isNew: (w) => !learned[w.text] || missed.has(w.text),
+      isNew,
     },
     makeRng(s.seed),
   );
@@ -719,6 +744,7 @@ function renderEat(note = ''): void {
     el('div', 'hint', note || (t?.shown ? 'つづりの順に、隣の文字へ進め。' : '次の1文字はどれだ。違う文字には進めず、命が減る。')),
   );
   const live = !!t && t.state === 'todo' && !busy && !ending;
+  $('ehint').textContent = t?.shown ? '知ってる' : 'ヒント';
   $<HTMLButtonElement>('ehint').disabled = !live;
   $<HTMLButtonElement>('eskip').disabled = !live;
 }
@@ -879,6 +905,15 @@ eboardEl.addEventListener('pointerup', (e) => {
 });
 $('ehint').onclick = () => {
   if (busy || ending) return;
+  const cur = eater.task;
+  if (cur?.shown && cur.state === 'todo') {
+    const note = knowWord(eater.tasks, cur, (next) => eater.swap(next));
+    hintCell = null;
+    freshWall = true;
+    renderEat(note);
+    announce(eater.task, eater.cue(eater.task!), eboardEl);
+    return;
+  }
   hintCell = eater.hint();
   sfx.bet();
   renderEat(eater.task?.shown ? '次のマスを光らせた。' : '次のマスを光らせた。このお題は「自力」ではなくなる。');
@@ -1032,8 +1067,9 @@ function renderPlay(note = ''): void {
   drawn = 0;
   $('next').replaceChildren(...game.queue.slice(0, nextCount).map((ch) => el('i', '', ch === WILD ? '★' : ch)));
 
-  const canHint = !!t && !t.shown && t.state === 'todo' && game.cue(t).includes('·') && !busy && !ending;
-  $<HTMLButtonElement>('hint').disabled = !canHint;
+  const live = !!t && t.state === 'todo' && !busy && !ending;
+  $('hint').textContent = t?.shown ? '知ってる' : 'ヒント';
+  $<HTMLButtonElement>('hint').disabled = !live || (!t!.shown && !game.cue(t!).includes('·'));
   $<HTMLButtonElement>('skip').disabled = !t || t.state !== 'todo' || busy || ending;
   $('discards').textContent = String(game.discardsLeft);
   $('trash').classList.toggle('off', game.discardsLeft <= 0);
@@ -1161,7 +1197,17 @@ $('quit').onclick = () => {
   endGame();
 };
 $('hint').onclick = () => {
-  if (busy || ending || !game.hint()) return;
+  if (busy || ending) return;
+  const cur = game.task;
+  if (cur?.shown && cur.state === 'todo') {
+    const note = knowWord(game.tasks, cur, (next) => game.swap(next));
+    last = null;
+    drawn = game.hand.length;
+    renderPlay(note);
+    announce(game.task, game.cue(game.task!), boardEl);
+    return;
+  }
+  if (!game.hint()) return;
   last = null;
   sfx.bet();
   renderPlay('1文字見せた。このお題の得点は1.5倍になる。');
