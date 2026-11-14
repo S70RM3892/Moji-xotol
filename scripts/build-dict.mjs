@@ -110,11 +110,12 @@ function loadExam(name) {
 }
 const kyodai = loadExam('kyodai'); // 京都大学 2000-2026
 const kyote = loadExam('kyote'); // 共通テスト・センター試験 2004-2026
-// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 京大の過去問に出た年度(下2桁), 共テでの覚える価値(×10万), 共テ・センターに出た年度数, 品詞(n名 v動 a形 r副、主な順)]
+const handai = loadExam('handai'); // 大阪大学 2016-2026（出た年度だけ）
+// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 京大の過去問に出た年度(下2桁), 共テでの覚える価値(×10万), 共テ・センターに出た年度数, 品詞(n名 v動 a形 r副、主な順), 阪大に出た年度数]
 const row = (word, tier, cefr, gloss) => {
   const k = kyodai.get(word);
   const c = kyote.get(word);
-  return [word, tier, cefr, gloss, k ? Math.round(k.value * 1e5) : 0, k ? k.years : [], c ? Math.round(c.value * 1e5) : 0, c ? c.years.length : 0, tagged.get(word)?.pos ?? ''];
+  return [word, tier, cefr, gloss, k ? Math.round(k.value * 1e5) : 0, k ? k.years : [], c ? Math.round(c.value * 1e5) : 0, c ? c.years.length : 0, tagged.get(word)?.pos ?? '', handai.get(word)?.years.length ?? 0];
 };
 
 const words = [];

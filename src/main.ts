@@ -1307,6 +1307,19 @@ function renderStats(): void {
   );
   $('statmodelnote').textContent = `${d.model.train[0]}〜${d.model.train[1]}年度で作った予測を、使っていない ${d.model.test[0]}〜${d.model.test[1]}年度で確かめた結果。難語が1年度に出る割合は平均 ${d.model.base}%。`;
 
+  // 3b. 別の試験に出た語は、この試験にも出やすいか
+  const peers = ('peers' in d ? d.peers : []) as { label: string; from: number; rows: { band: string; own: string; rate: (number | null)[]; n: number[] }[] }[];
+  $('statpeerhead').hidden = !peers.length;
+  $('statpeers').replaceChildren(
+    ...peers.flatMap((p) => [
+      el('p', 'note', `${p.label}に出た語が、${d.title}に出る確率（${p.from}〜${d.years[1]}年度）。一般的な頻度と、${d.title}での出題歴が同じ語どうしで比べる。`),
+      table(
+        ['一般的な頻度', `${d.title}での出題歴`, `${p.label}に出ていない`, `${p.label}に出た`],
+        p.rows.map((r) => [r.band, r.own.replace('出題歴', ''), ...r.rate.map((v) => (v === null ? '−' : `${v}%`))]),
+      ),
+    ]),
+  );
+
   // 4. 覚える価値の高い語
   const value = (w: Word) => (statExam === 'kyodai' ? w.value : w.ctValue);
   const q = $<HTMLInputElement>('statq').value.trim().toLowerCase();
@@ -1565,11 +1578,12 @@ const pastLabel = (w: Word) =>
   [
     // 年度は4回までなら並べる。それ以上は回数だけ
     w.years.length ? `京大 ${w.years.length}回${w.years.length <= 4 ? `（${w.years.map((y) => `'${String(y).padStart(2, '0')}`).join(' ')}）` : ''}` : '',
+    w.osYears ? `阪大 ${w.osYears}回` : '',
     w.ctYears ? `共テ ${w.ctYears}回` : '',
   ]
     .filter(Boolean)
     .join('・');
-const hasPast = (w: Word) => w.years.length > 0 || w.ctYears > 0;
+const hasPast = (w: Word) => w.years.length > 0 || w.ctYears > 0 || w.osYears > 0;
 /** いまのお題: 種類・層・つづり（伏せ字つき）・意味 */
 function drawMission(panel: HTMLElement, t: Task | undefined, cue: string, label: string): void {
   panel.className = `mission ${!t ? 'idle' : t.state === 'done' ? 'done' : t.shown ? 'shown' : 'recall'}`;

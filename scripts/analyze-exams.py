@@ -25,6 +25,13 @@ text_dir = pathlib.Path(sys.argv[1])
 freq_path = pathlib.Path(sys.argv[2])
 WRITE = "--write" in sys.argv
 PROFILE = sys.argv[sys.argv.index("--profile") + 1] if "--profile" in sys.argv else "kyodai"
+# --peer <テキストの置き場>[:<呼び名>[:<書き出すファイルの名前>]]
+#   別の試験（他大学、共テなど）。その試験に出た語かどうかを予測の手がかりに加える。何度でも指定できる。
+#   3つ目を付けると、--write のときに data/<名前>-words.tsv（語と出た年度だけ）も書き出す
+PEER_ARGS = [sys.argv[i + 1].split(":") for i, a in enumerate(sys.argv) if a == "--peer"]
+PEER_DIRS = [pathlib.Path(a[0]) for a in PEER_ARGS]
+PEER_LABEL = [a[1] if len(a) > 1 else pathlib.Path(a[0]).name for a in PEER_ARGS]
+PEER_SLUG = [a[2] if len(a) > 2 else None for a in PEER_ARGS]
 # 試験ごとの設定: やさしい側に数えるレベル、表外語を難語と見なす頻度順位、「まだ知らない見込み」が5割になる頻度順位
 EASY, OFF_RANK, HALF_KNOWN, TITLE = {
     "kyodai": (("A1", "A2", "B1"), 4000, 8000, "京大英語"),
@@ -116,8 +123,11 @@ counts = {}  # year -> Counter(lemma)
 caps = collections.Counter()  # 大文字で始まっていた回数
 seen = collections.Counter()
 tokens_total = {}
-for y in years:
-    text = (text_dir / f"{y}.txt").read_text(errors="ignore")
+
+
+def count_words(path, track=True):
+    """1年度ぶんのテキストを、見出し語ごとの回数にする"""
+    text = path.read_text(errors="ignore")
     text = re.sub(r"(\w)-\n\s*(\w)", r"\1\2", text)  # 行末のハイフンをつなぐ
     c = collections.Counter()
     n = 0
@@ -136,10 +146,24 @@ for y in years:
             if lm:
                 c[lm] += 1
                 n += 1
-                seen[lm] += 1
-                caps[lm] += orig[0].isupper()
-    counts[y] = c
-    tokens_total[y] = n
+                if track:
+                    seen[lm] += 1
+                    caps[lm] += orig[0].isupper()
+    return c, n
+
+
+for y in years:
+    counts[y], tokens_total[y] = count_words(text_dir / f"{y}.txt")
+
+# 別の試験: 語 -> その試験に出た年度
+peers = []
+for d in PEER_DIRS:
+    table = collections.defaultdict(list)
+    for f in sorted(d.glob("[0-9][0-9][0-9][0-9].txt")):
+        for w in count_words(f, track=False)[0]:
+            table[w].append(int(f.stem))
+    peers.append(table)
+    print(f"別の試験 {PEER_LABEL[len(peers) - 1]}: {min(int(f.stem) for f in d.glob('[0-9]*.txt'))}〜{max(int(f.stem) for f in d.glob('[0-9]*.txt'))}年度、異なり語 {len(table)}")
 
 print("== 1. 年度ごとの語数とレベル別の内訳（延べ語数に占める割合 %）==")
 print("年度   語数  異なり語   " + "  ".join(f"{lv:>4}" for lv in ORDER) + "  表外")
@@ -227,6 +251,39 @@ for b in range(4):
         row += f"{100 * a / n:8.2f}% ({n:6d})" if n else " " * 16
     print(f"{BAND[b]:12s}{row}")
 
+# 別の試験に出た語は、この試験にも出やすいか（一般的な頻度と、この試験での出題歴をそろえて比べる）
+peer_tables = []
+for label, t in zip(PEER_LABEL, peers):
+    start = min(x for xs in t.values() for x in xs)
+    cmp = collections.defaultdict(lambda: [0, 0])
+    for y in years:
+        if y < max(FIRST, start + 1):
+            continue
+        for w in hard:
+            own = "出題歴あり" if any(x < y for x in appear.get(w, [])) else "出題歴なし"
+            other = "出た" if any(x < y for x in t.get(w, [])) else "出ていない"
+            c = cmp[(band(w), own, other)]
+            c[1] += 1
+            c[0] += 1 if y in appear.get(w, []) else 0
+    peer_tables.append({
+        "label": label,
+        "from": max(FIRST, start + 1),
+        "rows": [
+            {"band": BAND[b], "own": own, "rate": [round(100 * cmp[(b, own, o)][0] / cmp[(b, own, o)][1], 2) if cmp[(b, own, o)][1] else None for o in ("出ていない", "出た")], "n": [cmp[(b, own, o)][1] for o in ("出ていない", "出た")]}
+            for b in range(4)
+            for own in ("出題歴なし", "出題歴あり")
+        ],
+    })
+    print(f"\n== 2b. 別の試験 {label} に出た語が、この試験に出る確率（対象年度は{max(FIRST, start + 1)}〜{years[-1]}）==")
+    print("頻度帯        この試験での出題歴    別の試験に出ていない        別の試験に出た")
+    for b in range(4):
+        for own in ("出題歴なし", "出題歴あり"):
+            row = ""
+            for other in ("出ていない", "出た"):
+                a, n = cmp[(b, own, other)]
+                row += f"{100 * a / n:8.2f}% ({a:3d}/{n:6d})" if n else " " * 22
+            print(f"{BAND[b]:12s}{own:10s}{row}")
+
 # ---------- 3. 予測モデル ----------
 # 学術的な文章に多い語の形（ラテン語・ギリシャ語由来の語尾）。日常の具体名詞（cottage, turret）と区別する手がかり
 ACADEMIC = re.compile(r"(tion|sion|ity|ism|ist|ive|ize|ise|ate|ify|ous|ence|ance|ment|ical|ic|al|ary|ory|ible|able|logy|ent|ant|ure|ude)(ly|s|d)?$")
@@ -251,7 +308,21 @@ def features(w, y):
         1.0 if last is not None and y - last <= 3 else 0.0,  # 直近3年以内に出た
         1.0 if ACADEMIC.search(w) else 0.0,  # 学術語らしい語尾
         min(len(w), 12) / 10,  # 語の長さ
-    ]
+    ] + peer_features(w, y)
+
+
+def peer_features(w, y):
+    """別の試験での出題歴（その年度より前だけを見る）"""
+    if not peers:
+        return []
+    out = []
+    for t in peers:  # 試験ごとに別の手がかりにする（共テに出る日常語と、他大学に出る論説語は効き方が違う）
+        prior = [x for x in t.get(w, []) if x < y]
+        out += [
+            1.0 if prior else 0.0,  # その試験に出たことがある
+            1.0 if any(y - x <= 5 for x in prior) else 0.0,  # 直近5年以内に出た
+        ]
+    return out
 
 
 def fit(rows, labels, steps=400, lr=0.5):
@@ -291,7 +362,7 @@ for y in years:
             test.append((w, y, t))
 coef = fit(train_rows, train_y)
 coef[0] += math.log(0.08)  # 出なかった例を8%に間引いて学習したぶん、切片を戻す（確率を実際の水準に合わせる）
-names = ["切片", "log頻度順位", "B2", "C1", "C2", "表外", "出た年度の割合", "出たことがある", "直近3年に出た", "学術語らしい語尾", "語の長さ"]
+names = ["切片", "log頻度順位", "B2", "C1", "C2", "表外", "出た年度の割合", "出たことがある", "直近3年に出た", "学術語らしい語尾", "語の長さ"] + [f"{label}{k}" for label in PEER_LABEL for k in ("に出た", "に直近5年")]
 print(f"\n== 3. 予測モデル（{FIRST}〜{SPLIT}年度で学習）の係数 ==")
 print("  ".join(f"{n}={c:+.2f}" for n, c in zip(names, coef)))
 
@@ -380,5 +451,16 @@ if WRITE:
             "rows": [{"top": int(v["top"] * 100), "hit": round(100 * v["hit"], 1), "share": round(100 * v["share"]), "lift": round(v["lift"], 1)} for v in validation],
         },
     }
+    summary[PROFILE]["peers"] = peer_tables
     summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=1) + "\n")
+    for label, slug, t in zip(PEER_LABEL, PEER_SLUG, peers):
+        if not slug:
+            continue
+        keep = sorted((w for w in t if len(w) >= 4 and not proper(w) and (w in level or rank.get(w, 10**9) > 1500)), key=lambda w: (-len(t[w]), w))
+        ys = sorted({x for xs in t.values() for x in xs})
+        (ROOT / "data" / f"{slug}-words.tsv").write_text(
+            f"# {label} 過去問({ys[0]}-{ys[-1]})に出た語と年度。scripts/analyze-exams.py が作る。問題文は含まない\n# 語\tレベル\t出た年度\n"
+            + "".join(f"{w}\t{level.get(w, '-')}\t{','.join(map(str, t[w]))}\n" for w in keep)
+        )
+        print(f"data/{slug}-words.tsv に {len(keep)} 語を書き出した")
     print(f"{summary_path} を更新した")

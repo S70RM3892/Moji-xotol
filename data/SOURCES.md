@@ -12,8 +12,9 @@
 
 `data/kyodai-words.tsv` は、京都大学の英語の過去問（2000〜2026年度の27年分）を OCR で読み取って数えた集計表。
 `data/kyote-words.tsv` は、大学入学共通テスト・センター試験の英語（2004〜2026年度の23年分。school.js88.com の一覧から辿れる問題PDF）を同じ方法で数えた集計表。
+`data/handai-words.tsv` は、大阪大学の前期日程の英語（2016〜2026年度の11年分）に出た語と年度の表。京大の予測の手がかりに使う。
 語・語彙レベル・出た年度・延べ回数・覚える価値（予測値）だけを持ち、問題文は含まない。
-過去問そのものは著作物なので、このリポジトリには置いていない。集計のやり方は `scripts/analyze-exams.py`。
+過去問そのものは著作物なので、このリポジトリには置いていない。集計のやり方は `scripts/analyze-exams.py`（京大の表は `--peer <共テのテキスト>:共テ --peer <阪大のテキスト>:阪大:handai` を付けて作る）。
 OCR（tesseract）の語ごとの信頼度が75未満の語は、`scripts/ocr-clean.py` で落としてから数えている。`src/data/analysis.json` は同じ集計の要約（アプリの「分析」画面に出す表）。
 
 `data/glosses.tsv` は品詞つきの和訳。`python3 -I scripts/build-glosses.py <WordNet を展開した場所> <jmdict-eng-*.json>` で作る。
