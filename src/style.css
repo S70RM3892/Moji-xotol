@@ -491,3 +491,8 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 .bigword .tag { order: -1; }
 .bigword.recall { box-shadow: 0 0 0 3px var(--lapis), 0 0 0 5px var(--black), 0 8px 0 5px #0006; }
 .bigword.recall .tag { background: var(--lapis); color: var(--cream); }
+
+/* 京大の過去問に出た語の印 */
+.past { flex: none; font-size: 0.66rem; font-weight: 700; padding: 0 7px; border: 1.5px solid var(--black); border-radius: 999px; background: var(--red); color: var(--cream); white-space: nowrap; }
+.wordlist .past { border-color: var(--red); }
+.zrow span:first-child { width: 5.6em; }

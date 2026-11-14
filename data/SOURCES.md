@@ -7,6 +7,10 @@
 | `raw/ejdict-hand.txt` | 英和の和訳 | [ejdict-hand](https://github.com/kujirahand/EJDict) | パブリックドメイン |
 | `raw/enable1.txt` | 判定辞書 | ENABLE word list（[dolph/dictionary](https://github.com/dolph/dictionary) 経由） | パブリックドメイン |
 
+`data/kyodai-words.tsv` は、京都大学の英語の過去問（2005〜2024年度の20年分）を OCR で読み取って数えた集計表。
+語・語彙レベル・出た年度・延べ回数・覚える価値（予測値）だけを持ち、問題文は含まない。
+過去問そのものは著作物なので、このリポジトリには置いていない。集計のやり方は `scripts/analyze-exams.py`。
+
 `src/data/words.json` と `public/valid.txt` は上記から `npm run dict` で生成する。
 C1/C2 の語を含むため、生成物を再配布するときは CC BY-SA 4.0 の継承条件に従うこと。
 

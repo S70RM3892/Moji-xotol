@@ -35,7 +35,8 @@ export function planTasks(o: PlanOptions, rng: Rng): Task[] {
   const known: Word[] = [];
   for (const w of o.relearn ?? []) if (fits(w) && !fresh.includes(w) && fresh.length < o.newWords - 1) fresh.push(w);
   for (const w of o.recall ?? []) if (fits(w) && !known.includes(w) && !fresh.includes(w) && known.length < 2) known.push(w);
-  for (let tries = 0; fresh.length < o.newWords && tries < 200; tries++) {
+  // 覚えた語が増えると新しい語に当たりにくくなるので、試す回数は多めに取る
+  for (let tries = 0; fresh.length < o.newWords && tries < 3000; tries++) {
     const w = sampleWord(o.mode, rng, o.maxLen, minLen);
     if (fresh.includes(w) || known.includes(w)) continue;
     if (isNew(w)) fresh.push(w);

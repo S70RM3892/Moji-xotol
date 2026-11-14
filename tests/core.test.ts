@@ -20,7 +20,7 @@ function blank(hand: string[], shown = true): Game {
 }
 
 describe('sampleWord', () => {
-  it.each(Object.keys(MODE_WEIGHTS) as Mode[])('%s は狙いの層分布になる', (mode) => {
+  it.each(Object.keys(MODE_WEIGHTS) as Exclude<Mode, 'kyodai'>[])('%s は狙いの層分布になる', (mode) => {
     const rng = makeRng(1);
     const counts = [0, 0, 0];
     const n = 20000;
@@ -220,8 +220,20 @@ describe('語の難しさ', () => {
     const rng = makeRng(2);
     for (let i = 0; i < 5000; i++) {
       expect(sampleWord('kyote', rng).cefr).not.toBe('A1');
-      expect(sampleWord('kyodai', rng).tier).not.toBe(0);
+      expect(['B2', 'C1', 'C2', 'KU']).toContain(sampleWord('kyodai', rng).cefr);
     }
+  });
+
+  it('京大重点は、過去問に出た語を優先して出す（語数では2割強だが、出題では8割前後）', () => {
+    const rng = makeRng(3);
+    let seen = 0;
+    const n = 20000;
+    for (let i = 0; i < n; i++) if (sampleWord('kyodai', rng).years.length) seen++;
+    expect(seen / n).toBeGreaterThan(0.7);
+    expect(seen / n).toBeLessThan(0.95);
+    // 語彙リストにない過去問の語も出る
+    expect(WORD_MAP.get('subsequent')?.cefr).toBe('KU');
+    expect(WORD_MAP.get('subsequent')!.years.length).toBeGreaterThanOrEqual(2);
   });
 
   it('文字数の範囲を守る', () => {

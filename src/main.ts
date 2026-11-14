@@ -17,7 +17,7 @@ const lengths = (k: Kind, lv: number) => ({ minLen: LEVELS[lv].min, maxLen: k ==
 const MODE_NOTE: Record<Mode, string> = {
   kyote: 'お題の6割が共通テスト水準（CEFR B1 中心）、3割が難関2次水準。中学初級の語は出ない。',
   nankan: 'お題の65%が難関大2次水準（CEFR B2）、25%が京大水準。',
-  kyodai: 'お題の75%が京大水準（CEFR C1〜C2）、残りは難関2次水準。共テ水準の語は出ない。',
+  kyodai: '京大の過去問20年分（2005〜2024）の分析に基づいて選ぶ。次に出る見込みが高く、まだ知らなそうな語（B2以上と、過去問に出た学術語）を優先する。',
 };
 /** 盤ごとの自己ベストを覚えておく数 */
 const BOARDS_KEPT = 60;
@@ -165,7 +165,7 @@ function knowWord(tasks: Task[], current: Task, swap: (next: Word) => void): str
   const pick = makeRng((Date.now() ^ (Math.random() * 2 ** 32)) >>> 0);
   const { minLen, maxLen } = lengths(setup.kind, setup.level);
   let next: Word | null = null;
-  for (let tries = 0; tries < 400 && !next; tries++) {
+  for (let tries = 0; tries < 3000 && !next; tries++) {
     const w = sampleWord(setup.mode, pick, maxLen, minLen);
     if (isNew(w) && !tasks.some((t) => t.word === w)) next = w;
   }
@@ -530,6 +530,7 @@ function finish(o: Outcome): void {
         el('span', 'word', w.text),
         el('span', 'gl', spell(w.text)),
         el('span', 'tier', TIER_LABEL[w.tier]),
+        ...(w.years.length ? [el('span', 'past', pastLabel(w))] : []),
         el('span', 'g', w.gloss),
         el(
           'span',
@@ -779,12 +780,17 @@ $('letters').replaceChildren(
 $('pickcancel').onclick = () => ($('picker').hidden = true);
 
 // --- 描画 ---
+/** 京大の過去問に出た年度の書き方: 「京大過去問 2回（'07 '15）」 */
+const pastLabel = (w: Word) => (w.years.length ? `京大過去問 ${w.years.length}回（${w.years.map((y) => `'${String(y).padStart(2, '0')}`).join(' ')}）` : '');
 /** いまのお題: 種類・層・つづり（伏せ字つき）・意味 */
 function drawMission(panel: HTMLElement, t: Task | undefined, cue: string, label: string): void {
   panel.className = `mission ${!t ? 'idle' : t.state === 'done' ? 'done' : t.shown ? 'shown' : 'recall'}`;
   if (!t) return;
   panel.querySelector('.kind')!.textContent = !t.shown && t.hints ? `${label}（ヒント${t.hints}）` : label;
   panel.querySelector('.tier')!.textContent = TIER_LABEL[t.word.tier];
+  const past = panel.querySelector<HTMLElement>('.past')!;
+  past.hidden = !t.word.years.length;
+  past.textContent = pastLabel(t.word);
   const word = panel.querySelector('.mword')!;
   word.replaceChildren();
   for (const ch of cue) {
@@ -941,19 +947,24 @@ function renderHome(): void {
     }),
   );
 
+  const bar = (label: string, got: number, total: number) => {
+    const row = el('div', 'zrow');
+    const track = el('span', 'bar');
+    const fill = el('i');
+    fill.style.width = `${(100 * got) / total}%`;
+    track.append(fill);
+    row.append(el('span', '', label), track, el('span', '', `${got} / ${total}`));
+    return row;
+  };
+  // 京大の過去問に出た難しい語（B2以上と表外）のうち、自力で思い出せた語
+  const exam = WORDS.filter((w) => w.value > 0 && w.years.length);
   $('zukan').replaceChildren(
-    ...TIER_LABEL.map((label, tier) => {
-      const total = WORDS.filter((w) => w.tier === tier).length;
-      const got = [...zukan].filter((w) => WORD_MAP.get(w)!.tier === tier).length;
-      const row = el('div', 'zrow');
-      const bar = el('span', 'bar');
-      const fill = el('i');
-      fill.style.width = `${(100 * got) / total}%`;
-      bar.append(fill);
-      row.append(el('span', '', label), bar, el('span', '', `${got} / ${total}`));
-      return row;
-    }),
+    ...TIER_LABEL.map((label, tier) =>
+      bar(label, [...zukan].filter((w) => WORD_MAP.get(w)!.tier === tier).length, WORDS.filter((w) => w.tier === tier).length),
+    ),
+    bar('京大過去問', exam.filter((w) => learned[w.text] && !missed.has(w.text)).length, exam.length),
   );
+  $('zukannote').textContent = `上3行は盤面で作った語。「京大過去問」は、過去20年の京大英語に出た難しい語 ${exam.length} 語のうち、自力で思い出せた数。`;
 }
 
 function segment<T>(host: HTMLElement, items: { label: string; value: T }[], get: () => T, set: (v: T) => void): void {

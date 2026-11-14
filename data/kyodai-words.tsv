@@ -1,0 +1,4488 @@
+# 京大英語 過去問(2005-2024)の語彙集計。scripts/analyze-exams.py が作る。問題文は含まない
+# 語	レベル	出た年度	延べ回数	覚える価値（次年度に出る見込み × まだ知らない見込み）
+contradiction	B2	2022	1	0.05534
+philosophical	B2	2024	1	0.05511
+discriminate	B2	2023	1	0.05392
+predicament	B2	2022	1	0.05389
+contradictory	B2	2024	1	0.05387
+alphabetical	B2	2022	1	0.05342
+complexity	B2	2024	1	0.05296
+originality	B2	2024	3	0.05207
+illustrate	B2	2023	1	0.05203
+desirable	B2	2007,2022	2	0.05199
+evaluate	B2	2005,2009,2023	3	0.05170
+emphatically	B2	2023	1	0.05073
+assumption	B2	2014,2017,2023,2024	5	0.05069
+ideology	B2	2024	1	0.05047
+deliberate	B2	2022	1	0.05003
+segment	B2	2024	6	0.04846
+advent	B2	2012,2022	2	0.04706
+metric	B2	2022	1	0.04697
+amplify	B2	2022	1	0.04696
+exceptional	B2	2005,2024	2	0.04674
+manipulate	B2	2022	1	0.04665
+equation	B2	2006,2024	2	0.04579
+infant	B2	2008,2011,2024	3	0.04413
+universal	B2	2010,2015,2016,2021,2024	7	0.04265
+adoption	B2	2022,2024	2	0.04173
+institution	B2	2022	2	0.04050
+sophisticated	B2	2007,2020,2022	3	0.04020
+atmospheric	C1	2005,2022	2	0.04017
+translation	B2	2015,2024	2	0.03963
+geological	C1	2022	1	0.03886
+superficial	C1	2023	1	0.03856
+ingenuity	C1	2024	1	0.03809
+relevant	B2	2007,2023	2	0.03807
+inherently	C1	2022	1	0.03743
+ultimately	B2	2011,2021,2022	3	0.03724
+indispensable	B2	2007,2008,2011,2014	4	0.03710
+exception	B2	2014,2022	2	0.03605
+modification	B2	2013,2018,2021	3	0.03581
+comprehensive	B2	2019	2	0.03580
+archaeologist	B2	2011	1	0.03580
+recollection	B2	2008	1	0.03580
+insufficient	B2	2017	1	0.03579
+scientifically	B2	2005	1	0.03575
+perspective	B2	2008,2009,2010,2023,2024	7	0.03574
+circumstance	B2	2005,2007,2009,2010	4	0.03571
+interruption	B2	2008	1	0.03558
+mathematical	B2	2005,2014,2015	5	0.03531
+realization	B2	2009	1	0.03497
+advancement	B2	2005	1	0.03489
+intersection	B2	2005	1	0.03488
+implication	B2	2007,2010	3	0.03481
+contemporary	B2	2006,2011	4	0.03480
+expectation	B2	2019	4	0.03472
+manufacture	B2	2009	1	0.03450
+flexibility	B2	2019	1	0.03449
+persistence	B2	2021	1	0.03449
+classification	B2	2006	1	0.03447
+prehistoric	B2	2020	3	0.03446
+conception	B2	2017,2021	10	0.03440
+conjunction	B2	2021	1	0.03437
+articulate	B2	2021	1	0.03417
+irresistible	B2	2017	1	0.03414
+capability	B2	2020	1	0.03414
+unstoppable	B2	2017	1	0.03410
+unreliable	B2	2011,2016	2	0.03407
+innovation	B2	2007	1	0.03399
+variation	B2	2015,2016	2	0.03387
+interpretation	B2	2011	2	0.03385
+availability	B2	2020	1	0.03381
+decorative	B2	2013	1	0.03378
+conventional	B2	2014,2016	2	0.03376
+impractical	B2	2011	2	0.03367
+cooperative	B2	2007	1	0.03364
+revolutionize	B2	2012	1	0.03353
+stimulate	B2	2008	2	0.03346
+detriment	C1	2022	1	0.03343
+deduction	B2	2021	1	0.03342
+fictional	B2	2021	2	0.03341
+editorial	B2	2006	1	0.03317
+perceive	B2	2006,2009,2017	3	0.03304
+duplicate	B2	2009,2019	2	0.03304
+competence	B2	2020	1	0.03296
+component	B2	2019	1	0.03283
+immigrant	B2	2020	1	0.03280
+integrate	B2	2014	1	0.03277
+predictable	B2	2005	1	0.03273
+disapproval	B2	2006	1	0.03271
+delegate	B2	2008	1	0.03270
+compensate	B2	2020	1	0.03270
+undergraduate	B2	2014	1	0.03268
+profitable	B2	2008	1	0.03267
+ecstatic	B2	2009	1	0.03267
+creation	B2	2010,2021,2022	4	0.03257
+regulate	B2	2005	1	0.03236
+navigate	B2	2012	1	0.03228
+persistent	B2	2017	1	0.03227
+popularization	C1	2024	1	0.03224
+sympathetic	B2	2021	1	0.03222
+coherent	B2	2011	1	0.03207
+competent	B2	2021	1	0.03206
+exaggerate	B2	2017	1	0.03204
+unsatisfactory	B2	2005	1	0.03204
+applicant	B2	2008	1	0.03200
+exclude	B2	2021	1	0.03198
+persist	B2	2020	1	0.03198
+colonial	B2	2017	3	0.03184
+admirable	B2	2018	1	0.03174
+symbolic	B2	2016	1	0.03154
+domesticate	C1	2022	1	0.03152
+enhance	B2	2015	1	0.03151
+interpersonal	B2	2021	1	0.03150
+rejection	B2	2021	1	0.03145
+perception	B2	2006	1	0.03126
+intellectual	B2	2005,2006,2007,2008,2009,2021	6	0.03117
+compensation	B2	2019	1	0.03101
+flexible	B2	2020	2	0.03089
+credential	C1	2024	1	0.03081
+verbal	B2	2010	2	0.03062
+innate	B2	2015	1	0.03050
+fundamental	B2	2008,2011,2020	3	0.03029
+external	B2	2006	1	0.03022
+morality	B2	2007,2013	7	0.03016
+magnify	B2	2006	1	0.02986
+oval	B2	2009	1	0.02980
+secondary	B2	2010	2	0.02967
+publicize	B2	2016	1	0.02921
+distraction	B2	2008	1	0.02920
+ignorance	B2	2021	1	0.02908
+mixture	B2	2006	1	0.02904
+temptation	B2	2017	1	0.02863
+psychology	B2	2008,2013,2014,2021	6	0.02862
+biotechnology	B2	2006	3	0.02827
+categorization	B2	2006	1	0.02827
+deforestation	B2	2017	2	0.02827
+generalization	B2	2021	2	0.02827
+formation	B2	2007,2020	2	0.02800
+arctic	B2	2012	6	0.02775
+pedestrian	B2	2024	2	0.02739
+achievable	B2	2018	1	0.02700
+attainment	B2	2010	1	0.02700
+generalize	B2	2021	1	0.02700
+straightforward	B2	2023	1	0.02698
+deliberately	B2	2009,2011	2	0.02682
+attribute	B2	2019,2024	4	0.02675
+ecologist	B2	2017	1	0.02639
+mechanize	B2	2009	1	0.02639
+invariably	B2	2024	1	0.02625
+justify	B2	2010,2021	2	0.02625
+corruption	B2	2016	1	0.02617
+presumably	B2	2012,2020,2023	3	0.02617
+timeless	B2	2024	1	0.02614
+revolutionary	B2	2007,2021	2	0.02609
+invisible	B2	2022	1	0.02608
+spontaneously	C1	2020	1	0.02604
+obsession	B2	2015	1	0.02601
+disposal	B2	2016	1	0.02591
+instinctively	C1	2008	1	0.02590
+inexplicable	C1	2021	1	0.02583
+legitimate	B2	2016	1	0.02575
+engagement	B2	2023	1	0.02571
+consistent	B2	2005	1	0.02571
+vicious	C1	2023	1	0.02564
+venture	B2	2008	1	0.02563
+endorsement	C1	2008	1	0.02558
+compress	B2	2023	1	0.02553
+ponder	B2	2010,2023,2024	3	0.02550
+collaborate	C1	2008	1	0.02549
+devote	B2	2014,2016,2018,2023	6	0.02546
+cooperation	B2	2007,2020	4	0.02545
+biological	B2	2015	2	0.02543
+subordinate	C1	2008	2	0.02537
+prevail	B2	2016,2024	2	0.02526
+individuality	C1	2009	1	0.02526
+identical	B2	2013	1	0.02512
+evolve	B2	2009,2019,2021,2022	4	0.02512
+evolution	B2	2019,2020,2021	4	0.02504
+invoke	B2	2024	1	0.02496
+degradation	C1	2017	2	0.02495
+neglect	B2	2022	1	0.02484
+divert	B2	2022	1	0.02472
+particle	B2	2009,2024	2	0.02450
+rudimentary	C1	2014	1	0.02441
+intuitive	C1	2014,2021	2	0.02441
+digest	B2	2023	1	0.02435
+plausible	C1	2020	1	0.02425
+diversity	C1	2016	1	0.02419
+sensible	B2	2007	1	0.02418
+hostility	C1	2011	1	0.02418
+convention	B2	2017	1	0.02394
+index	B2	2022	1	0.02367
+synthetic	C1	2015	1	0.02365
+integral	C1	2013	1	0.02357
+fraction	C1	2005,2018	2	0.02353
+rival	B2	2021	1	0.02348
+ingenious	C1	2017	1	0.02337
+elegant	B2	2009,2013	2	0.02334
+span	B2	2023	2	0.02322
+crucial	B2	2009	2	0.02314
+worldview	B2	2007,2024	2	0.02312
+duration	C1	2017	1	0.02304
+portable	C1	2019	1	0.02296
+disguise	B2	2013	1	0.02294
+ethical	C1	2006,2007	2	0.02288
+vertical	C1	2006	1	0.02276
+obscure	C1	2020	1	0.02275
+reference	B2	2009	1	0.02275
+intimate	B2	2010	1	0.02273
+precision	C1	2012	1	0.02268
+aesthetically	C1	2013	1	0.02261
+user	B2	2022	1	0.02259
+intuition	C1	2014	1	0.02254
+dense	B2	2023	1	0.02243
+domestic	B2	2013	1	0.02242
+durable	C1	2015	1	0.02230
+identify	B2	2008,2010,2024	3	0.02229
+technical	B2	2011,2012	2	0.02200
+cynical	C1	2011	1	0.02192
+psychiatric	C1	2008	1	0.02191
+eclectic	C1	2016	1	0.02188
+alter	B2	2006,2018,2019,2023	6	0.02146
+mechanism	C1	2005,2015	2	0.02115
+elaborate	C1	2010,2016	2	0.02113
+mature	B2	2007	1	0.02110
+specifically	B2	2011	1	0.02109
+mortal	B2	2017	1	0.02108
+outcome	B2	2010,2012,2022	4	0.02096
+torment	C1	2006	1	0.02088
+unconscious	B2	2008,2011	2	0.02083
+utterly	B2	2024	1	0.02069
+digitalization	C1	2019	1	0.02057
+temperamentally	C1	2012	1	0.02057
+resent	C1	2006	1	0.02045
+intuitively	C1	2009,2017	2	0.02035
+scent	B2	2012	1	0.02034
+primary	B2	2010	5	0.02019
+synonym	B2	2024	1	0.02013
+premises	C1	2006	1	0.01989
+consciousness	B2	2009,2011,2017,2023	20	0.01953
+pursuit	B2	2024	1	0.01921
+sedentary	C1	2020	1	0.01919
+sincere	B2	2024	1	0.01914
+constant	B2	2005,2008,2009,2020	4	0.01903
+discourse	C1	2023	1	0.01890
+harmless	B2	2006,2023	2	0.01880
+elongate	C1	2009	1	0.01875
+cognitive	C2	2012,2013,2014,2016,2020,2024	10	0.01870
+starve	B2	2022	1	0.01866
+fulfill	B2	2024	1	0.01862
+compel	C1	2011,2024	2	0.01845
+vital	B2	2007,2014	3	0.01843
+corresponding	B2	2006,2015	2	0.01834
+cope	B2	2023	1	0.01825
+considerably	B2	2020	1	0.01824
+ultimate	B2	2015,2017,2021	4	0.01809
+carbon	B2	2022	1	0.01806
+gently	B2	2012	1	0.01801
+controversy	B2	2006	1	0.01774
+isolated	C1	2005,2006	2	0.01771
+profess	C1	2023	2	0.01768
+admittedly	B2	2009,2010	2	0.01756
+unfamiliar	B2	2008	1	0.01747
+thereafter	B2	2015	1	0.01740
+subtly	C1	2018,2024	2	0.01740
+reinforce	B2	2007,2010	2	0.01725
+hence	C1	2021	1	0.01720
+presidency	B2	2008	2	0.01718
+investigate	B2	2012	1	0.01716
+astronomy	B2	2006	1	0.01708
+label	B2	2022	1	0.01707
+blindness	B2	2010	3	0.01706
+remarkably	B2	2010	1	0.01686
+endeavor	B2	2015	1	0.01672
+instruct	B2	2007	1	0.01665
+astonishing	B2	2008,2017,2020	4	0.01664
+tightrope	B2	2014	1	0.01655
+converse	B2	2009	1	0.01643
+outlook	B2	2007	2	0.01634
+commute	B2	2018	1	0.01633
+thinker	B2	2017	1	0.01631
+influenza	B2	2007	1	0.01628
+environment	B2	2010,2016,2017,2019	5	0.01627
+transmit	B2	2012	1	0.01627
+paradox	B2	2015	1	0.01625
+compute	B2	2011	1	0.01624
+serial	B2	2021	1	0.01610
+refrain	B2	2017	1	0.01608
+conquest	B2	2020	2	0.01608
+goodwill	B2	2018	1	0.01603
+anguish	B2	2021	1	0.01594
+prompt	B2	2008	1	0.01592
+humane	B2	2018	1	0.01590
+aspire	B2	2008	1	0.01586
+drought	B2	2017	2	0.01585
+immerse	B2	2008,2017,2021	3	0.01584
+uneven	B2	2018	1	0.01582
+assert	B2	2013	1	0.01580
+exclaim	B2	2006	1	0.01580
+imply	B2	2005,2008	2	0.01571
+output	B2	2009	1	0.01564
+assess	B2	2006	1	0.01561
+amaze	B2	2005	1	0.01559
+prospect	B2	2010	2	0.01557
+width	B2	2006	1	0.01556
+margin	B2	2016	1	0.01555
+conductor	B2	2005	3	0.01553
+deduce	B2	2006,2015	2	0.01552
+conscience	B2	2006	1	0.01552
+barren	B2	2017	1	0.01546
+neat	B2	2024	2	0.01545
+exploit	B2	2015,2018	2	0.01537
+pervasive	C2	2022	1	0.01525
+flame	B2	2022	1	0.01523
+refute	B2	2011,2021	2	0.01522
+seminar	B2	2008	1	0.01519
+faculty	B2	2008	1	0.01514
+frontier	B2	2015	1	0.01507
+deem	B2	2006	1	0.01507
+merge	B2	2006	2	0.01506
+metaphor	B2	2016	2	0.01505
+conversely	B2	2021	1	0.01489
+query	B2	2007	1	0.01488
+telescope	B2	2018	4	0.01484
+confession	B2	2021	1	0.01483
+edit	B2	2019	1	0.01482
+employ	B2	2007,2012	2	0.01474
+shrug	B2	2006	1	0.01472
+input	B2	2009	1	0.01467
+extract	B2	2020	1	0.01466
+coma	B2	2023	1	0.01463
+contempt	B2	2011	1	0.01456
+inherit	B2	2010	1	0.01455
+blurt	B2	2014	1	0.01455
+colleague	B2	2008,2018,2023	3	0.01451
+specialty	B2	2012	1	0.01447
+connotation	C2	2024	1	0.01442
+qualitative	C2	2023	1	0.01442
+retrieve	B2	2016	1	0.01428
+berry	B2	2020	1	0.01415
+overall	B2	2019	1	0.01413
+dismiss	B2	2005	1	0.01412
+equip	B2	2012,2013	2	0.01410
+tackle	B2	2008,2017	2	0.01409
+hardware	B2	2013	1	0.01406
+investigator	B2	2006	1	0.01399
+thoughtful	B2	2007	1	0.01398
+midst	B2	2008	2	0.01395
+physician	B2	2012	1	0.01394
+vanish	B2	2009	1	0.01370
+idle	B2	2009	1	0.01370
+pointless	B2	2013,2019	2	0.01367
+refuge	B2	2008	1	0.01350
+motion	B2	2019	5	0.01349
+reaction	B2	2008,2017	2	0.01344
+predictor	B2	2010	1	0.01339
+exile	B2	2016	1	0.01331
+unlock	B2	2009,2015	2	0.01330
+straighten	B2	2014	1	0.01330
+detect	B2	2012,2018	2	0.01323
+barrier	B2	2010,2017	2	0.01321
+coincidence	B2	2005	1	0.01320
+predecessor	C1	2009,2021	3	0.01318
+exhilarating	C1	2008	1	0.01315
+interior	B2	2019	1	0.01309
+regardless	B2	2018	3	0.01308
+probe	B2	2019	2	0.01307
+toll	B2	2008	1	0.01305
+version	B2	2011	2	0.01302
+blink	B2	2005	1	0.01299
+grasp	B2	2013,2021	5	0.01298
+purchase	B2	2021	1	0.01294
+revolution	B2	2011	1	0.01290
+profoundly	C1	2017,2021	2	0.01287
+dove	B2	2017	1	0.01287
+decade	B2	2005,2018,2019	4	0.01287
+bookish	B2	2021	2	0.01278
+execute	B2	2017	1	0.01274
+doom	B2	2014	1	0.01266
+database	B2	2016	1	0.01266
+core	B2	2008,2024	2	0.01255
+inborn	B2	2013	2	0.01248
+submit	B2	2018	1	0.01239
+peninsula	C1	2006	1	0.01235
+subtle	B2	2019	1	0.01231
+modest	B2	2008	1	0.01229
+intellect	C1	2012	1	0.01227
+conference	B2	2017	1	0.01219
+grain	B2	2010,2019	2	0.01218
+thereby	C1	2011,2013,2021	3	0.01216
+spark	B2	2014	1	0.01214
+cottage	B2	2009	1	0.01214
+dispense	C1	2006	1	0.01208
+productivity	-	2010,2017,2024	3	0.01207
+discipline	B2	2008,2012,2014	3	0.01203
+concerto	C1	2014	1	0.01202
+rack	B2	2014	1	0.01199
+constellation	-	2024	1	0.01195
+cease	B2	2005,2006,2021	3	0.01194
+hypothetical	C2	2005	1	0.01192
+bolt	B2	2013	1	0.01191
+impenetrable	-	2023	1	0.01190
+offspring	C1	2007	1	0.01186
+melody	B2	2015	3	0.01182
+inconsistent	-	2024	1	0.01180
+preposterous	-	2024	1	0.01176
+factor	B2	2009,2010	2	0.01170
+coincidentally	-	2024	1	0.01170
+fluid	B2	2015	2	0.01156
+pose	B2	2005,2007,2018	3	0.01153
+behavioral	-	2020,2024	2	0.01153
+privilege	B2	2009	1	0.01149
+transit	C1	2006	1	0.01148
+comparable	-	2009,2020,2022	3	0.01147
+actual	B2	2007	1	0.01143
+astray	C1	2012	1	0.01142
+instinct	B2	2018,2021	3	0.01142
+instability	-	2022	1	0.01141
+monumental	-	2024	1	0.01139
+ideological	-	2024	1	0.01137
+occurrence	-	2024	1	0.01136
+crab	B2	2012	1	0.01132
+draft	B2	2008	2	0.01129
+scorn	C1	2021	1	0.01129
+proverbial	C2	2014	1	0.01122
+exert	C1	2013	2	0.01122
+align	C1	2006	1	0.01121
+somewhat	B2	2011,2018,2021	3	0.01121
+terrestrial	-	2020,2022	2	0.01121
+rainbow	B2	2006	3	0.01114
+depict	C1	2015	1	0.01113
+stake	B2	2007,2024	2	0.01108
+chew	B2	2017	1	0.01106
+humidity	-	2005,2022	2	0.01103
+tribe	B2	2020,2024	7	0.01101
+worthless	B2	2017	1	0.01098
+fossil	C1	2009	1	0.01095
+calorie	C1	2020	2	0.01094
+laptop	B2	2018	1	0.01088
+virtuous	-	2023	1	0.01084
+spite	B2	2016	1	0.01084
+immense	C1	2011	1	0.01081
+plague	B2	2006	1	0.01077
+recess	C1	2015	1	0.01076
+ceiling	B2	2006	1	0.01069
+genuine	B2	2018	1	0.01069
+prudent	-	2022	1	0.01062
+tailor	C1	2012,2014	2	0.01061
+loom	C1	2021	1	0.01061
+proactive	-	2022	1	0.01058
+mammals	-	2020,2022	2	0.01056
+drain	B2	2011	1	0.01055
+avid	C1	2016	1	0.01051
+fabricate	C2	2009	1	0.01051
+literally	B2	2009,2016	2	0.01047
+archives	-	2008,2022	3	0.01045
+crawl	B2	2020	1	0.01042
+prior	B2	2019	1	0.01037
+species	B2	2005,2020,2021,2022	7	0.01035
+confess	B2	2005,2023	2	0.01034
+cabinet	B2	2016	1	0.01033
+infected	B2	2007	1	0.01033
+exponential	-	2023	1	0.01029
+avoidance	-	2022	1	0.01029
+gnaw	C1	2012	1	0.01025
+devise	-	2022	1	0.01024
+taut	C1	2012	1	0.01020
+astrophysicist	-	2024	1	0.01017
+sustainably	C1	2017	1	0.01016
+uninspiring	C1	2017	1	0.01016
+advocate	-	2023	1	0.01007
+collective	-	2023	1	0.01005
+humble	B2	2006,2009,2016	3	0.01002
+sprawl	C1	2006	1	0.01001
+propensity	-	2024	1	0.00999
+patent	-	2024	1	0.00998
+billion	B2	2022	1	0.00994
+habitation	C2	2020	1	0.00994
+grip	B2	2011,2013	3	0.00992
+retreat	B2	2008	1	0.00986
+bliss	C1	2017	1	0.00985
+immemorial	-	2017,2024	2	0.00984
+shield	B2	2021	1	0.00974
+reverse	B2	2007	1	0.00963
+keen	B2	2021	1	0.00963
+acid	B2	2015	7	0.00950
+beam	B2	2006	7	0.00945
+archivist	-	2022	1	0.00937
+zoology	C2	2013	1	0.00922
+testimony	B2	2008	1	0.00917
+multiple	B2	2006	1	0.00913
+fleet	B2	2005,2017	3	0.00906
+solar	B2	2018	1	0.00892
+polish	B2	2013	1	0.00890
+stroke	B2	2018	2	0.00863
+insult	B2	2006	3	0.00854
+sail	B2	2016	2	0.00847
+violet	C1	2006	4	0.00837
+community	B2	2006,2007,2019,2021	6	0.00827
+particular	B2	2009,2011,2012,2021,2023	8	0.00797
+rocket	B2	2011	1	0.00794
+sneak	B2	2019	1	0.00791
+snap	B2	2005,2012,2019	7	0.00772
+media	B2	2019,2022,2023	6	0.00769
+spin	B2	2011,2012,2015	4	0.00767
+justification	-	2010,2021	2	0.00765
+evolutionary	-	2018,2020	2	0.00762
+inexperienced	B2		0	0.00761
+sufficiently	B2		0	0.00761
+psychologically	B2		0	0.00761
+unimaginable	B2		0	0.00761
+inspirational	B2		0	0.00761
+passionately	B2		0	0.00761
+conveniently	B2		0	0.00760
+exceptionally	B2		0	0.00760
+tremendously	B2		0	0.00760
+significantly	B2		0	0.00760
+systematically	-	2014,2017	2	0.00759
+accommodation	B2		0	0.00759
+independently	B2		0	0.00759
+western	B2	2005,2017	2	0.00758
+unauthorized	B2		0	0.00758
+correspondent	B2		0	0.00757
+neurological	-	2020	1	0.00757
+unattractive	B2		0	0.00756
+photographic	-	2016	1	0.00756
+affectionate	B2		0	0.00756
+archaeological	-	2020	2	0.00756
+exaggeration	B2		0	0.00756
+participation	B2		0	0.00754
+astronomical	-	2021	1	0.00754
+aggressively	B2		0	0.00753
+inflammation	B2		0	0.00753
+incomprehensible	-	2012	1	0.00753
+compassionate	B2		0	0.00753
+anticipation	B2		0	0.00753
+appropriately	B2		0	0.00753
+administrative	B2		0	0.00753
+questionable	-	2017	1	0.00750
+proclamation	-	2008	1	0.00750
+perseverance	B2		0	0.00750
+dramatically	B2		0	0.00748
+correspondence	B2		0	0.00747
+narcissistic	B2		0	0.00747
+satisfactory	B2		0	0.00746
+manifestation	-	2021	1	0.00746
+comprehension	B2		0	0.00745
+transfusion	B2		0	0.00743
+inseparable	B2		0	0.00743
+catastrophic	B2		0	0.00743
+reinforcement	B2		0	0.00742
+brilliantly	B2		0	0.00742
+acquisition	B2		0	0.00742
+microscopic	B2		0	0.00742
+fascination	B2		0	0.00742
+stimulation	B2		0	0.00741
+appreciative	B2		0	0.00741
+publication	B2		0	0.00740
+legislation	B2		0	0.00740
+prestigious	B2		0	0.00740
+unavailable	B2		0	0.00739
+disposition	B2		0	0.00739
+compression	B2		0	0.00739
+adventurous	B2		0	0.00739
+coincidental	-	2010	1	0.00739
+superiority	-	2020	1	0.00738
+unthinkable	-	2005	1	0.00738
+suspiciously	B2		0	0.00738
+respiratory	B2		0	0.00738
+representation	-	2020	1	0.00737
+decomposition	B2		0	0.00737
+qualification	B2		0	0.00737
+incorporate	-	2007	1	0.00736
+simultaneous	B2		0	0.00735
+unrealistic	B2		0	0.00735
+artificially	B2		0	0.00734
+commemorate	B2		0	0.00733
+nourishment	B2		0	0.00733
+indifferent	B2		0	0.00732
+biologist	-	2005,2014,2018,2021	4	0.00732
+archaeology	-	2020	2	0.00732
+indigenous	-	2016,2017	2	0.00731
+pessimistic	B2		0	0.00730
+differentiate	-	2017	1	0.00730
+subsequent	-	2007,2017	2	0.00729
+progression	-	2017	1	0.00728
+respiration	B2		0	0.00728
+disintegrate	-	2007	1	0.00728
+utilitarian	C2	2024	1	0.00727
+conceivable	B2		0	0.00727
+exclusively	B2		0	0.00726
+imprisonment	B2		0	0.00726
+adolescence	-	2012	1	0.00726
+disorganized	B2		0	0.00726
+inadequate	B2		0	0.00726
+innovative	B2		0	0.00726
+relaxation	B2		0	0.00726
+concession	B2		0	0.00726
+patriotism	B2		0	0.00726
+sympathize	B2		0	0.00726
+persuasion	B2		0	0.00726
+recreation	B2		0	0.00726
+rebellious	B2		0	0.00726
+benevolent	B2		0	0.00726
+pharmacist	B2		0	0.00725
+existential	-	2016,2017	2	0.00725
+detachment	B2		0	0.00725
+misconception	B2		0	0.00725
+transparent	B2		0	0.00725
+infectious	B2		0	0.00725
+unofficial	B2		0	0.00725
+beneficial	B2		0	0.00725
+orchestral	B2		0	0.00724
+unmistakable	B2		0	0.00724
+dependable	B2		0	0.00724
+approximate	B2		0	0.00724
+relativity	B2		0	0.00724
+distortion	B2		0	0.00724
+completion	B2		0	0.00724
+supervision	B2		0	0.00723
+impossibility	B2		0	0.00723
+sanitation	B2		0	0.00723
+outfit	B2	2019	1	0.00723
+exhaustion	B2		0	0.00723
+ceremonial	-	2008	1	0.00723
+conversion	B2		0	0.00722
+generously	B2		0	0.00722
+prevention	B2		0	0.00722
+repression	B2		0	0.00722
+punctuality	B2		0	0.00722
+inclination	-	2011	1	0.00722
+affordable	B2		0	0.00722
+renovation	-	2018	1	0.00722
+projection	B2		0	0.00721
+affectionately	B2		0	0.00721
+adaptation	-	2020	1	0.00721
+sensitivity	-	2021	1	0.00721
+supplement	B2		0	0.00721
+electronically	B2		0	0.00720
+compatible	B2		0	0.00720
+incompatible	-	2007	1	0.00720
+allegation	B2		0	0.00720
+facilitate	B2		0	0.00720
+jeopardize	B2		0	0.00720
+ironically	B2		0	0.00719
+unbeatable	B2		0	0.00719
+geographic	B2		0	0.00719
+indescribable	B2		0	0.00718
+compulsory	B2		0	0.00718
+ineffective	B2		0	0.00718
+capitalist	-	2017	1	0.00718
+contaminate	B2		0	0.00718
+fantastically	B2		0	0.00718
+legislative	B2		0	0.00718
+stationary	-	2019	1	0.00718
+financially	B2		0	0.00717
+trajectory	-	2018,2020	2	0.00717
+starvation	B2		0	0.00716
+decoration	B2		0	0.00716
+legislature	B2		0	0.00716
+functional	B2		0	0.00715
+influential	B2		0	0.00715
+desperation	B2		0	0.00714
+repetition	B2		0	0.00714
+improbable	B2		0	0.00714
+imperative	B2		0	0.00714
+interactive	B2		0	0.00714
+immortality	B2		0	0.00713
+adjustment	B2		0	0.00713
+hospitable	B2		0	0.00713
+alcoholism	B2		0	0.00713
+anticipate	B2		0	0.00712
+nomination	B2		0	0.00712
+illustration	B2		0	0.00711
+circumference	-	2005	1	0.00711
+subjective	-	2009	1	0.00711
+critically	B2		0	0.00711
+delicately	B2		0	0.00709
+migration	B2		0	0.00709
+coordinate	-	2017	1	0.00709
+dormitory	B2		0	0.00709
+vibration	B2		0	0.00709
+attentive	B2		0	0.00709
+patiently	B2		0	0.00709
+hazardous	B2		0	0.00709
+familiarity	-	2010	1	0.00709
+authorize	B2		0	0.00709
+recession	B2		0	0.00708
+governmental	B2		0	0.00708
+assurance	B2		0	0.00708
+certification	B2		0	0.00708
+redundant	B2		0	0.00708
+navigation	B2		0	0.00708
+lucrative	B2		0	0.00708
+inflammatory	B2		0	0.00708
+incentive	B2		0	0.00707
+culmination	B2		0	0.00707
+incurable	B2		0	0.00707
+hail	B2	2015	1	0.00707
+reverence	B2		0	0.00707
+supervise	B2		0	0.00707
+implement	B2		0	0.00707
+eternally	B2		0	0.00707
+luxurious	B2		0	0.00707
+imitation	B2		0	0.00706
+impartial	B2		0	0.00706
+replicate	-	2009	1	0.00706
+inability	-	2015	1	0.00706
+economical	B2		0	0.00706
+proximity	B2		0	0.00706
+frantically	B2		0	0.00706
+visualize	-	2006	1	0.00706
+accumulate	B2		0	0.00705
+adversity	B2		0	0.00705
+irritated	B2		0	0.00705
+inflation	B2		0	0.00705
+perpetual	-	2017	1	0.00705
+paramedic	B2		0	0.00705
+illumination	-	2014	2	0.00705
+endurance	B2		0	0.00705
+restriction	B2		0	0.00705
+mortality	-	2017	2	0.00705
+physicist	-	2005,2011	3	0.00705
+attendance	B2		0	0.00705
+skeptical	-	2021	1	0.00705
+skip	B2	2008	1	0.00705
+unreasonable	B2		0	0.00704
+excursion	B2		0	0.00704
+obsessive	B2		0	0.00704
+irrational	B2		0	0.00703
+politically	B2		0	0.00703
+radically	B2		0	0.00702
+preferable	B2		0	0.00702
+overestimate	B2		0	0.00702
+inaccurate	B2		0	0.00702
+benevolence	B2		0	0.00702
+journalism	B2		0	0.00702
+eradicate	-	2020	1	0.00701
+accumulation	-	2009	1	0.00700
+ease	B2	2021	1	0.00700
+hesitation	B2		0	0.00700
+popularity	B2		0	0.00700
+coalition	B2		0	0.00700
+provision	B2		0	0.00700
+turbulent	B2		0	0.00699
+intrusion	B2		0	0.00699
+ambiguous	B2		0	0.00699
+obedience	B2		0	0.00699
+therapy	B2	2009	1	0.00699
+expressive	B2		0	0.00698
+sustenance	-	2020	1	0.00698
+reflective	B2		0	0.00698
+environmentally	B2		0	0.00697
+momentary	B2		0	0.00697
+confidently	B2		0	0.00696
+illogical	-	2014	1	0.00695
+deceptive	B2		0	0.00695
+formidable	B2		0	0.00695
+unsuitable	B2		0	0.00695
+displeasure	B2		0	0.00694
+infringement	B2		0	0.00694
+irritation	B2		0	0.00694
+procession	-	2006	1	0.00694
+effectively	B2		0	0.00693
+informal	B2		0	0.00692
+punctual	B2		0	0.00692
+socialize	B2		0	0.00692
+elegance	B2		0	0.00692
+seasonal	B2		0	0.00692
+actively	B2		0	0.00692
+ointment	B2		0	0.00692
+ornament	B2		0	0.00692
+sincerity	B2		0	0.00692
+sacrament	-	2016	1	0.00691
+tolerant	B2		0	0.00691
+brochure	B2		0	0.00691
+workaholic	B2		0	0.00691
+eruption	B2		0	0.00690
+optimism	B2		0	0.00690
+wondrous	B2		0	0.00690
+vigorously	B2		0	0.00690
+vulnerable	-	2022	1	0.00690
+electronics	B2		0	0.00690
+miniature	B2		0	0.00690
+obituary	B2		0	0.00690
+culturally	B2		0	0.00690
+perspiration	B2		0	0.00689
+reluctant	B2		0	0.00689
+optimist	B2		0	0.00689
+patriotic	B2		0	0.00688
+elemental	B2		0	0.00688
+humility	-	2007,2018	2	0.00688
+impressionist	B2		0	0.00688
+conceive	B2		0	0.00688
+transient	B2		0	0.00688
+communal	-	2007	3	0.00688
+withdrawal	B2		0	0.00687
+intensity	-	2017	1	0.00687
+vigorous	B2		0	0.00687
+friction	-	2013	2	0.00687
+dissatisfaction	B2		0	0.00686
+astonishment	B2		0	0.00686
+inescapable	-	2017	1	0.00686
+impulsive	B2		0	0.00685
+adequately	B2		0	0.00685
+casually	B2		0	0.00685
+athletics	B2		0	0.00684
+incompetent	-	2021	1	0.00684
+unnatural	B2		0	0.00684
+synchronization	-	2005	2	0.00683
+nobility	B2		0	0.00683
+authoritative	B2		0	0.00683
+mobility	B2		0	0.00683
+rigorous	-	2014	1	0.00683
+rhythmic	B2		0	0.00682
+quotation	B2		0	0.00682
+optional	B2		0	0.00682
+statistics	B2		0	0.00682
+eloquent	B2		0	0.00682
+desolation	B2		0	0.00682
+indicative	-	2019	1	0.00681
+enthusiastically	B2		0	0.00681
+negatively	B2		0	0.00681
+adequate	B2		0	0.00681
+nurture	-	2013,2021	3	0.00681
+innocently	B2		0	0.00681
+operational	-	2009	1	0.00681
+sanitary	B2		0	0.00680
+experimental	-	2020	1	0.00680
+sociable	B2		0	0.00680
+leisurely	B2		0	0.00680
+obedient	B2		0	0.00680
+inequality	-	2010	6	0.00680
+stability	B2		0	0.00679
+opportunistic	-	2020	1	0.00679
+additionally	B2		0	0.00679
+aspiration	B2		0	0.00679
+aboriginal	B2		0	0.00678
+pavement	B2		0	0.00678
+creatively	B2		0	0.00678
+accusation	B2		0	0.00678
+penetrate	B2		0	0.00678
+economist	B2		0	0.00677
+dedication	B2		0	0.00677
+clerical	B2		0	0.00677
+revelation	B2		0	0.00677
+evaluation	B2		0	0.00677
+vocalist	B2		0	0.00677
+analogy	B2		0	0.00677
+standardized	-	2017	1	0.00676
+separately	B2		0	0.00676
+data	B2	2024	1	0.00676
+revival	B2		0	0.00676
+eligible	B2		0	0.00676
+playmate	B2		0	0.00676
+consolation	B2		0	0.00675
+literal	B2		0	0.00675
+stylist	B2		0	0.00675
+utility	B2		0	0.00675
+fragrance	B2		0	0.00675
+biblical	-	2006	1	0.00675
+dominate	B2		0	0.00675
+understandable	B2		0	0.00675
+adamant	-	2014	1	0.00673
+balanced	B2		0	0.00673
+vibrant	-	2020	1	0.00673
+optical	-	2007	1	0.00673
+decorate	B2		0	0.00673
+genius	B2	2012,2024	2	0.00672
+devised	-	2013	1	0.00671
+density	-	2020	1	0.00671
+dependence	-	2018	1	0.00671
+decisive	B2		0	0.00671
+evacuation	B2		0	0.00671
+amazement	B2		0	0.00671
+sensory	-	2010	1	0.00671
+orbital	-	2018	1	0.00671
+unacceptable	B2		0	0.00671
+generosity	B2		0	0.00670
+glamorous	B2		0	0.00670
+ideally	B2		0	0.00670
+vibrate	B2		0	0.00670
+boundary	-	2020	1	0.00670
+developmental	-	2013	2	0.00670
+syllable	B2		0	0.00670
+verbally	B2		0	0.00670
+agitated	-	2021	1	0.00669
+intravenous	B2		0	0.00669
+morally	B2		0	0.00669
+outpatient	B2		0	0.00669
+generic	-	2009	1	0.00669
+pessimist	B2		0	0.00668
+expansion	B2		0	0.00668
+assessment	B2		0	0.00668
+rationalize	-	2011	1	0.00668
+resolution	B2		0	0.00667
+valiant	-	2012	1	0.00667
+indication	-	2021	1	0.00667
+exclusion	B2		0	0.00667
+simplistic	-	2021	1	0.00665
+supernatural	B2		0	0.00665
+necessity	B2		0	0.00665
+abnormally	B2		0	0.00665
+intrude	B2		0	0.00665
+emergence	B2		0	0.00664
+disqualify	B2		0	0.00664
+optimistic	B2		0	0.00664
+specify	B2		0	0.00664
+chaotic	B2		0	0.00663
+inanimate	B2		0	0.00662
+unremarkable	-	2009	1	0.00662
+preemptive	-	2017	1	0.00662
+diversion	B2		0	0.00662
+alternate	B2		0	0.00662
+innumerable	-	2017	1	0.00662
+adaptable	B2		0	0.00661
+maximize	-	2018	1	0.00661
+successive	B2		0	0.00661
+outlive	B2		0	0.00661
+unsure	B2		0	0.00661
+equity	B2		0	0.00661
+criticism	B2		0	0.00660
+numerical	B2		0	0.00660
+fantastical	-	2019	1	0.00660
+cordial	-	2018	1	0.00660
+violate	B2		0	0.00659
+utilize	B2		0	0.00659
+organised	-	2011,2015	2	0.00659
+estimated	B2		0	0.00659
+alternatively	B2		0	0.00658
+orient	-	2008	1	0.00658
+hectic	-	2008	1	0.00658
+stimulant	B2		0	0.00658
+presidential	B2		0	0.00658
+potent	B2		0	0.00658
+originate	B2		0	0.00657
+immersion	-	2017	1	0.00657
+approximation	-	2006	1	0.00656
+preliminary	B2		0	0.00656
+unwise	B2		0	0.00656
+collision	-	2018	1	0.00656
+excessive	B2		0	0.00656
+metallic	-	2009	2	0.00656
+contentious	-	2008	1	0.00655
+evidently	B2		0	0.00655
+mighty	B2	2021	1	0.00655
+racism	B2		0	0.00654
+gradual	B2		0	0.00654
+ethnic	B2		0	0.00654
+immoral	B2		0	0.00654
+impatiently	B2		0	0.00654
+strive	B2		0	0.00654
+fiscal	B2		0	0.00653
+nervously	B2		0	0.00653
+recommendation	B2		0	0.00653
+furiously	B2		0	0.00653
+ambiguity	B2		0	0.00653
+probable	B2		0	0.00652
+neural	-	2008,2019,2020	5	0.00652
+postal	B2		0	0.00652
+motivated	B2		0	0.00652
+fascinated	B2		0	0.00651
+bilateral	-	2020	1	0.00651
+incubation	-	2014	1	0.00651
+merchandise	B2		0	0.00650
+texture	-	2019	1	0.00649
+caption	B2		0	0.00649
+humiliation	B2		0	0.00649
+familiarize	B2		0	0.00648
+extensive	B2		0	0.00648
+signify	B2		0	0.00648
+epidemic	-	2007	2	0.00648
+entity	-	2009	1	0.00648
+inflate	B2		0	0.00647
+indignity	B2		0	0.00647
+cyclist	B2		0	0.00647
+aquatic	-	2020	1	0.00646
+trivial	B2		0	0.00646
+conceal	B2		0	0.00646
+thrive	-	2007	1	0.00645
+inflexible	-	2020	1	0.00645
+solvent	B2		0	0.00645
+indulgent	B2		0	0.00645
+eloquence	B2		0	0.00645
+transition	B2		0	0.00645
+marginalized	-	2017	1	0.00645
+privately	B2		0	0.00645
+untreated	B2		0	0.00644
+temperate	B2		0	0.00644
+biodiversity	-	2017	1	0.00644
+elective	B2		0	0.00644
+captive	B2		0	0.00643
+mimic	B2		0	0.00643
+cosmology	-	2011	1	0.00643
+irrespective	-	2005	1	0.00642
+orchestrate	-	2005	1	0.00642
+irresponsible	B2		0	0.00642
+prominence	B2		0	0.00642
+clarify	B2		0	0.00641
+pastoral	B2		0	0.00641
+ethic	B2		0	0.00640
+pandemic	B2		0	0.00640
+naturalist	-	2005	1	0.00640
+humiliate	B2		0	0.00640
+consultant	B2		0	0.00640
+underestimate	B2		0	0.00640
+involvement	B2		0	0.00639
+reorganize	B2		0	0.00639
+unbearable	B2		0	0.00638
+hospitality	B2		0	0.00638
+elegantly	B2		0	0.00638
+revive	B2		0	0.00637
+cathedral	B2		0	0.00637
+burglary	B2		0	0.00637
+tyrant	B2		0	0.00636
+potentially	B2		0	0.00635
+stance	-	2018	1	0.00635
+impressionism	B2		0	0.00635
+judgement	-	2006	1	0.00635
+globally	B2		0	0.00634
+urgently	B2		0	0.00633
+factual	-	2011	1	0.00633
+gear	B2	2014	1	0.00633
+exertion	-	2008	2	0.00633
+empathetic	-	2021	1	0.00632
+attentively	B2		0	0.00632
+gravitation	B2		0	0.00631
+spectral	-	2006	1	0.00631
+personification	B2		0	0.00631
+relic	B2		0	0.00631
+glorify	B2		0	0.00631
+tuition	B2		0	0.00630
+electromagnetism	-	2011	1	0.00630
+descriptive	B2		0	0.00628
+bruise	B2		0	0.00628
+filial	B2		0	0.00627
+practicality	B2		0	0.00627
+unfashionable	B2		0	0.00627
+preventive	B2		0	0.00627
+disillusion	B2		0	0.00627
+subdivision	B2		0	0.00626
+dissident	B2		0	0.00626
+closure	B2		0	0.00626
+prism	-	2006	15	0.00625
+certify	B2		0	0.00625
+actuality	-	2016	1	0.00625
+likewise	B2		0	0.00624
+rural	B2		0	0.00624
+vacant	B2		0	0.00624
+cylindrical	-	2013	2	0.00623
+disappearance	B2		0	0.00621
+ubiquitous	-	2005	1	0.00621
+resignation	B2		0	0.00621
+frigate	B2		0	0.00620
+spherical	-	2013	2	0.00620
+pedal	B2		0	0.00620
+surmise	-	2011	1	0.00617
+tropic	B2		0	0.00617
+altitude	B2		0	0.00617
+radiate	B2		0	0.00615
+recognition	B2		0	0.00615
+inference	B2		0	0.00615
+radial	-	2020	1	0.00614
+rendezvous	-	2018	2	0.00614
+dignify	B2		0	0.00614
+fastidious	-	2009	1	0.00613
+initiative	B2		0	0.00613
+atypical	B2		0	0.00613
+motorist	B2		0	0.00612
+theorist	B2		0	0.00611
+medieval	B2		0	0.00610
+irrelevant	-	2010	1	0.00609
+frugal	B2		0	0.00608
+extension	B2		0	0.00608
+addiction	B2		0	0.00607
+identification	B2		0	0.00607
+figurative	B2		0	0.00607
+predictive	B2		0	0.00607
+liberal	B2		0	0.00606
+trauma	C1	2011	1	0.00605
+permanence	B2		0	0.00605
+reliance	-	2020	1	0.00604
+unequal	-	2010	1	0.00603
+obligation	B2		0	0.00602
+prance	B2		0	0.00600
+nuisance	B2		0	0.00599
+vanity	B2		0	0.00598
+trial	B2	2009,2010,2021	4	0.00598
+sanctuary	-	2008	1	0.00598
+deceive	B2		0	0.00596
+donation	B2		0	0.00596
+dynamic	B2		0	0.00595
+virtually	B2		0	0.00593
+pedantic	B2		0	0.00593
+injection	B2		0	0.00593
+accessibility	B2		0	0.00592
+antibacterial	B2		0	0.00592
+antipollution	B2		0	0.00592
+bewilderment	B2		0	0.00592
+communicative	B2		0	0.00592
+ecologically	B2		0	0.00592
+functionality	B2		0	0.00592
+industrialize	B2		0	0.00592
+intransitive	B2		0	0.00592
+microorganism	B2		0	0.00592
+modernization	B2		0	0.00592
+nonprofessional	B2		0	0.00592
+overemphasize	B2		0	0.00592
+preindustrial	B2		0	0.00592
+recommendable	B2		0	0.00592
+scholasticism	B2		0	0.00592
+simplification	B2		0	0.00592
+subcontinent	B2		0	0.00592
+uncharacteristic	B2		0	0.00592
+unenthusiastic	B2		0	0.00592
+harmonize	-	2021	1	0.00592
+emphasise	-	2015	1	0.00591
+cellist	B2		0	0.00591
+weary	B2		0	0.00590
+humanist	B2		0	0.00590
+sexism	B2		0	0.00590
+jealously	B2		0	0.00590
+superintendent	B2		0	0.00590
+despise	B2		0	0.00589
+portion	B2		0	0.00589
+fracture	-	2020	1	0.00589
+coral	B2		0	0.00588
+animate	B2		0	0.00588
+quantify	B2		0	0.00586
+modernize	B2		0	0.00585
+surgical	-	2012	1	0.00584
+minimise	-	2011	1	0.00583
+campaign	B2	2017	1	0.00581
+equate	-	2017	1	0.00580
+resonant	B2		0	0.00579
+unity	-	2021	1	0.00579
+collocation	B2		0	0.00578
+crystallize	B2		0	0.00578
+dispensable	B2		0	0.00578
+duplication	B2		0	0.00578
+graphically	B2		0	0.00578
+hospitalize	B2		0	0.00578
+impermanent	B2		0	0.00578
+outdistance	B2		0	0.00578
+predicative	B2		0	0.00578
+subjunctive	B2		0	0.00578
+emergent	-	2019	1	0.00578
+mist	B2		0	0.00578
+verify	-	2014	1	0.00577
+outrageous	B2		0	0.00577
+essentially	B2		0	0.00575
+hypothesis	C2	2005,2019,2021	7	0.00575
+fertilizer	-	2022	1	0.00573
+rental	B2		0	0.00572
+comprehend	-	2020,2022	2	0.00572
+donate	B2		0	0.00572
+compassion	B2		0	0.00572
+inevitably	-	2023	2	0.00572
+desperately	B2		0	0.00571
+mainstream	-	2023	1	0.00569
+antistatic	B2		0	0.00565
+attainable	B2		0	0.00565
+dehumanize	B2		0	0.00565
+invariable	B2		0	0.00565
+mutability	B2		0	0.00565
+popularize	B2		0	0.00565
+subculture	B2		0	0.00565
+transitive	B2		0	0.00565
+evacuate	B2		0	0.00564
+legendary	B2		0	0.00564
+replacement	B2		0	0.00563
+nostalgia	C2	2017	1	0.00563
+dimension	B2		0	0.00562
+transmission	B2		0	0.00561
+idolize	B2		0	0.00559
+corporation	B2		0	0.00557
+dental	B2		0	0.00557
+instantly	B2		0	0.00556
+expedition	B2		0	0.00555
+carnival	B2		0	0.00555
+enlighten	-	2023	1	0.00555
+explicitly	-	2024	1	0.00553
+breakable	B2		0	0.00552
+coherence	B2		0	0.00552
+drinkable	B2		0	0.00552
+gymnastic	B2		0	0.00552
+italicize	B2		0	0.00552
+legislate	B2		0	0.00552
+personify	B2		0	0.00552
+predicate	B2		0	0.00552
+proponent	B2		0	0.00552
+worktable	B2		0	0.00552
+livestock	-	2022	1	0.00550
+complimentary	C1		0	0.00550
+exploitation	C1		0	0.00550
+explosive	B2		0	0.00550
+conservatory	C1		0	0.00550
+consultation	C1		0	0.00550
+twentieth	-	2014,2017,2024	3	0.00549
+claustrophobic	C1		0	0.00549
+subscribe	-	2024	1	0.00549
+parliament	B2		0	0.00549
+hardened	-	2022	1	0.00549
+hypocritical	C1		0	0.00548
+unconventional	C1		0	0.00548
+manipulation	C1		0	0.00548
+occupational	C1		0	0.00547
+collaboration	C1		0	0.00546
+conscientious	C1		0	0.00545
+insubordination	C1		0	0.00545
+substance	B2		0	0.00545
+assent	-	2007	1	0.00544
+dominion	-	2022	1	0.00544
+bureaucratic	C1		0	0.00541
+notify	-	2014	1	0.00541
+nitrogen	-	2022	1	0.00541
+knowledgeable	C1		0	0.00539
+beautify	B2		0	0.00539
+downsize	B2		0	0.00539
+essayist	B2		0	0.00539
+exultant	B2		0	0.00539
+habitant	B2		0	0.00539
+humanize	B2		0	0.00539
+oversize	B2		0	0.00539
+penalize	B2		0	0.00539
+permeate	B2		0	0.00539
+quotable	B2		0	0.00539
+referent	B2		0	0.00539
+solidity	B2		0	0.00539
+diminish	C2	2019	1	0.00539
+anthropology	C1		0	0.00538
+provocative	C1		0	0.00538
+collide	C2	2006	1	0.00537
+persecution	C1		0	0.00537
+temperament	C1		0	0.00537
+professionalism	C1		0	0.00536
+ventilation	C1		0	0.00536
+prospective	C1		0	0.00536
+minivan	-	2024	3	0.00535
+ignorant	B2		0	0.00535
+restoration	C1		0	0.00535
+anthropologist	C1		0	0.00534
+sustainable	C1		0	0.00534
+deprivation	C1		0	0.00534
+exotic	B2		0	0.00533
+prolong	C2	2009	1	0.00533
+immortal	B2		0	0.00533
+tranquility	C1		0	0.00532
+naval	B2		0	0.00532
+lyrics	B2		0	0.00532
+sarcastically	C1		0	0.00532
+confinement	C1		0	0.00532
+temperamental	C1		0	0.00531
+commendation	C1		0	0.00531
+honorable	B2		0	0.00530
+radical	B2		0	0.00530
+reside	-	2008,2023	2	0.00529
+reluctantly	C1		0	0.00528
+burial	B2		0	0.00527
+agonize	B2		0	0.00527
+mortify	B2		0	0.00527
+mutable	B2		0	0.00527
+mystify	B2		0	0.00527
+ruinous	B2		0	0.00527
+recognizable	C1		0	0.00526
+grandiose	-	2024	1	0.00525
+enormously	C1		0	0.00525
+neutralize	C1		0	0.00525
+apprehensive	C1		0	0.00525
+vegetation	C1		0	0.00525
+induce	C2	2013	1	0.00525
+wholly	C2	2021	2	0.00524
+perceptive	C1		0	0.00524
+domination	C1		0	0.00524
+structural	C1		0	0.00524
+succession	C1		0	0.00524
+waist	B2		0	0.00524
+therein	-	2022	1	0.00524
+simplicity	C1		0	0.00524
+continuity	C1		0	0.00523
+compulsion	C1		0	0.00522
+malfunction	C1		0	0.00522
+intent	B2		0	0.00521
+soulful	-	2024	1	0.00521
+demolition	C1		0	0.00521
+protagonist	C1		0	0.00521
+pension	B2		0	0.00521
+inexcusable	C1		0	0.00520
+mythological	C1		0	0.00520
+demographic	C1		0	0.00520
+impersonation	C1		0	0.00518
+substantially	C1		0	0.00518
+cluster	-	2024	1	0.00517
+pleasurable	C1		0	0.00517
+hibernation	C1		0	0.00517
+impersonate	C1		0	0.00516
+passionate	B2		0	0.00516
+compliance	C1		0	0.00515
+cubism	B2		0	0.00514
+glocal	B2		0	0.00514
+indent	B2		0	0.00514
+polity	B2		0	0.00514
+reassurance	C1		0	0.00514
+ludicrous	C1		0	0.00513
+itinerary	C1		0	0.00513
+adversary	C1		0	0.00513
+provisions	C1		0	0.00513
+ratio	-	2005,2006,2022	4	0.00512
+aesthetic	C1		0	0.00512
+instinctive	C1		0	0.00512
+speculate	C1		0	0.00512
+agreeable	C1		0	0.00512
+tolerate	B2		0	0.00512
+customary	C1		0	0.00511
+insensitive	C1		0	0.00511
+credibility	C1		0	0.00511
+alignment	C1		0	0.00511
+ditto	-	2024	1	0.00511
+implicate	C1		0	0.00509
+extravagance	C1		0	0.00509
+advantageous	C1		0	0.00509
+fabric	B2		0	0.00509
+nocturnal	C1		0	0.00508
+voluntary	C1		0	0.00508
+victorious	C1		0	0.00508
+ferocious	C1		0	0.00508
+resilient	C1		0	0.00507
+squirm	C2	2012	1	0.00507
+shortcut	-	2024	1	0.00507
+circulate	C1		0	0.00507
+memorial	B2		0	0.00506
+residue	C2	2011	1	0.00506
+magnetism	C1		0	0.00506
+phenomenal	C1		0	0.00506
+elevation	C1		0	0.00506
+mythology	C1		0	0.00505
+methodical	C1		0	0.00505
+pertinent	C1		0	0.00505
+circulation	C1		0	0.00504
+negligent	C1		0	0.00504
+dissection	C1		0	0.00504
+dispensary	C1		0	0.00503
+precursor	-	2023	1	0.00503
+monotonous	C1		0	0.00503
+educated	B2		0	0.00502
+anaesthesia	-	2023	1	0.00502
+meager	C2	2005	1	0.00502
+appliance	C1		0	0.00501
+impediment	C1		0	0.00501
+acoustic	C1		0	0.00501
+manicure	C1		0	0.00501
+publicity	B2		0	0.00501
+mutually	C1		0	0.00501
+impersonal	C1		0	0.00500
+enterprise	B2		0	0.00500
+speculation	C1		0	0.00500
+estimation	C1		0	0.00500
+lavatory	C1		0	0.00500
+induction	C1		0	0.00499
+incision	C1		0	0.00499
+spontaneous	C1		0	0.00499
+arrogant	B2		0	0.00499
+retirement	B2		0	0.00499
+reminiscent	C1		0	0.00498
+maternal	C1		0	0.00498
+spacious	C1		0	0.00498
+asteroid	-	2018,2022	9	0.00498
+hilarious	B2		0	0.00498
+reassure	C1		0	0.00497
+outsourcing	-	2022	1	0.00497
+conditional	C1		0	0.00497
+formality	C1		0	0.00497
+detrimental	C1		0	0.00497
+alleviate	C1		0	0.00496
+antiquity	C1		0	0.00496
+sanctity	C1		0	0.00496
+extortion	C1		0	0.00495
+sarcastic	C1		0	0.00495
+desertion	C1		0	0.00495
+ragtime	-	2023	1	0.00495
+originally	B2		0	0.00493
+opponent	B2		0	0.00493
+inherent	C1		0	0.00493
+tweet	-	2024	1	0.00492
+transatlantic	C1		0	0.00492
+insubordinate	C1		0	0.00492
+antiquated	C1		0	0.00492
+eccentric	C1		0	0.00491
+credible	C1		0	0.00491
+commercially	C1		0	0.00491
+vitality	C1		0	0.00491
+speculative	C1		0	0.00490
+clinch	C2	2021	1	0.00490
+sentiment	C1		0	0.00490
+fanatic	C1		0	0.00490
+faction	C1		0	0.00489
+citation	C1		0	0.00489
+trench	-	2022	1	0.00489
+impervious	C1		0	0.00489
+elastic	C1		0	0.00488
+paternal	C1		0	0.00488
+traumatic	C1		0	0.00487
+olive	B2		0	0.00487
+advisory	C1		0	0.00487
+conjure	C1		0	0.00486
+premise	C1		0	0.00486
+tedious	C1		0	0.00486
+prophecy	-	2022	1	0.00486
+dominant	C1		0	0.00485
+cynicism	C1		0	0.00485
+rally	B2		0	0.00484
+manual	B2		0	0.00484
+elusive	C1		0	0.00484
+toxic	B2		0	0.00484
+posture	C1		0	0.00484
+organizational	C1		0	0.00484
+realism	C1		0	0.00483
+veneration	C1		0	0.00483
+tribal	-	2020	2	0.00483
+certificate	B2		0	0.00483
+artistically	C1		0	0.00483
+embody	C2	2017	1	0.00483
+inexhaustible	C1		0	0.00483
+emit	-	2022	1	0.00481
+fatality	C1		0	0.00481
+sentient	C1		0	0.00481
+prime	B2	2006	1	0.00481
+racist	B2		0	0.00481
+succulent	C1		0	0.00480
+jurisdiction	C1		0	0.00480
+collaborative	C1		0	0.00480
+elevate	C1		0	0.00480
+pedicure	C1		0	0.00480
+perpetuate	C1		0	0.00480
+analog	-	2022	4	0.00478
+voracious	C1		0	0.00477
+rarity	C1		0	0.00477
+acoustics	C1		0	0.00477
+viciously	C1		0	0.00476
+rotate	C1		0	0.00476
+formulate	C1		0	0.00475
+illusion	-	2019	2	0.00474
+complementary	C1		0	0.00474
+savour	-	2023	1	0.00474
+ethically	C1		0	0.00474
+depiction	C1		0	0.00473
+prophetic	C1		0	0.00473
+postwar	-	2024	2	0.00473
+upheaval	C1		0	0.00473
+antics	C1		0	0.00473
+notable	C1		0	0.00472
+structurally	C1		0	0.00472
+symptomatic	C1		0	0.00472
+dawn	B2	2014,2021	2	0.00472
+inclusive	C1		0	0.00471
+portrayal	C1		0	0.00471
+cavity	C1		0	0.00471
+dismal	C1		0	0.00470
+sedate	C1		0	0.00470
+demise	C1		0	0.00470
+execution	B2		0	0.00469
+latent	C1		0	0.00469
+marginal	C1		0	0.00469
+residence	B2		0	0.00469
+therapist	B2		0	0.00469
+resilience	C1		0	0.00469
+isolate	C1		0	0.00468
+mansion	B2		0	0.00467
+realist	C1		0	0.00467
+negligible	C1		0	0.00467
+adjustable	C1		0	0.00467
+clinical	C1		0	0.00467
+prolific	C1		0	0.00467
+suspension	C1		0	0.00467
+occupant	C1		0	0.00467
+kindle	-	2022	1	0.00466
+testament	C1		0	0.00466
+altruistic	C1		0	0.00466
+insecure	C1		0	0.00465
+retention	C1		0	0.00464
+conformity	C1		0	0.00463
+unsustainable	C1		0	0.00462
+exhibitionist	C1		0	0.00462
+alienate	C1		0	0.00462
+mercy	B2	2012	1	0.00462
+stately	C1		0	0.00461
+congregate	C1		0	0.00461
+furious	B2		0	0.00460
+exuberance	C1		0	0.00460
+exhilaration	C1		0	0.00459
+consent	B2		0	0.00459
+fabulously	C1		0	0.00458
+cooperate	B2		0	0.00458
+compliant	C1		0	0.00458
+assertion	C1		0	0.00458
+inclusion	C1		0	0.00457
+fixture	C1		0	0.00457
+harassment	C1		0	0.00457
+detestable	C1		0	0.00456
+wary	C1		0	0.00456
+corporate	B2		0	0.00455
+epoch	-	2021,2022	3	0.00455
+ornamental	C1		0	0.00455
+resonate	C1		0	0.00454
+pirate	B2		0	0.00454
+fissure	C1		0	0.00453
+marginally	C1		0	0.00453
+descent	C1		0	0.00453
+fusion	C1		0	0.00453
+artsy	-	2024	2	0.00452
+cynic	C1		0	0.00452
+purity	C1		0	0.00451
+exuberant	C1		0	0.00451
+elitist	C1		0	0.00451
+remade	-	2022	1	0.00450
+principally	C1		0	0.00450
+imperial	-	2017	1	0.00450
+versatility	C1		0	0.00449
+remedial	C1		0	0.00449
+lethargic	C1		0	0.00448
+hibernate	C1		0	0.00447
+inheritance	C1		0	0.00445
+abstraction	C1		0	0.00445
+fatal	B2		0	0.00445
+anonymous	B2		0	0.00445
+proffer	-	2023	1	0.00444
+poise	C1		0	0.00444
+ferociously	C1		0	0.00444
+restorative	C1		0	0.00443
+physicality	C1		0	0.00442
+torturous	C1		0	0.00441
+altruism	C1		0	0.00440
+corporal	B2		0	0.00439
+encompass	C2	2013	1	0.00438
+forlornly	C2	2014	1	0.00438
+ventilate	C1		0	0.00438
+panoramic	C1		0	0.00437
+elude	C1		0	0.00436
+rehearsal	B2		0	0.00436
+acidic	C1		0	0.00436
+roommate	B2		0	0.00436
+ritual	B2		0	0.00435
+crude	C1		0	0.00434
+compromised	C1		0	0.00433
+investment	B2		0	0.00432
+lens	-	2006,2024	3	0.00431
+enviable	C1		0	0.00430
+candidate	B2		0	0.00429
+acoustically	C1		0	0.00428
+amplification	C1		0	0.00428
+anticlimactic	C1		0	0.00428
+bureaucratically	C1		0	0.00428
+characterization	C1		0	0.00428
+conditionally	C1		0	0.00428
+conscientiously	C1		0	0.00428
+contextually	C1		0	0.00428
+demographically	C1		0	0.00428
+detrimentally	C1		0	0.00428
+disillusionment	C1		0	0.00428
+domestically	C1		0	0.00428
+domestication	C1		0	0.00428
+eccentrically	C1		0	0.00428
+eclectically	C1		0	0.00428
+ecstatically	C1		0	0.00428
+facilitation	C1		0	0.00428
+fragmentation	C1		0	0.00428
+geologically	C1		0	0.00428
+hypocritically	C1		0	0.00428
+impersonally	C1		0	0.00428
+insensitively	C1		0	0.00428
+insubordinately	C1		0	0.00428
+interjection	C1		0	0.00428
+lethargically	C1		0	0.00428
+magnetically	C1		0	0.00428
+maternalistic	C1		0	0.00428
+monotonously	C1		0	0.00428
+neutralization	C1		0	0.00428
+paternalistic	C1		0	0.00428
+perceptively	C1		0	0.00428
+personalization	C1		0	0.00428
+persuasively	C1		0	0.00428
+phenomenally	C1		0	0.00428
+plausibility	C1		0	0.00428
+prohibitively	C1		0	0.00428
+prolifically	C1		0	0.00428
+provocatively	C1		0	0.00428
+refurbishment	C1		0	0.00428
+sentimentally	C1		0	0.00428
+socialization	C1		0	0.00428
+specification	C1		0	0.00428
+stylistically	C1		0	0.00428
+superficially	C1		0	0.00428
+synthetically	C1		0	0.00428
+unmanageable	C1		0	0.00428
+victoriously	C1		0	0.00428
+handful	-	2016,2022	2	0.00427
+presume	-	2005,2023	2	0.00425
+cessation	C1		0	0.00425
+pithy	-	2023	1	0.00424
+vibe	-	2024	1	0.00424
+alliance	B2		0	0.00423
+reign	-	2022	1	0.00423
+chaotically	C1		0	0.00418
+compliantly	C1		0	0.00418
+dynamically	C1		0	0.00418
+elaboration	C1		0	0.00418
+explanatory	C1		0	0.00418
+explosively	C1		0	0.00418
+exuberantly	C1		0	0.00418
+fanatically	C1		0	0.00418
+immortalize	C1		0	0.00418
+inclusively	C1		0	0.00418
+ludicrously	C1		0	0.00418
+negligently	C1		0	0.00418
+personalize	C1		0	0.00418
+primitively	C1		0	0.00418
+prohibitive	C1		0	0.00418
+proliferate	C1		0	0.00418
+succulently	C1		0	0.00418
+unmusically	C1		0	0.00418
+voraciously	C1		0	0.00418
+distill	C2	2011	1	0.00418
+medication	B2		0	0.00417
+dignity	B2		0	0.00417
+comprise	C1		0	0.00417
+conviction	C1		0	0.00416
+priority	B2		0	0.00416
+scandal	B2		0	0.00416
+peasant	C1		0	0.00416
+executive	B2		0	0.00415
+crudely	C1		0	0.00415
+innovate	C1		0	0.00413
+sentimental	C1		0	0.00412
+irate	C1		0	0.00409
+audition	B2		0	0.00409
+dated	B2		0	0.00409
+contextual	C1		0	0.00408
+digitalize	C1		0	0.00408
+divergence	C1		0	0.00408
+dominantly	C1		0	0.00408
+exhilarate	C1		0	0.00408
+exotically	C1		0	0.00408
+insecurely	C1		0	0.00408
+scrutinize	C1		0	0.00408
+unenviable	C1		0	0.00408
+uniformity	C1		0	0.00408
+ally	B2		0	0.00407
+forensic	C1		0	0.00404
+climactic	C1		0	0.00399
+cynically	C1		0	0.00399
+divergent	C1		0	0.00399
+dramatist	C1		0	0.00399
+obscurely	C1		0	0.00399
+pendulous	C1		0	0.00399
+recessive	C1		0	0.00399
+repellant	C1		0	0.00399
+repertory	C1		0	0.00399
+rudiments	C1		0	0.00399
+shortlist	C1		0	0.00399
+stylistic	C1		0	0.00399
+tediously	C1		0	0.00399
+unmusical	C1		0	0.00399
+oddity	C1		0	0.00399
+salvation	C1		0	0.00397
+magnetic	C1		0	0.00394
+commission	B2		0	0.00393
+sting	-	2023	1	0.00391
+lance	B2		0	0.00391
+dismally	C1		0	0.00390
+readable	C1		0	0.00390
+salivate	C1		0	0.00390
+sedately	C1		0	0.00390
+venerate	C1		0	0.00390
+facial	C1		0	0.00389
+psychiatrist	C1		0	0.00386
+resistance	B2		0	0.00384
+breathtaking	B2		0	0.00382
+chemotherapy	B2		0	0.00382
+heartbreaking	B2		0	0.00382
+extraordinarily	B2		0	0.00382
+tuberculosis	B2		0	0.00381
+unsuccessful	B2		0	0.00381
+righteousness	B2		0	0.00381
+entrepreneur	B2		0	0.00381
+irately	C1		0	0.00381
+naively	C1		0	0.00381
+manufacturer	B2		0	0.00378
+dissatisfied	B2		0	0.00377
+commonwealth	B2		0	0.00376
+manufacturing	B2		0	0.00375
+payment	B2		0	0.00375
+administrator	-	2008	1	0.00374
+groundbreaking	-	2007	1	0.00374
+bloodstream	B2		0	0.00373
+thermometer	B2		0	0.00373
+shoplifting	B2		0	0.00373
+distributor	B2		0	0.00373
+neighboring	B2		0	0.00373
+forthcoming	B2		0	0.00373
+electrician	B2		0	0.00373
+momentarily	B2		0	0.00373
+bureaucracy	B2		0	0.00372
+unhappiness	B2		0	0.00372
+thoughtless	B2		0	0.00372
+technically	B2		0	0.00371
+distressing	B2		0	0.00371
+overflowing	-	2008	1	0.00370
+surroundings	B2		0	0.00370
+aristocracy	B2		0	0.00369
+stark	-	2022	1	0.00368
+underlying	-	2014,2017	2	0.00368
+echo	C2	2010	1	0.00367
+fabulous	B2		0	0.00367
+psychiatry	-	2008,2012	3	0.00367
+comfortably	B2		0	0.00367
+accordingly	B2		0	0.00366
+interpreter	B2		0	0.00366
+cornerstone	B2		0	0.00366
+troublesome	B2		0	0.00365
+penicillin	B2		0	0.00365
+astonished	B2		0	0.00365
+schoolgirl	B2		0	0.00365
+nationwide	B2		0	0.00365
+contradict	B2		0	0.00365
+silverware	B2		0	0.00365
+skateboard	B2		0	0.00365
+upbringing	B2		0	0.00365
+millimeter	B2		0	0.00364
+cannonball	B2		0	0.00364
+disapprove	B2		0	0.00364
+complexion	B2		0	0.00363
+birthplace	B2		0	0.00363
+newscaster	B2		0	0.00363
+psychoanalysis	-	2008	2	0.00363
+infinitely	-	2019	1	0.00363
+checkpoint	B2		0	0.00363
+enchanting	-	2017	1	0.00363
+soundtrack	B2		0	0.00363
+anesthesia	-	2012	1	0.00363
+disorderly	B2		0	0.00363
+barbershop	B2		0	0.00362
+effectiveness	B2		0	0.00362
+stereotype	B2		0	0.00362
+misleading	B2		0	0.00362
+waterproof	B2		0	0.00362
+sanctioned	-	2016	1	0.00362
+fingernail	B2		0	0.00362
+undiscovered	-	2008	1	0.00361
+everlasting	B2		0	0.00361
+reasonably	B2		0	0.00361
+disconnect	B2		0	0.00361
+shopkeeper	B2		0	0.00360
+standstill	B2		0	0.00359
+extinguish	-	2018	1	0.00359
+commonplace	-	2007	1	0.00359
+correspond	B2		0	0.00359
+microscope	B2		0	0.00359
+wavelength	-	2006	1	0.00358
+playwright	B2		0	0.00358
+apparatus	-	2006,2019	2	0.00358
+picturesque	B2		0	0.00358
+pilgrimage	-	2016	1	0.00358
+procedure	B2		0	0.00357
+unknowingly	-	2015	1	0.00357
+tablecloth	B2		0	0.00357
+continuum	-	2006,2013	2	0.00357
+unresolved	-	2009	1	0.00357
+regrettably	B2		0	0.00357
+bittersweet	-	2017	1	0.00357
+unforeseen	B2		0	0.00357
+preferably	B2		0	0.00356
+spokesman	B2		0	0.00356
+consensus	B2		0	0.00356
+cherished	B2		0	0.00356
+unwilling	B2		0	0.00356
+petrified	B2		0	0.00356
+guerrilla	B2		0	0.00356
+undertake	B2		0	0.00356
+discredit	B2		0	0.00356
+cable	B2		0	0.00356
+rhinoceros	B2		0	0.00356
+coastline	B2		0	0.00356
+endlessly	B2		0	0.00356
+landslide	B2		0	0.00356
+prescribe	B2		0	0.00355
+windshield	B2		0	0.00355
+seemingly	-	2012,2013,2015	3	0.00355
+programming	B2		0	0.00355
+programmer	B2		0	0.00355
+holocaust	B2		0	0.00355
+outskirts	B2		0	0.00355
+residency	-	2008	1	0.00355
+wasteland	-	2017	1	0.00355
+salary	B2		0	0.00355
+hierarchy	-	2015	3	0.00355
+undoubtedly	B2		0	0.00354
+misunderstand	B2		0	0.00354
+inflicted	-	2011	1	0.00354
+tenderness	B2		0	0.00354
+knowingly	B2		0	0.00354
+unpopular	B2		0	0.00354
+interface	-	2009	1	0.00354
+bankruptcy	B2		0	0.00354
+overthrow	B2		0	0.00354
+intersect	-	2005	1	0.00353
+repertoire	B2		0	0.00353
+forcefully	B2		0	0.00353
+paralysis	B2		0	0.00353
+unchanged	B2		0	0.00352
+stepmother	B2		0	0.00352
+molecular	-	2008,2014	4	0.00352
+indicator	-	2010	1	0.00351
+mausoleum	B2		0	0.00351
+ridicule	-	2006,2021	2	0.00351
+politeness	B2		0	0.00351
+fireflies	-	2005	6	0.00351
+shipwreck	B2		0	0.00350
+foolishly	B2		0	0.00350
+presenter	B2		0	0.00350
+bestseller	B2		0	0.00350
+irritating	B2		0	0.00349
+disregard	B2		0	0.00349
+transcript	B2		0	0.00348
+lifeless	B2		0	0.00348
+tiresome	B2		0	0.00348
+abruptly	B2		0	0.00348
+enduring	B2		0	0.00348
+snowball	B2		0	0.00348
+selfless	B2		0	0.00348
+promptly	B2		0	0.00348
+fearsome	B2		0	0.00348
+fairness	-	2013,2021	4	0.00348
+testify	B2		0	0.00348
+follower	B2		0	0.00348
+kerosene	B2		0	0.00348
+amazingly	B2		0	0.00348
+delicacy	B2		0	0.00348
+dishonesty	B2		0	0.00348
+nobleman	B2		0	0.00348
+downfall	B2		0	0.00348
+craftsman	B2		0	0.00347
+scarcely	B2		0	0.00347
+thickness	B2		0	0.00347
+untrustworthy	-	2016	1	0.00347
+impolite	B2		0	0.00347
+indebted	B2		0	0.00347
+doubtful	B2		0	0.00347
+earnings	B2		0	0.00347
+overtake	B2		0	0.00347
+showcase	B2		0	0.00347
+stepfather	B2		0	0.00347
+mediocre	B2		0	0.00347
+listener	B2		0	0.00347
+formerly	B2		0	0.00347
+landmark	-	2012	1	0.00347
+doctrine	-	2020	1	0.00347
+mindless	-	2009	1	0.00346
+doorknob	-	2013	9	0.00346
+unexplored	-	2008,2012	2	0.00346
+outright	-	2011	1	0.00346
+explicit	-	2020	1	0.00346
+demolish	B2		0	0.00346
+carefree	B2		0	0.00346
+incomplete	-	2011	2	0.00346
+organizer	B2		0	0.00346
+motorbike	B2		0	0.00346
+toothpick	-	2009	7	0.00346
+youngsters	-	2013	1	0.00346
+overhear	B2		0	0.00346
+handicap	B2		0	0.00346
+needless	B2		0	0.00346
+windmill	-	2015	1	0.00346
+geometry	-	2005	1	0.00346
+unearthed	-	2011	1	0.00345
+blooming	B2		0	0.00345
+refinery	B2		0	0.00345
+interpret	B2		0	0.00345
+overcoat	B2		0	0.00345
+creep	-	2022	1	0.00345
+uncommon	B2		0	0.00345
+partisan	B2		0	0.00345
+cardboard	B2		0	0.00345
+flawless	B2		0	0.00345
+youthful	B2		0	0.00344
+multiply	B2		0	0.00344
+psychoanalyst	-	2008	1	0.00344
+nutshell	B2		0	0.00344
+diplomat	B2		0	0.00344
+outburst	-	2006	1	0.00344
+unlimited	B2		0	0.00344
+sparkling	B2		0	0.00344
+explorer	B2		0	0.00344
+scramble	B2		0	0.00344
+kangaroo	B2		0	0.00344
+precisely	B2		0	0.00344
+surveillance	B2		0	0.00344
+pinpoint	-	2018	1	0.00343
+cheerfully	B2		0	0.00343
+prestige	B2		0	0.00343
+plentiful	-	2020	1	0.00343
+restrain	-	2017	1	0.00343
+exhausting	B2		0	0.00343
+lecturer	B2		0	0.00343
+tenderly	B2		0	0.00343
+symmetry	-	2020	2	0.00343
+investor	B2		0	0.00343
+catalyst	B2		0	0.00343
+truthful	B2		0	0.00343
+recollect	B2		0	0.00343
+centigrade	B2		0	0.00343
+woodland	-	2020	1	0.00343
+promoter	-	2011	1	0.00343
+overlook	B2		0	0.00343
+bitterly	B2		0	0.00342
+inventor	B2		0	0.00342
+aluminum	B2		0	0.00342
+broadcaster	B2		0	0.00342
+patronage	-	2008	1	0.00342
+disbelief	-	2005	1	0.00342
+observer	B2		0	0.00342
+heartwarming	B2		0	0.00342
+bathhouse	B2		0	0.00342
+circuitry	B2		0	0.00342
+dictator	B2		0	0.00342
+cardigan	B2		0	0.00341
+undressed	B2		0	0.00341
+gravestone	B2		0	0.00341
+thrilling	B2		0	0.00341
+anchorage	B2		0	0.00341
+skillful	B2		0	0.00341
+hallowed	-	2015	1	0.00341
+supplier	B2		0	0.00341
+suppress	B2		0	0.00341
+imprison	B2		0	0.00341
+disciple	B2		0	0.00340
+surpass	-	2013,2019,2021	3	0.00340
+diarrhea	B2		0	0.00340
+redirect	-	2006	1	0.00340
+dandelion	B2		0	0.00340
+brewery	B2		0	0.00340
+eyebrow	B2		0	0.00340
+wrongly	B2		0	0.00340
+nominee	B2		0	0.00340
+wartime	B2		0	0.00340
+concede	B2		0	0.00340
+prosecute	B2		0	0.00340
+quarantine	B2		0	0.00340
+landlady	B2		0	0.00340
+startle	B2		0	0.00340
+firearm	B2		0	0.00340
+ammonia	B2		0	0.00340
+catastrophe	B2		0	0.00339
+imagery	B2		0	0.00339
+trainee	B2		0	0.00339
+intervene	-	2021	1	0.00339
+deficit	B2		0	0.00339
+flutter	B2		0	0.00339
+foresee	B2		0	0.00339
+hospice	B2		0	0.00339
+puzzled	B2		0	0.00339
+novelty	B2		0	0.00339
+setback	B2		0	0.00339
+trolley	B2		0	0.00339
+neurons	-	2005,2020	3	0.00339
+replica	B2		0	0.00339
+prefect	B2		0	0.00339
+endorse	B2		0	0.00339
+inquire	B2		0	0.00339
+warship	B2		0	0.00339
+blindly	B2		0	0.00339
+surplus	-	2020	1	0.00338
+catalog	B2		0	0.00338
+enforce	B2		0	0.00338
+eagerly	B2		0	0.00338
+algebra	-	2011	1	0.00338
+tabloid	B2		0	0.00338
+worldly	B2		0	0.00338
+sharpen	-	2021	1	0.00338
+telemetry	-	2012	1	0.00338
+pawnshop	B2		0	0.00338
+memoirs	-	2011	1	0.00338
+giveaway	B2		0	0.00338
+disrupt	B2		0	0.00338
+shatter	B2		0	0.00338
+spectacle	B2		0	0.00338
+readily	B2		0	0.00338
+confine	B2		0	0.00338
+snapshot	-	2019	1	0.00338
+prosper	B2		0	0.00338
+shortness	B2		0	0.00338
+catering	B2		0	0.00338
+stopwatch	B2		0	0.00338
+distinct	-	2006,2009,2016,2021	5	0.00338
+malaria	B2		0	0.00337
+refresh	B2		0	0.00337
+housewife	B2		0	0.00337
+glacier	-	2020	1	0.00337
+backward	B2		0	0.00337
+transistor	B2		0	0.00337
+offshore	B2		0	0.00337
+empathy	-	2021	2	0.00337
+spectrum	-	2006	7	0.00337
+trample	B2		0	0.00337
+unselfish	B2		0	0.00336
+olympia	B2		0	0.00336
+splatter	B2		0	0.00336
+jeweler	B2		0	0.00336
+incense	B2		0	0.00336
+monarch	-	2016	1	0.00336
+bothersome	B2		0	0.00336
+riverbank	-	2005	1	0.00336
+contend	-	2021	1	0.00336
+subtitle	B2		0	0.00335
+percentage	B2		0	0.00335
+rectangular	B2		0	0.00335
+coincide	B2		0	0.00335
+territory	B2		0	0.00335
+statesman	B2		0	0.00335
+stimulus	-	2005	2	0.00335
+outbreak	B2		0	0.00335
+hygiene	B2		0	0.00335
+bedrock	-	2008	1	0.00335
+artefacts	-	2011	1	0.00335
+shakespearean	B2		0	0.00335
+typhoid	B2		0	0.00334
+countryman	B2		0	0.00334
+lengthy	B2		0	0.00334
+coaching	B2		0	0.00334
+firefly	-	2005	7	0.00334
+rightly	B2		0	0.00334
+overturn	B2		0	0.00334
+hatching	B2		0	0.00334
+distinguished	B2		0	0.00334
+tyranny	B2		0	0.00333
+proudly	B2		0	0.00333
+unjustly	B2		0	0.00333
+paradigm	-	2015	2	0.00333
+amplifier	B2		0	0.00333
+adverse	B2		0	0.00333
+analyst	B2		0	0.00333
+gateway	B2		0	0.00333
+suspend	B2		0	0.00333
+offender	B2		0	0.00333
+villager	B2		0	0.00333
+uncomfortably	B2		0	0.00333
+overlap	B2		0	0.00333
+inhabit	B2		0	0.00333
+demeanor	-	2008	1	0.00332
+loosely	B2		0	0.00332
+commerce	B2		0	0.00332
+exhaust	B2		0	0.00332
+murmur	B2		0	0.00332
+catchy	B2		0	0.00332
+barley	B2		0	0.00332
+cruelly	B2		0	0.00332
+walnut	B2		0	0.00332
+viewer	B2		0	0.00332
+unsafe	B2		0	0.00332
+sprint	B2		0	0.00332
+unrest	B2		0	0.00332
+unkind	B2		0	0.00332
+weaken	B2		0	0.00332
+ballad	B2		0	0.00332
+haunting	B2		0	0.00332
+dreamy	B2		0	0.00332
+infect	B2		0	0.00332
+weakly	B2		0	0.00332
+serene	B2		0	0.00332
+showbiz	B2		0	0.00332
+willingly	B2		0	0.00332
+linger	B2		0	0.00332
+soaking	B2		0	0.00332
+barometer	B2		0	0.00332
+hugely	B2		0	0.00332
+sulfur	B2		0	0.00332
+stride	B2		0	0.00332
+sandstone	B2		0	0.00332
+rejoin	B2		0	0.00332
+arouse	B2		0	0.00332
+mutton	B2		0	0.00332
+pillowcase	B2		0	0.00331
+abolish	B2		0	0.00331
+outing	B2		0	0.00331
+exceed	B2		0	0.00331
+winding	B2		0	0.00331
+pebble	B2		0	0.00331
+masseur	B2		0	0.00331
+costly	B2		0	0.00331
+subtract	B2		0	0.00331
+bestow	B2		0	0.00331
+ballot	B2		0	0.00331
+mortar	B2		0	0.00331
+enlarge	-	2011	1	0.00331
+pneumonia	B2		0	0.00331
+hijack	B2		0	0.00331
+untrue	-	2021	1	0.00331
+blurry	-	2019	1	0.00331
+enigma	-	2016	1	0.00330
+recount	-	2018	1	0.00330
+coarse	B2		0	0.00330
+twinkle	B2		0	0.00330
+shrunk	-	2020	1	0.00330
+export	B2		0	0.00330
+strand	B2		0	0.00330
+faulty	B2		0	0.00330
+artistry	B2		0	0.00330
+spreadsheet	B2		0	0.00330
+fathom	-	2014	1	0.00330
+antenna	-	2012	1	0.00330
+upgrade	B2		0	0.00330
+stockpile	B2		0	0.00329
+shabby	B2		0	0.00329
+bracket	B2		0	0.00329
+ridden	-	2008	1	0.00329
+orchid	B2		0	0.00329
+mastery	B2		0	0.00329
+lastly	B2		0	0.00329
+jigsaw	-	2011	2	0.00329
+reggae	B2		0	0.00329
+believer	-	2016,2019	2	0.00329
+powerfully	B2		0	0.00329
+trusty	B2		0	0.00329
+varied	B2		0	0.00329
+stingy	B2		0	0.00329
+diploma	B2		0	0.00329
+pollen	-	2020	1	0.00329
+hastily	B2		0	0.00329
+disprove	-	2007,2015	2	0.00329
+descend	B2		0	0.00328
+existing	B2		0	0.00328
+vinegar	B2		0	0.00328
+inland	-	2020	1	0.00328
+carpool	B2		0	0.00328
+improperly	B2		0	0.00328
+suburb	B2		0	0.00328
+dropout	B2		0	0.00328
+helper	B2		0	0.00328
+cyberspace	B2		0	0.00328
+outback	B2		0	0.00328
+laborer	B2		0	0.00328
+rainstorm	B2		0	0.00327
+watery	-	2016	1	0.00327
+firstly	B2		0	0.00327
+outlet	B2		0	0.00327
+teaspoon	B2		0	0.00327
+paratrooper	B2		0	0.00327
+vitamin	B2		0	0.00327
+revolve	B2		0	0.00327
+crocodile	B2		0	0.00327
+trader	B2		0	0.00327
+masterpiece	B2		0	0.00327
+belongings	B2		0	0.00327
+broaden	B2		0	0.00327
+prohibit	B2		0	0.00327
+unimaginably	B2		0	0.00327
+sparrow	B2		0	0.00327
+waistcoat	B2		0	0.00327
+inspect	B2		0	0.00327
+educator	B2		0	0.00326
+cowardly	B2		0	0.00326
+fireplace	B2		0	0.00326
+softness	B2		0	0.00326
+bustling	B2		0	0.00326
+spellbound	B2		0	0.00326
+beagle	B2		0	0.00326
+import	B2		0	0.00326
+pancake	B2		0	0.00326
+flashing	-	2005	1	0.00326
+sapiens	-	2009	1	0.00326
+overly	B2		0	0.00326
+diphtheria	B2		0	0.00326
+outsider	B2		0	0.00325
+enroll	B2		0	0.00325
+patriot	B2		0	0.00325
+cascade	B2		0	0.00325
+housekeeper	B2		0	0.00325
+salesperson	B2		0	0.00325
+rubble	B2		0	0.00325
+inclined	-	2018	1	0.00325
+merger	B2		0	0.00325
+joyful	-	2011	1	0.00325
+canon	B2		0	0.00324
+scuba	B2		0	0.00324
+paintbrush	B2		0	0.00324
+slang	B2		0	0.00324
+scarce	-	2007	1	0.00324
+tulip	B2		0	0.00324
+trait	B2		0	0.00324
+corona	B2		0	0.00324
+gorge	B2		0	0.00324
+ample	B2		0	0.00324
+erect	B2		0	0.00324
+dilemma	B2		0	0.00324
+mournful	B2		0	0.00324
+bossy	B2		0	0.00324
+finely	B2		0	0.00324
+elect	B2		0	0.00324
+refugee	B2		0	0.00324
+yearn	B2		0	0.00324
+translator	B2		0	0.00324
+piracy	B2		0	0.00324
+caliber	-	2012	1	0.00324
+glare	B2		0	0.00324
+papaya	B2		0	0.00324
+hover	B2		0	0.00324
+doorway	B2		0	0.00324
+audit	B2		0	0.00324
+tanned	B2		0	0.00324
+indulge	B2		0	0.00324
+snore	B2		0	0.00324
+entertaining	B2		0	0.00324
+hasten	-	2021	1	0.00323
+traverse	B2		0	0.00323
+correctness	B2		0	0.00323
+liner	B2		0	0.00323
+fondly	B2		0	0.00323
+genre	B2		0	0.00323
+outrage	B2		0	0.00323
+genuinely	B2		0	0.00323
+hourly	B2		0	0.00323
+juror	B2		0	0.00323
+mumble	B2		0	0.00323
+clause	B2		0	0.00323
+scribble	B2		0	0.00323
+jewellery	-	2006	1	0.00323
+practically	B2		0	0.00323
+famine	-	2017	1	0.00323
+pawnbroker	B2		0	0.00323
+greatness	B2		0	0.00323
+revenue	B2		0	0.00323
+ozone	B2		0	0.00323
+nourish	B2		0	0.00322
+handout	B2		0	0.00322
+shoplifter	B2		0	0.00322
+condemn	B2		0	0.00322
+sustain	B2		0	0.00322
+bison	-	2020	1	0.00322
+stalk	-	2009	1	0.00322
+doubly	B2		0	0.00322
+assemble	B2		0	0.00322
+affront	-	2015	1	0.00322
+cello	B2		0	0.00322
+polio	B2		0	0.00322
+micro	B2		0	0.00322
+excel	B2		0	0.00322
+workman	B2		0	0.00322
+termite	-	2020	1	0.00322
+introverted	-	2021	1	0.00322
+tremor	B2		0	0.00321
+colon	B2		0	0.00321
+rigid	-	2020	1	0.00321
+holder	B2		0	0.00321
+whiff	-	2012	1	0.00321
+narrowly	B2		0	0.00321
+breakup	B2		0	0.00321
+spotlight	-	2010	1	0.00321
+chime	-	2021	1	0.00321
+tempo	-	2005	1	0.00321
+grieve	B2		0	0.00321
+crease	B2		0	0.00321
+neurosis	B2		0	0.00321
+temporarily	B2		0	0.00321
+scarlet	B2		0	0.00321
+eject	-	2006	1	0.00321
+folly	B2		0	0.00320
+strait	B2		0	0.00320
+standby	B2		0	0.00320
+peril	-	2012	1	0.00320
+ungodly	B2		0	0.00320
+breezy	B2		0	0.00320
+stagger	B2		0	0.00320
+footprints	-	2012	1	0.00320
+widen	B2		0	0.00320
+bustle	B2		0	0.00320
+thirdly	B2		0	0.00320
+humbug	B2		0	0.00320
+waterways	-	2012	1	0.00319
+upright	B2		0	0.00319
+fraught	-	2017	1	0.00319
+exquisite	B2		0	0.00319
+indigo	-	2006	2	0.00319
+denim	B2		0	0.00319
+literacy	-	2011	1	0.00319
+wedge	-	2010	1	0.00319
+peacefully	B2		0	0.00319
+predisposed	-	2021	1	0.00319
+booklet	B2		0	0.00319
+erupt	B2		0	0.00319
+postpone	B2		0	0.00319
+falter	B2		0	0.00319
+iceman	B2		0	0.00319
+infancy	-	2007	1	0.00319
+scrooge	B2		0	0.00319
+voter	B2		0	0.00319
+unconcerned	B2		0	0.00318
+crater	B2		0	0.00318
+priceless	B2		0	0.00318
+evict	-	2016	1	0.00318
+picky	B2		0	0.00318
+detour	-	2008	1	0.00318
+seller	B2		0	0.00318
+zebra	B2		0	0.00318
+mistreat	B2		0	0.00318
+nostril	B2		0	0.00318
+overhead	-	2017	1	0.00318
+undersea	B2		0	0.00318
+memoir	-	2011	1	0.00317
+witty	B2		0	0.00317
+detach	B2		0	0.00317
+skillfully	B2		0	0.00317
+hedge	B2		0	0.00317
+toenail	B2		0	0.00317
+eyelash	B2		0	0.00317
+attractiveness	B2		0	0.00317
+stubbornly	B2		0	0.00317
+prawn	B2		0	0.00317
+hybrid	B2		0	0.00317
+judo	B2		0	0.00317
+spur	B2		0	0.00317
+toil	B2		0	0.00317
+botany	B2		0	0.00317
+soar	B2		0	0.00317
+lush	B2		0	0.00317
+cruelty	B2		0	0.00317
+trio	B2		0	0.00317
+weave	B2		0	0.00317
+naive	C1		0	0.00317
+gourd	-	2020	1	0.00317
+fibre	-	2015	5	0.00317
+gulp	B2		0	0.00317
+retina	B2		0	0.00317
+retard	B2		0	0.00317
+wasp	B2		0	0.00317
+caravan	B2		0	0.00316
+taunt	B2		0	0.00316
+tiptoe	B2		0	0.00316
+console	B2		0	0.00316
+redo	B2		0	0.00316
+daytime	B2		0	0.00316
+amuse	B2		0	0.00316
+tack	B2		0	0.00316
+nomad	B2		0	0.00316
+citywide	B2		0	0.00316
+seldom	B2		0	0.00316
+decay	B2		0	0.00316
+mango	B2		0	0.00316
+royalty	B2		0	0.00316
+harrow	B2		0	0.00316
+footnote	B2		0	0.00316
+secondly	B2		0	0.00316
+uniqueness	-	2009	1	0.00316
+obsess	B2		0	0.00315
+compile	B2		0	0.00315
+desktop	B2		0	0.00315
+prose	B2		0	0.00315
+bias	-	2011	2	0.00315
+linen	B2		0	0.00315
+impose	B2		0	0.00315
+nightclub	B2		0	0.00315
+yawn	B2		0	0.00315
+chancellor	B2		0	0.00315
+shaky	B2		0	0.00315
+germ	B2		0	0.00315
+gloomy	B2		0	0.00315
+wilderness	B2		0	0.00315
+axis	B2		0	0.00314
+misfortune	B2		0	0.00314
+marathon	B2		0	0.00314
+dread	B2		0	0.00314
+salsa	B2		0	0.00314
+microwave	B2		0	0.00314
+fiber	B2		0	0.00314
+facilities	B2		0	0.00314
+clash	-	2021	2	0.00314
+blaze	B2		0	0.00314
+unaware	B2		0	0.00314
+snob	-	2010	1	0.00314
+bony	B2		0	0.00314
+spun	-	2015	2	0.00314
+reconsider	B2		0	0.00314
+usher	B2		0	0.00314
+leaflet	B2		0	0.00314
+microphone	B2		0	0.00314
+veteran	B2		0	0.00314
+sliver	B2		0	0.00314
+curl	B2		0	0.00314
+offhand	B2		0	0.00314
+eyelid	B2		0	0.00313
+inhibited	-	2008	1	0.00313
+peer	B2		0	0.00313
+monastery	B2		0	0.00313
+bumper	B2		0	0.00313
+nineteenth	-	2014	1	0.00313
+lever	-	2013	4	0.00313
+strangle	B2		0	0.00313
+getaway	B2		0	0.00313
+grail	-	2015	1	0.00313
+saleswoman	B2		0	0.00313
+broadband	B2		0	0.00313
+lark	B2		0	0.00313
+litter	B2		0	0.00313
+rite	B2		0	0.00313
+ingrained	-	2016	1	0.00313
+vaccine	B2		0	0.00313
+leopard	B2		0	0.00313
+adorn	B2		0	0.00313
+muse	B2		0	0.00313
+mogul	B2		0	0.00313
+grin	B2		0	0.00313
+radium	B2		0	0.00313
+bravery	B2		0	0.00312
+outwardly	B2		0	0.00312
+mover	B2		0	0.00312
+lest	B2		0	0.00312
+feat	B2		0	0.00312
+ongoing	-	2009	1	0.00312
+seventeenth	-	2015	1	0.00312
+suitably	B2		0	0.00312
+walkabout	B2		0	0.00312
+browse	B2		0	0.00312
+patron	B2		0	0.00312
+repress	B2		0	0.00312
+tiredness	B2		0	0.00312
+feedback	B2		0	0.00312
+icon	B2		0	0.00312
+crewmen	-	2016	1	0.00312
+browser	B2		0	0.00312
+overstep	B2		0	0.00312
+scythe	B2		0	0.00312
+beak	B2		0	0.00311
+surge	B2		0	0.00311
+subside	B2		0	0.00311
+conceit	B2		0	0.00311
+statewide	B2		0	0.00311
+pluck	B2		0	0.00311
+skim	B2		0	0.00311
+distort	-	2011	1	0.00311
+purposeful	B2		0	0.00311
+intruder	B2		0	0.00311
+strewn	-	2016	1	0.00311
+cris	-	2017	1	0.00311
+instill	B2		0	0.00311
+millionaire	B2		0	0.00311
+rosy	B2		0	0.00311
+forestry	B2		0	0.00311
+anchorman	B2		0	0.00311
+injured	B2		0	0.00311
+groove	-	2009	1	0.00311
+apostrophe	B2		0	0.00311
+repaint	B2		0	0.00311
+stammer	B2		0	0.00311
+utmost	-	2012	1	0.00311
+convert	B2		0	0.00311
+debit	B2		0	0.00310
+dispute	B2		0	0.00310
+venue	B2		0	0.00310
+flap	B2		0	0.00310
+chunk	B2		0	0.00310
+carve	B2		0	0.00310
+absentee	B2		0	0.00310
+squash	B2		0	0.00310
+cheeky	B2		0	0.00309
+needy	B2		0	0.00309
+battlefield	B2		0	0.00309
+muddy	B2		0	0.00309
+mutter	B2		0	0.00309
+humiliating	B2		0	0.00309
+acute	B2		0	0.00309
+morph	-	2015	1	0.00309
+whim	-	2006	1	0.00308
+chimney	B2		0	0.00308
+rattle	B2		0	0.00308
+vigor	B2		0	0.00308
+heritage	B2		0	0.00308
+concerning	B2		0	0.00308
+hemp	B2		0	0.00308
+related	B2		0	0.00308
+gleam	B2		0	0.00308
+metronome	-	2005	1	0.00307
+karaoke	B2		0	0.00307
+clog	B2		0	0.00307
+employer	B2		0	0.00307
+amino	-	2015	7	0.00307
+overboard	B2		0	0.00307
+partnership	B2		0	0.00307
+skilled	B2		0	0.00307
+distorted	-	2009	1	0.00307
+pulley	-	2011	1	0.00306
+homeward	B2		0	0.00306
+nought	B2		0	0.00306
+division	B2		0	0.00306
+bombard	B2		0	0.00306
+slash	B2		0	0.00306
+blur	B2		0	0.00306
+clam	B2		0	0.00306
+mastodon	-	2020	1	0.00306
+haste	B2		0	0.00306
+sonnet	B2		0	0.00306
+bourbon	B2		0	0.00306
+cripple	B2		0	0.00306
+astonish	B2		0	0.00306
+discharge	B2		0	0.00305
+bankrupt	B2		0	0.00305
+newsworthy	B2		0	0.00305
+empower	-	2007	1	0.00305
+streamline	-	2019	1	0.00305
+parallel	-	2005,2012	2	0.00305
+bikini	B2		0	0.00305
+pajamas	B2		0	0.00305
+pentagon	B2		0	0.00305
+moody	B2		0	0.00305
+retailer	B2		0	0.00305
+gook	B2		0	0.00304
+cone	B2		0	0.00304
+thesis	B2		0	0.00304
+unload	B2		0	0.00304
+addicted	B2		0	0.00304
+stopover	B2		0	0.00304
+pave	B2		0	0.00304
+steely	B2		0	0.00304
+dwell	-	2017	1	0.00304
+calmly	B2		0	0.00303
+artefact	-	2006	1	0.00303
+thigh	B2		0	0.00303
+knob	-	2013	12	0.00303
+godly	B2		0	0.00303
+northward	B2		0	0.00303
+bookmark	B2		0	0.00303
+tread	B2		0	0.00303
+pitfalls	-	2014,2018	2	0.00302
+hone	B2		0	0.00302
+lighten	B2		0	0.00302
+ounce	B2		0	0.00302
+microbe	B2		0	0.00302
+dowry	B2		0	0.00302
+flaw	B2		0	0.00302
+relay	B2		0	0.00302
+gaudy	B2		0	0.00302
+boundaries	-	2008	1	0.00302
+untalented	B2		0	0.00301
+bellow	B2		0	0.00301
+funk	B2		0	0.00301
+packet	B2		0	0.00301
+posh	B2		0	0.00301
+gardener	B2		0	0.00301
+infer	B2		0	0.00301
+plumber	B2		0	0.00300
+itch	B2		0	0.00300
+lengthen	B2		0	0.00300
+inert	B2		0	0.00300
+tactile	B2		0	0.00300
+soak	B2		0	0.00300
+ghetto	B2		0	0.00300
+daft	B2		0	0.00300
+incur	B2		0	0.00300
+ramp	B2		0	0.00299
+visibly	B2		0	0.00299
+soaked	B2		0	0.00299
+openly	B2		0	0.00299
+cocoa	B2		0	0.00299
+worsen	B2		0	0.00299
+soybean	B2		0	0.00299
+recruit	B2		0	0.00299
+unhelpful	B2		0	0.00299
+leash	B2		0	0.00299
+triangle	B2		0	0.00299
+province	B2		0	0.00299
+thoroughly	B2		0	0.00298
+sparse	-	2006	1	0.00298
+sneer	B2		0	0.00298
+tickle	B2		0	0.00298
+outshine	B2		0	0.00298
+scooter	B2		0	0.00298
+salty	B2		0	0.00298
+glee	B2		0	0.00298
+engulf	B2		0	0.00298
+trek	B2		0	0.00298
+torture	B2		0	0.00298
+pickle	B2		0	0.00298
+bidding	B2		0	0.00297
+honeybee	-	2020	4	0.00297
+reminder	B2		0	0.00297
+densely	B2		0	0.00297
+plum	B2		0	0.00297
+ravage	B2		0	0.00297
+pallet	B2		0	0.00297
+anchorperson	B2		0	0.00297
+antiaircraft	B2		0	0.00297
+cheerfulness	B2		0	0.00297
+conferencing	B2		0	0.00297
+gracefulness	B2		0	0.00297
+irresistibly	B2		0	0.00297
+microcomputer	B2		0	0.00297
+salesmanship	B2		0	0.00297
+skateboarder	B2		0	0.00297
+tortoiseshell	B2		0	0.00297
+truthfulness	B2		0	0.00297
+unmistakably	B2		0	0.00297
+penguin	B2		0	0.00297
+impulse	B2		0	0.00297
+stool	B2		0	0.00297
+malady	B2		0	0.00297
+firmness	B2		0	0.00297
+broadly	B2		0	0.00297
+suspicious	B2		0	0.00297
+outgrow	B2		0	0.00297
+massacre	B2		0	0.00297
+gaiety	B2		0	0.00297
+infinite	-	2006,2019	2	0.00296
+arid	-	2017	4	0.00296
+cube	B2		0	0.00296
+aback	-	2018	1	0.00296
+shaken	B2		0	0.00296
+tame	B2		0	0.00295
+detailed	B2		0	0.00295
+hyperbole	B2		0	0.00295
+defy	B2		0	0.00295
+reliably	-	2009,2012	2	0.00295
+relieve	B2		0	0.00294
+alongside	B2		0	0.00294
+rhyme	B2		0	0.00294
+peep	B2		0	0.00294
+brag	B2		0	0.00294
+servant	B2		0	0.00294
+birdcage	B2		0	0.00294
+sunbeam	B2		0	0.00294
+constancy	-	2019	1	0.00294
+bulimia	B2		0	0.00293
+eastward	B2		0	0.00293
+skylark	B2		0	0.00293
+maestro	B2		0	0.00293
+rubbery	-	2021	1	0.00293
+loneliness	B2		0	0.00292
+seesaw	B2		0	0.00292
+artery	B2		0	0.00292
+collector	B2		0	0.00292
+striking	B2		0	0.00292
+wink	B2		0	0.00292
+stitch	B2		0	0.00292
+lace	-	2012	1	0.00291
+arch	B2		0	0.00291
+leek	B2		0	0.00291
+nano	B2		0	0.00291
+regime	B2		0	0.00291
+displace	B2		0	0.00291
+blossom	B2		0	0.00291
+shoplift	B2		0	0.00291
+yield	B2		0	0.00290
+overtime	B2		0	0.00290
+dearly	B2		0	0.00290
+trainer	B2		0	0.00290
+countrywide	B2		0	0.00290
+cyberaddict	B2		0	0.00290
+cyberschool	B2		0	0.00290
+housemaster	B2		0	0.00290
+mistrustful	B2		0	0.00290
+quarrelsome	B2		0	0.00290
+respectably	B2		0	0.00290
+spokeswoman	B2		0	0.00290
+unashamedly	B2		0	0.00290
+unthinkably	B2		0	0.00290
+unusualness	B2		0	0.00290
+woodcarving	B2		0	0.00290
+outdo	B2		0	0.00290
+terrace	B2		0	0.00290
+quantum	-	2011	1	0.00290
+marketing	B2		0	0.00290
+nursery	B2		0	0.00290
+orator	B2		0	0.00290
+sniff	B2		0	0.00289
+polo	B2		0	0.00289
+bind	B2		0	0.00289
+boastful	-	2011	1	0.00289
+flax	B2		0	0.00289
+protein	-	2015	2	0.00289
+sensitive	B2		0	0.00288
+heap	B2		0	0.00288
+faith	B2	2016	2	0.00288
+valid	B2		0	0.00287
+boiling	B2		0	0.00287
+mustache	B2		0	0.00287
+cornet	B2		0	0.00287
+olympiad	B2		0	0.00286
+funky	B2		0	0.00286
+troop	B2		0	0.00286
+peruse	-	2008	1	0.00286
+roam	B2		0	0.00285
+supervisor	B2		0	0.00285
+moonlight	B2		0	0.00285
+loosen	-	2007	1	0.00285
+cuff	B2		0	0.00285
+precede	B2		0	0.00285
+breakdown	B2		0	0.00285
+lava	B2		0	0.00284
+improved	B2		0	0.00284
+confront	B2		0	0.00284
+slaughter	B2		0	0.00284
+stern	B2		0	0.00284
+admiringly	B2		0	0.00283
+anticancer	B2		0	0.00283
+burdensome	B2		0	0.00283
+cybercrime	B2		0	0.00283
+determiner	B2		0	0.00283
+doorkeeper	B2		0	0.00283
+handicraft	B2		0	0.00283
+impolitely	B2		0	0.00283
+invitingly	B2		0	0.00283
+legislator	B2		0	0.00283
+micrometer	B2		0	0.00283
+microscopy	B2		0	0.00283
+overshadow	B2		0	0.00283
+smokestack	B2		0	0.00283
+timeliness	B2		0	0.00283
+wordlessly	B2		0	0.00283
+demanding	B2		0	0.00283
+tutor	B2		0	0.00283
+limb	B2		0	0.00283
+verse	B2		0	0.00283
+savior	-	2016,2018	5	0.00283
+await	B2		0	0.00283
+superb	B2		0	0.00282
+ageless	B2		0	0.00282
+omit	-	2006	1	0.00282
+sloppy	B2		0	0.00282
+banker	B2		0	0.00282
+shipping	B2		0	0.00281
+developing	B2		0	0.00281
+quarrel	B2		0	0.00281
+boost	B2		0	0.00281
+mentor	B2		0	0.00281
+dwarf	B2		0	0.00281
+bomber	B2		0	0.00281
+seal	B2		0	0.00281
+lawsuit	B2		0	0.00280
+childish	B2		0	0.00280
+yummy	B2		0	0.00280
+boxer	B2		0	0.00280
+grim	B2		0	0.00279
+swift	B2		0	0.00279
+reform	B2		0	0.00278
+unease	B2		0	0.00278
+utter	B2		0	0.00278
+coconut	B2		0	0.00278
+wage	B2		0	0.00278
+agony	B2		0	0.00277
+droop	B2		0	0.00277
+foreman	B2		0	0.00277
+offend	B2		0	0.00277
+adversely	B2		0	0.00277
+antivirus	B2		0	0.00277
+aubergine	B2		0	0.00277
+clearness	B2		0	0.00277
+cybercafe	B2		0	0.00277
+exactness	B2		0	0.00277
+ferryboat	B2		0	0.00277
+guideline	B2		0	0.00277
+keystroke	B2		0	0.00277
+moonscape	B2		0	0.00277
+netsurfer	B2		0	0.00277
+paperless	B2		0	0.00277
+preoccupy	B2		0	0.00277
+semicolon	B2		0	0.00277
+soliloquy	B2		0	0.00277
+southward	B2		0	0.00277
+stonework	B2		0	0.00277
+unclearly	B2		0	0.00277
+undreamed	B2		0	0.00277
+untrimmed	B2		0	0.00277
+unworldly	B2		0	0.00277
+wallboard	B2		0	0.00277
+wearisome	B2		0	0.00277
+workbench	B2		0	0.00277
+mortgage	B2		0	0.00277
+exhibit	B2		0	0.00277
+gulf	-	2010	2	0.00277
+zoom	B2		0	0.00276
+dorm	B2		0	0.00275
+indefinitely	C1		0	0.00275
+gaze	B2		0	0.00274
+arena	B2		0	0.00274
+whereabouts	-	2012	1	0.00274
+pint	B2		0	0.00274
+tramp	B2		0	0.00274
+assembly	B2		0	0.00274
+virtue	B2		0	0.00274
+treaty	B2		0	0.00274
+sage	B2		0	0.00273
+consult	B2		0	0.00273
+clumsy	B2		0	0.00273
+drift	-	2012,2017	4	0.00273
+cozy	B2		0	0.00273
+distract	B2		0	0.00272
+keeper	B2		0	0.00272
+steer	B2		0	0.00272
+queer	B2		0	0.00271
+mold	B2		0	0.00271
+bewilder	B2		0	0.00270
+coziness	B2		0	0.00270
+cyberpet	B2		0	0.00270
+examinee	B2		0	0.00270
+flexibly	B2		0	0.00270
+handrail	B2		0	0.00270
+infringe	B2		0	0.00270
+islander	B2		0	0.00270
+lawmaker	B2		0	0.00270
+layabout	B2		0	0.00270
+overbook	B2		0	0.00270
+prehuman	B2		0	0.00270
+prejudge	B2		0	0.00270
+sparerib	B2		0	0.00270
+uneasily	B2		0	0.00270
+collaborator	C1		0	0.00270
+vomit	B2		0	0.00270
+herb	B2		0	0.00270
+knot	B2		0	0.00270
+urban	B2		0	0.00269
+previously	B2		0	0.00269
+whereas	B2		0	0.00269
+pumpkin	B2		0	0.00268
+peach	B2		0	0.00268
+brainwashing	C1		0	0.00268
+sharply	B2		0	0.00267
+salon	B2		0	0.00267
+eighth	-	2018	1	0.00267
+kneel	B2		0	0.00267
+shook	-	2012	1	0.00267
+porch	B2		0	0.00267
+terrifying	B2		0	0.00266
+corridor	B2		0	0.00265
+screenwriter	C1		0	0.00265
+bartender	B2		0	0.00265
+roar	B2		0	0.00265
+gangster	B2		0	0.00265
+aircrew	B2		0	0.00264
+crossly	B2		0	0.00264
+drapery	B2		0	0.00264
+entitle	B2		0	0.00264
+fluency	B2		0	0.00264
+lowland	B2		0	0.00264
+reprint	B2		0	0.00264
+reprove	B2		0	0.00264
+skyward	B2		0	0.00264
+speeder	B2		0	0.00264
+subplot	B2		0	0.00264
+thickly	B2		0	0.00264
+wornout	B2		0	0.00264
+blockbuster	C1		0	0.00264
+connoisseur	C1		0	0.00264
+thrill	B2		0	0.00264
+grapefruit	C1		0	0.00263
+ordinarily	C1		0	0.00263
+untie	B2		0	0.00263
+likelihood	C1		0	0.00263
+waterfront	C1		0	0.00263
+impoverished	C1		0	0.00263
+unsettling	C1		0	0.00263
+apprenticeship	C1		0	0.00263
+mint	B2		0	0.00263
+wheat	B2		0	0.00262
+stack	B2		0	0.00262
+silhouette	C1		0	0.00262
+rider	B2		0	0.00262
+assure	B2		0	0.00262
+anchor	B2		0	0.00262
+staggering	C1		0	0.00262
+disorder	B2		0	0.00262
+corrupt	B2		0	0.00262
+voluntarily	C1		0	0.00262
+peel	B2		0	0.00261
+energy	B2	2016	1	0.00261
+clap	B2		0	0.00261
+lease	B2		0	0.00261
+mock	B2		0	0.00261
+fume	B2		0	0.00261
+hairy	B2		0	0.00261
+stain	B2		0	0.00261
+yacht	B2		0	0.00261
+backyard	B2		0	0.00261
+trampoline	C1		0	0.00260
+hollow	B2		0	0.00260
+fierce	B2		0	0.00260
+glow	B2		0	0.00260
+resume	B2		0	0.00260
+bombing	B2		0	0.00259
+sponsorship	C1		0	0.00258
+courtesy	B2		0	0.00258
+armful	B2		0	0.00258
+burgle	B2		0	0.00258
+cursor	B2		0	0.00258
+glacis	B2		0	0.00258
+hyphen	B2		0	0.00258
+rafter	B2		0	0.00258
+stanza	B2		0	0.00258
+tatter	B2		0	0.00258
+bizarre	B2		0	0.00258
+altar	B2		0	0.00258
+immensely	C1		0	0.00257
+startling	C1		0	0.00257
+impersonator	C1		0	0.00257
+mini	-	2020	1	0.00257
+degrading	C1		0	0.00257
+hypocrisy	C1		0	0.00257
+claustrophobia	C1		0	0.00257
+relinquish	C1		0	0.00257
+limitless	C1		0	0.00257
+flashback	C1		0	0.00256
+ridge	B2		0	0.00256
+addict	B2		0	0.00256
+possessed	B2		0	0.00256
+federal	B2		0	0.00256
+enterprising	C1		0	0.00256
+beforehand	C1		0	0.00256
+slam	B2		0	0.00256
+headstrong	C1		0	0.00256
+cane	B2		0	0.00256
+thread	B2		0	0.00256
+pudding	B2		0	0.00256
+notwithstanding	C1		0	0.00255
+chapel	-	2016	1	0.00255
+tray	B2		0	0.00255
+adore	B2		0	0.00255
+duel	B2		0	0.00254
+messenger	B2		0	0.00254
+divided	B2		0	0.00254
+resign	B2		0	0.00254
+insightful	C1		0	0.00254
+swan	B2		0	0.00253
+rendering	C1		0	0.00253
+elite	B2		0	0.00253
+lighting	B2		0	0.00253
+appalling	C1		0	0.00252
+versatile	C1		0	0.00252
+balky	B2		0	0.00252
+exalt	B2		0	0.00252
+furor	B2		0	0.00252
+circuit	B2		0	0.00252
+devoted	B2		0	0.00252
+proposed	B2		0	0.00252
+welfare	B2		0	0.00252
+sketch	B2		0	0.00252
+flattery	C1		0	0.00251
+inexplicably	C1		0	0.00251
+scrutiny	C1		0	0.00251
+pine	B2		0	0.00251
+criteria	C1		0	0.00251
+accustomed	C1		0	0.00251
+recharge	C1		0	0.00251
+tumor	B2		0	0.00251
+withdraw	B2		0	0.00251
+homeland	-	2020	4	0.00251
+muscular	C1		0	0.00250
+suburban	C1		0	0.00250
+radiator	C1		0	0.00250
+battered	C1		0	0.00250
+firewall	C1		0	0.00250
+conserve	C1		0	0.00250
+ling	B2		0	0.00250
+stretching	C1		0	0.00250
+fiercely	C1		0	0.00250
+bearing	B2		0	0.00249
+billiards	C1		0	0.00249
+overalls	C1		0	0.00249
+trophy	B2		0	0.00249
+dose	B2		0	0.00249
+strapping	C1		0	0.00249
+exterior	C1		0	0.00249
+flourish	C1		0	0.00249
+adjoining	C1		0	0.00249
+civilian	-	2011	1	0.00249
+gruesome	C1		0	0.00248
+peak	B2		0	0.00248
+aquarium	C1		0	0.00248
+privileged	C1		0	0.00248
+reconciliation	C2		0	0.00248
+uneventful	C1		0	0.00248
+hedgehog	C1		0	0.00248
+stew	B2		0	0.00248
+shambles	C1		0	0.00247
+scheduled	B2		0	0.00247
+aimlessly	C1		0	0.00247
+authenticity	C2		0	0.00247
+pastor	B2		0	0.00247
+pinnacle	C1		0	0.00246
+unto	B2		0	0.00246
+pendulum	C1		0	0.00246
+anchored	C1		0	0.00246
+plead	B2		0	0.00246
+labour	-	2019	1	0.00246
+tranquil	C1		0	0.00246
+withdrawn	C1		0	0.00246
+oversee	C1		0	0.00246
+commend	C1		0	0.00246
+spartan	C1		0	0.00246
+reminisce	C1		0	0.00246
+ghostly	C1		0	0.00245
+physique	C1		0	0.00245
+stamina	C1		0	0.00245
+closeness	C1		0	0.00245
+bribery	C1		0	0.00245
+bearded	C1		0	0.00245
+dreadful	B2		0	0.00245
+hysterically	C2		0	0.00245
+invoice	C1		0	0.00245
+forgiven	-	2010	2	0.00245
+gourmet	C1		0	0.00245
+relapse	C1		0	0.00245
+confide	C1		0	0.00245
+daydream	C1		0	0.00245
+indefinite	C1		0	0.00245
+apprentice	C1		0	0.00245
+discard	C1		0	0.00244
+midwife	C1		0	0.00244
+expedite	C1		0	0.00244
+tantrum	C1		0	0.00244
+somersault	C1		0	0.00244
+daunting	C1		0	0.00244
+crumble	C1		0	0.00244
+persecute	C1		0	0.00244
+orchard	C1		0	0.00244
+gravitational	C2		0	0.00243
+turmoil	C1		0	0.00243
+refreshing	C1		0	0.00243
+disgrace	B2		0	0.00243
+effortless	C1		0	0.00243
+buffoon	C1		0	0.00243
+provocation	C2		0	0.00242
+maneuver	C1		0	0.00242
+unmanned	C1		0	0.00242
+fiddler	C1		0	0.00242
+forfeit	C1		0	0.00242
+estate	B2		0	0.00242
+fatigue	C1		0	0.00242
+contraption	C2		0	0.00242
+parasite	C1		0	0.00242
+contractor	C1		0	0.00242
+squander	C1		0	0.00242
+adrenaline	C1		0	0.00242
+cocktail	B2		0	0.00241
+instantaneous	C2		0	0.00241
+carpentry	C1		0	0.00241
+flee	B2		0	0.00241
+beneficiary	C2		0	0.00241
+dash	B2		0	0.00241
+darkroom	C1		0	0.00241
+pioneer	C1		0	0.00241
+physiological	C2		0	0.00241
+respected	B2		0	0.00241
+tangled	C1		0	0.00241
+suffice	C1		0	0.00241
+coupled	C1		0	0.00241
+sarcasm	C1		0	0.00240
+rapport	C1		0	0.00240
+portray	C1		0	0.00240
+caring	B2		0	0.00240
+indiscretion	C2		0	0.00240
+integration	C2		0	0.00240
+bequeath	C1		0	0.00240
+craving	C1		0	0.00240
+conform	C1		0	0.00240
+twitch	C1		0	0.00240
+unison	C1		0	0.00240
+panel	B2		0	0.00240
+sequel	C1		0	0.00240
+bubbly	C1		0	0.00240
+embark	C1		0	0.00240
+benign	C1		0	0.00240
+dissect	C1		0	0.00240
+colony	-	2020	1	0.00240
+gushing	C1		0	0.00240
+revealing	C1		0	0.00240
+psyche	C1		0	0.00240
+sprout	C1		0	0.00239
+suitor	C1		0	0.00239
+brainwash	C1		0	0.00239
+frosty	C1		0	0.00239
+philanthropist	C2		0	0.00239
+candid	C1		0	0.00239
+detest	C1		0	0.00239
+cleverness	C1		0	0.00239
+robust	C1		0	0.00239
+rustle	C1		0	0.00239
+buffer	C1		0	0.00239
+loop	-	2009	2	0.00239
+creamy	C1		0	0.00239
+riveting	C1		0	0.00239
+staple	C1		0	0.00239
+unwavering	C1		0	0.00239
+torch	B2		0	0.00239
+linear	C1		0	0.00239
+retrace	C1		0	0.00239
+ballet	B2		0	0.00239
+consignment	C2		0	0.00239
+hypocrite	C1		0	0.00239
+somber	C1		0	0.00239
+deceit	C1		0	0.00239
+genome	C1		0	0.00239
+harass	C1		0	0.00239
+rediscover	C1		0	0.00238
+disdain	C1		0	0.00238
+tycoon	C1		0	0.00238
+quirky	C1		0	0.00238
+blister	C1		0	0.00238
+exodus	C1		0	0.00238
+revere	C1		0	0.00238
+flicker	C1		0	0.00238
+plaque	C1		0	0.00238
+oblige	C1		0	0.00238
+clutter	C1		0	0.00238
+chisel	C1		0	0.00237
+unplug	C1		0	0.00237
+mingle	C1		0	0.00237
+rumble	C1		0	0.00237
+rash	B2		0	0.00237
+versus	B2		0	0.00237
+pounce	C1		0	0.00237
+swamp	-	2014	1	0.00237
+snooze	C1		0	0.00237
+meticulous	C2		0	0.00237
+wealthy	B2		0	0.00237
+tangle	C1		0	0.00237
+render	C1		0	0.00236
+premier	C1		0	0.00236
+accountability	C2		0	0.00236
+panorama	C1		0	0.00236
+figuratively	C2		0	0.00236
+unoccupied	C1		0	0.00236
+remotely	C1		0	0.00236
+requisition	C2		0	0.00236
+rhetorical	C2		0	0.00236
+impeccable	C2		0	0.00236
+salvage	C1		0	0.00236
+overseer	C1		0	0.00236
+macabre	C1		0	0.00236
+terrain	C1		0	0.00236
+screenplay	C1		0	0.00236
+concur	C1		0	0.00236
+peacock	C1		0	0.00236
+liaison	C1		0	0.00236
+stuffy	C1		0	0.00236
+expire	C1		0	0.00235
+provincial	C2		0	0.00235
+plunge	C1		0	0.00235
+tinker	C1		0	0.00235
+creek	B2		0	0.00235
+meticulously	C2		0	0.00235
+conglomerate	C2		0	0.00235
+notoriously	C2		0	0.00235
+devotee	C1		0	0.00235
+locomotive	C2		0	0.00235
+concrete	B2		0	0.00235
+climax	C1		0	0.00235
+proven	B2		0	0.00234
+combustion	C2		0	0.00234
+plaster	C1		0	0.00234
+shrink	B2		0	0.00234
+indulgence	C2		0	0.00234
+graft	C1		0	0.00234
+grumble	C1		0	0.00234
+flask	C1		0	0.00234
+plumbing	C1		0	0.00234
+lapse	C1		0	0.00234
+timid	C1		0	0.00234
+crumb	C1		0	0.00234
+otter	C1		0	0.00234
+comply	C1		0	0.00234
+roundup	C1		0	0.00233
+conjecture	C2		0	0.00233
+specimen	C1		0	0.00233
+docile	C1		0	0.00233
+missile	B2		0	0.00233
+respite	C1		0	0.00233
+tract	C1		0	0.00233
+treacherous	C2		0	0.00233
+fabrication	C2		0	0.00233
+chimes	-	2021	1	0.00233
+fiendish	C1		0	0.00232
+correlation	C2		0	0.00232
+fiend	C1		0	0.00232
+snail	C1		0	0.00232
+telltale	C1		0	0.00232
+crave	C1		0	0.00232
+degrade	C1		0	0.00232
+thrilled	B2		0	0.00232
+stimuli	C1		0	0.00232
+ruthlessness	C1		0	0.00232
+niche	C1		0	0.00232
+interrogate	C2		0	0.00231
+charter	C1		0	0.00231
+prowl	C1		0	0.00231
+farce	C1		0	0.00231
+commodity	C2		0	0.00231
+nostalgic	C2		0	0.00231
+resuscitation	C2		0	0.00231
+repel	C1		0	0.00231
+strictly	B2		0	0.00231
+stabilize	C2		0	0.00231
+gasp	B2		0	0.00231
+malicious	C2		0	0.00231
+drawback	C1		0	0.00231
+cleanly	C1		0	0.00231
+superfluous	C2		0	0.00231
+intermediary	C2		0	0.00231
+donkey	B2		0	0.00230
+infallible	C2		0	0.00230
+canoe	C1		0	0.00230
+munch	C1		0	0.00230
+patronize	C2		0	0.00230
+mountaineer	C1		0	0.00230
+tantamount	C1		0	0.00230
+mercenary	C2		0	0.00230
+homely	C1		0	0.00230
+dutiful	C1		0	0.00229
+gusto	C1		0	0.00229
+marvel	C1		0	0.00229
+anonymity	C2		0	0.00229
+copper	B2		0	0.00229
+supple	C1		0	0.00229
+tactful	C1		0	0.00229
+contested	C1		0	0.00229
+acre	C1		0	0.00229
+convoluted	C1		0	0.00229
+hint	B2		0	0.00229
+wrench	C1		0	0.00228
+resuscitate	C2		0	0.00228
+fanciful	C1		0	0.00228
+heroine	C1		0	0.00228
+cellar	B2		0	0.00228
+aqua	C1		0	0.00228
+stoke	C1		0	0.00228
+fiddle	C1		0	0.00228
+slob	C1		0	0.00228
+monotony	C1		0	0.00228
+plummet	C1		0	0.00228
+materialistic	C2		0	0.00228
+ploy	C1		0	0.00228
+posterity	C2		0	0.00228
+reap	C1		0	0.00228
+tricky	B2		0	0.00228
+amid	C1		0	0.00228
+overdraft	C1		0	0.00228
+heifer	C1		0	0.00228
+recipe	B2		0	0.00227
+mediocrity	C2		0	0.00227
+resin	C1		0	0.00227
+clutch	C1		0	0.00227
+rebel	B2		0	0.00227
+embodiment	C2		0	0.00227
+flatter	C1		0	0.00227
+carpenter	C1		0	0.00227
+sector	B2		0	0.00227
+bouquet	C1		0	0.00227
+spontaneity	C2		0	0.00227
+methodology	C2		0	0.00226
+autonomous	C2		0	0.00226
+bulky	C1		0	0.00226
+haggle	C1		0	0.00226
+glum	C1		0	0.00226
+ranger	B2		0	0.00226
+exorcism	C2		0	0.00226
+lawn	B2		0	0.00226
+nondescript	C1		0	0.00226
+toughness	C1		0	0.00226
+tact	C1		0	0.00226
+infernal	C2		0	0.00226
+tenacious	C2		0	0.00225
+dock	B2		0	0.00225
+worship	B2		0	0.00225
+bully	B2		0	0.00225
+proprietary	C2		0	0.00225
+calamity	C2		0	0.00225
+outset	C1		0	0.00225
+magnanimous	C2		0	0.00225
+quarry	C1		0	0.00225
+pedestal	C2		0	0.00225
+hostess	C1		0	0.00225
+sauna	C1		0	0.00225
+provoke	C1		0	0.00225
+veritable	C2		0	0.00225
+residual	C2		0	0.00225
+clammy	C1		0	0.00225
+dismay	C1		0	0.00225
+diligently	C2		0	0.00225
+grievance	C2		0	0.00225
+salve	C1		0	0.00225
+clench	C1		0	0.00225
+wrangle	C1		0	0.00224
+belligerent	C2		0	0.00224
+scheme	B2		0	0.00224
+worm	B2		0	0.00224
+batter	C1		0	0.00224
+suburbia	C1		0	0.00224
+remaining	B2		0	0.00224
+proportional	C2		0	0.00224
+euphemism	C2		0	0.00224
+favorably	C1		0	0.00224
+saloon	C1		0	0.00224
+interject	C1		0	0.00223
+gadget	C1		0	0.00223
+exorcist	C2		0	0.00223
+gutsy	C1		0	0.00223
+instantaneously	C2		0	0.00223
+rhetoric	C2		0	0.00223
+remorse	C1		0	0.00223
+imposition	C2		0	0.00223
+personnel	B2		0	0.00223
+dealt	-	2021	1	0.00223
+bypass	C1		0	0.00223
+preach	C1		0	0.00222
+untangle	C1		0	0.00222
+banishment	C2		0	0.00222
+justly	C1		0	0.00222
+lobby	B2		0	0.00222
+scoff	C1		0	0.00222
+churn	C1		0	0.00222
+aberration	C2		0	0.00222
+abundantly	C2		0	0.00222
+twisted	B2		0	0.00222
+juvenile	C1		0	0.00222
+aircraft	B2		0	0.00222
+smug	C1		0	0.00222
+mediation	C2		0	0.00222
+dime	B2		0	0.00222
+debut	C1		0	0.00222
+laser	B2		0	0.00222
+sketchbook	C1		0	0.00221
+placid	C1		0	0.00221
+retrospective	C2		0	0.00221
+cite	C1		0	0.00221
+honk	C1		0	0.00221
+substantiate	C2		0	0.00221
+meaningless	C1		0	0.00221
+cemetery	B2		0	0.00220
+recuperate	C2		0	0.00220
+assimilate	C2		0	0.00220
+norms	C1		0	0.00220
+injustice	C1		0	0.00220
+depravity	C2		0	0.00220
+depressive	C2		0	0.00220
+trailer	B2		0	0.00220
+constraint	C1		0	0.00220
+eminent	C2		0	0.00220
+adopted	B2		0	0.00220
+tenacity	C2		0	0.00219
+cloak	C1		0	0.00219
+abound	C1		0	0.00219
+deterrent	C2		0	0.00219
+seismic	C2		0	0.00219
+venomous	C2		0	0.00219
+tender	B2		0	0.00219
+condensation	C2		0	0.00219
+stiff	B2		0	0.00219
+coverage	C1		0	0.00219
+mill	B2		0	0.00219
+evoke	C1		0	0.00219
+impede	C1		0	0.00218
+spray	B2		0	0.00218
+bulk	C1		0	0.00218
+operator	B2		0	0.00218
+wares	C1		0	0.00218
+callous	C2		0	0.00218
+rapture	C2		0	0.00218
+aptitude	C2		0	0.00218
+aimless	C1		0	0.00218
+meteorological	C2		0	0.00218
+materialize	C2		0	0.00218
+penalty	B2		0	0.00218
+misplace	C1		0	0.00217
+confrontational	C2		0	0.00217
+relieved	B2		0	0.00217
+beguiling	C1		0	0.00217
+precocious	C2		0	0.00217
+embassy	B2		0	0.00217
+dislodge	C1		0	0.00217
+procedural	C2		0	0.00217
+wayside	C1		0	0.00217
+renown	C1		0	0.00217
+decent	B2		0	0.00217
+incumbent	C2		0	0.00217
+hush	B2		0	0.00216
+fluctuation	C2		0	0.00216
+threaten	B2		0	0.00216
+armory	C2		0	0.00216
+palate	C2		0	0.00216
+heighten	C1		0	0.00215
+assimilation	C2		0	0.00215
+gruelling	C1		0	0.00215
+acutely	C1		0	0.00215
+unequivocally	C2		0	0.00215
+motley	C1		0	0.00215
+chilly	C1		0	0.00215
+wooded	C1		0	0.00215
+spatial	C2		0	0.00215
+hindrance	C2		0	0.00215
+embrace	B2		0	0.00215
+reed	B2		0	0.00215
+repute	C1		0	0.00215
+irrevocable	C2		0	0.00215
+insightfully	C1		0	0.00215
+meaninglessly	C1		0	0.00215
+recognizably	C1		0	0.00215
+refreshingly	C1		0	0.00215
+remorsefully	C1		0	0.00215
+remorselessly	C1		0	0.00215
+unconvincing	C1		0	0.00215
+unconvincingly	C1		0	0.00215
+unsustainably	C1		0	0.00215
+unwaveringly	C1		0	0.00215
+showy	C1		0	0.00214
+raunchy	C1		0	0.00214
+deviant	C2		0	0.00214
+allotment	C2		0	0.00214
+undaunted	C1		0	0.00214
+preoccupation	C2		0	0.00214
+testimonial	C2		0	0.00214
+punitive	C2		0	0.00214
+lick	B2		0	0.00214
+prop	C1		0	0.00214
+profound	C1		0	0.00213
+risky	B2		0	0.00213
+quirk	C1		0	0.00213
+clothing	B2		0	0.00213
+sweep	B2		0	0.00213
+tomb	B2		0	0.00213
+inscrutable	C2		0	0.00213
+herald	C2		0	0.00213
+vicinity	C2		0	0.00213
+ceaseless	C1		0	0.00213
+demo	C1		0	0.00213
+necessarily	B2		0	0.00213
+solitude	C2		0	0.00213
+flick	C1		0	0.00213
+utensil	C1		0	0.00213
+philanthropic	C2		0	0.00213
+vocational	C2		0	0.00213
+villa	B2		0	0.00212
+austerity	C2		0	0.00212
+counterproductive	C2		0	0.00212
+regulatory	C2		0	0.00212
+tactic	C2		0	0.00212
+interfere	B2		0	0.00211
+lament	C2		0	0.00211
+interlude	C2		0	0.00211
+kinetic	C2		0	0.00211
+parasitic	C2		0	0.00211
+agility	C2		0	0.00211
+deer	B2		0	0.00211
+prey	-	2018,2020	4	0.00211
+candidly	C1		0	0.00211
+nonchalant	C2		0	0.00211
+arduous	C2		0	0.00211
+hoist	C2		0	0.00211
+eminence	C2		0	0.00211
+materialism	C2		0	0.00210
+preacher	C1		0	0.00210
+ruthless	C1		0	0.00210
+scathing	C1		0	0.00210
+wickedly	C1		0	0.00210
+pathos	C1		0	0.00210
+appallingly	C1		0	0.00210
+beguilingly	C1		0	0.00210
+ceaselessly	C1		0	0.00210
+consultancy	C1		0	0.00210
+disquieting	C1		0	0.00210
+inexcusably	C1		0	0.00210
+naturalness	C1		0	0.00210
+remorseless	C1		0	0.00210
+startlingly	C1		0	0.00210
+stressfully	C1		0	0.00210
+synopsis	C1		0	0.00209
+floodgates	C2		0	0.00209
+seedling	C1		0	0.00209
+unadulterated	C2		0	0.00209
+carrier	C1		0	0.00209
+neither	B2	2020	1	0.00209
+rusty	B2		0	0.00209
+indignant	C2		0	0.00208
+deficient	C2		0	0.00208
+strap	C1		0	0.00208
+emulate	C2		0	0.00208
+individualism	C2		0	0.00208
+ingrate	C2		0	0.00208
+quote	B2		0	0.00208
+proliferation	C2		0	0.00208
+reenact	C1		0	0.00208
+divination	C2		0	0.00208
+maliciously	C2		0	0.00208
+magnate	C2		0	0.00207
+lethargy	C1		0	0.00207
+anthropological	C2		0	0.00207
+whilst	C1		0	0.00207
+harsh	-	2012,2015	2	0.00207
+primeval	C2		0	0.00207
+convict	C1		0	0.00207
+contemptuous	C2		0	0.00207
+gush	C1		0	0.00207
+skinny	-	2013	1	0.00206
+explode	B2		0	0.00206
+dispersal	C2		0	0.00206
+vindication	C2		0	0.00206
+frolic	C2		0	0.00206
+prostrate	C2		0	0.00206
+lyrical	C2		0	0.00205
+ferocity	C2		0	0.00205
+reclusive	C2		0	0.00205
+stiffen	C1		0	0.00205
+naivety	C1		0	0.00205
+animatedly	C1		0	0.00205
+believably	C1		0	0.00205
+demography	C1		0	0.00205
+engrossing	C1		0	0.00205
+fiendishly	C1		0	0.00205
+gruesomely	C1		0	0.00205
+lackluster	C1		0	0.00205
+neglectful	C1		0	0.00205
+scornfully	C1		0	0.00205
+stuffiness	C1		0	0.00205
+unassisted	C1		0	0.00205
+unenviably	C1		0	0.00205
+unreliably	C1		0	0.00205
+unscathing	C1		0	0.00205
+informant	C2		0	0.00205
+numb	C1		0	0.00205
+valentine	B2		0	0.00204
+irony	C1		0	0.00204
+mediate	C2		0	0.00204
+vandal	C2		0	0.00204
+stipulation	C2		0	0.00204
+acrobatics	C2		0	0.00204
+euphoric	C2		0	0.00204
+ephemeral	C2		0	0.00204
+contractual	C2		0	0.00204
+paradoxical	C2		0	0.00204
+suds	C1		0	0.00203
+scar	B2		0	0.00203
+elated	C2		0	0.00203
+settee	C1		0	0.00203
+torrential	C2		0	0.00203
+fame	B2		0	0.00202
+elasticity	C2		0	0.00202
+slack	C1		0	0.00202
+puritanical	C2		0	0.00202
+stipulate	C2		0	0.00202
+fruition	C2		0	0.00202
+tactical	C2		0	0.00202
+melodious	C2		0	0.00202
+surrealist	C2		0	0.00202
+massage	B2		0	0.00201
+employee	B2		0	0.00201
+palatable	C2		0	0.00201
+centralized	C2		0	0.00201
+rear	B2		0	0.00201
+malleable	C2		0	0.00201
+parable	C2		0	0.00200
+cherry	B2		0	0.00200
+ambassador	B2		0	0.00200
+unequivocal	C2		0	0.00200
+blankness	C1		0	0.00200
+chiselled	C1		0	0.00200
+dutifully	C1		0	0.00200
+gushingly	C1		0	0.00200
+plausibly	C1		0	0.00200
+possessor	C1		0	0.00200
+raunchily	C1		0	0.00200
+refurbish	C1		0	0.00200
+tactfully	C1		0	0.00200
+untangled	C1		0	0.00200
+dissension	C2		0	0.00200
+stink	B2		0	0.00200
+classy	C1		0	0.00200
+parade	B2		0	0.00200
+intrinsic	C2		0	0.00199
+wreck	B2		0	0.00199
+proposition	C2		0	0.00199
+glean	C1		0	0.00199
+hysterical	C2		0	0.00199
+menial	C2		0	0.00199
+surrealism	C2		0	0.00198
+abhorrent	C2		0	0.00198
+absurd	B2		0	0.00198
+solo	B2		0	0.00198
+recitation	C2		0	0.00198
+paperwork	B2		0	0.00198
+virginal	C2		0	0.00198
+stray	C1		0	0.00198
+revulsion	C2		0	0.00198
+bothered	B2		0	0.00198
+amongst	B2		0	0.00198
+sexual	B2		0	0.00197
+oath	B2		0	0.00197
+prophet	C1		0	0.00197
+fabled	C2		0	0.00197
+foul	B2		0	0.00197
+allegory	C2		0	0.00197
+forfeiture	C2		0	0.00196
+monastic	C2		0	0.00196
+tactically	C2		0	0.00196
+acrobatic	C2		0	0.00196
+stringent	C2		0	0.00196
+benignly	C1		0	0.00195
+blithely	C1		0	0.00195
+chauffer	C1		0	0.00195
+credibly	C1		0	0.00195
+detritus	C1		0	0.00195
+docilely	C1		0	0.00195
+envisage	C1		0	0.00195
+folktale	C1		0	0.00195
+frostily	C1		0	0.00195
+impishly	C1		0	0.00195
+linearly	C1		0	0.00195
+minutiae	C1		0	0.00195
+placidly	C1		0	0.00195
+robustly	C1		0	0.00195
+scornful	C1		0	0.00195
+somberly	C1		0	0.00195
+staccato	C1		0	0.00195
+stuffily	C1		0	0.00195
+tastebud	C1		0	0.00195
+transfix	C1		0	0.00195
+unsettle	C1		0	0.00195
+verandah	C1		0	0.00195
+inexorable	C2		0	0.00195
+pearl	B2		0	0.00195
+attrition	C2		0	0.00195
+solitary	C2		0	0.00195
+stab	B2		0	0.00195
+subsidize	C2		0	0.00195
+amply	C1		0	0.00194
+elation	C2		0	0.00194
+proximal	C2		0	0.00194
+parochial	C2		0	0.00193
+acrobatically	C2		0	0.00193
+anthropologically	C2		0	0.00193
+anticlimactically	C2		0	0.00193
+antithetical	C2		0	0.00193
+articulation	C2		0	0.00193
+autonomously	C2		0	0.00193
+belligerence	C2		0	0.00193
+blandishment	C2		0	0.00193
+calamitously	C2		0	0.00193
+catastrophically	C2		0	0.00193
+choreographical	C2		0	0.00193
+chronologically	C2		0	0.00193
+circumnavigate	C2		0	0.00193
+circumnavigation	C2		0	0.00193
+colloquially	C2		0	0.00193
+commensurate	C2		0	0.00193
+commensurately	C2		0	0.00193
+conciliation	C2		0	0.00193
+conciliatory	C2		0	0.00193
+confabulation	C2		0	0.00193
+confrontationally	C2		0	0.00193
+consternation	C2		0	0.00193
+contemptuously	C2		0	0.00193
+contractually	C2		0	0.00193
+counterproductively	C2		0	0.00193
+crystallization	C2		0	0.00193
+decentralize	C2		0	0.00193
+demystification	C2		0	0.00193
+denunciation	C2		0	0.00193
+disparagement	C2		0	0.00193
+dissemination	C2		0	0.00193
+distillation	C2		0	0.00193
+eccentricity	C2		0	0.00193
+echolocation	C2		0	0.00193
+emulsification	C2		0	0.00193
+ephemerality	C2		0	0.00193
+euphemistically	C2		0	0.00193
+euphorically	C2		0	0.00193
+gravitationally	C2		0	0.00193
+happenstance	C2		0	0.00193
+histrionically	C2		0	0.00193
+idiomatically	C2		0	0.00193
+idiosyncratic	C2		0	0.00193
+ignominiously	C2		0	0.00193
+imperceptible	C2		0	0.00193
+impressionistic	C2		0	0.00193
+impressionistically	C2		0	0.00193
+improvisational	C2		0	0.00193
+incongruously	C2		0	0.00193
+inexorability	C2		0	0.00193
+infallibility	C2		0	0.00193
+interrogative	C2		0	0.00193
+interrogatively	C2		0	0.00193
+intrinsically	C2		0	0.00193
+magnanimously	C2		0	0.00193
+malleability	C2		0	0.00193
+marketability	C2		0	0.00193
+materialization	C2		0	0.00193
+methodological	C2		0	0.00193
+methodologically	C2		0	0.00193
+nonchalantly	C2		0	0.00193
+nostalgically	C2		0	0.00193
+paradoxically	C2		0	0.00193
+philanthropically	C2		0	0.00193
+physiologically	C2		0	0.00193
+polysyllabic	C2		0	0.00193
+precociously	C2		0	0.00193
+preconception	C2		0	0.00193
+predilection	C2		0	0.00193
+prescriptive	C2		0	0.00193
+presentational	C2		0	0.00193
+preservationist	C2		0	0.00193
+pressurization	C2		0	0.00193
+presupposition	C2		0	0.00193
+profitability	C2		0	0.00193
+proportionally	C2		0	0.00193
+proprietorial	C2		0	0.00193
+proscription	C2		0	0.00193
+recuperation	C2		0	0.00193
+recuperative	C2		0	0.00193
+remonstrance	C2		0	0.00193
+retrospection	C2		0	0.00193
+reverberation	C2		0	0.00193
+rhetorically	C2		0	0.00193
+superfluously	C2		0	0.00193
+surreptitious	C2		0	0.00193
+surreptitiously	C2		0	0.00193
+telescopically	C2		0	0.00193
+topographical	C2		0	0.00193
+topographically	C2		0	0.00193
+treacherously	C2		0	0.00193
+undemonstrative	C2		0	0.00193
+undemonstratively	C2		0	0.00193
+unexceptional	C2		0	0.00193
+unexceptionally	C2		0	0.00193
+unobtrusively	C2		0	0.00193
+verisimilitude	C2		0	0.00193
+petty	B2		0	0.00192
+sterility	C2		0	0.00192
+swap	C1		0	0.00192
+zoologist	C2		0	0.00192
+curate	C2		0	0.00191
+shoal	C2		0	0.00191
+diverge	C1		0	0.00191
+engross	C1		0	0.00191
+incisor	C1		0	0.00191
+paywall	C1		0	0.00191
+poetess	C1		0	0.00191
+slackly	C1		0	0.00191
+washtub	C1		0	0.00191
+wizened	C1		0	0.00191
+zany	C1		0	0.00191
+pigeon	C1		0	0.00190
+liaise	C2		0	0.00190
+soviet	B2		0	0.00190
+betray	B2		0	0.00190
+fuse	C1		0	0.00190
+madness	B2		0	0.00189
+spurious	C2		0	0.00189
+halfway	-	2005	1	0.00189
+squeeze	B2		0	0.00189
+gape	C1		0	0.00189
+additive	C2		0	0.00189
+smash	B2		0	0.00189
+abhorrently	C2		0	0.00188
+affectation	C2		0	0.00188
+allegorical	C2		0	0.00188
+amorphously	C2		0	0.00188
+athleticism	C2		0	0.00188
+attributive	C2		0	0.00188
+computerize	C2		0	0.00188
+concurrence	C2		0	0.00188
+confabulate	C2		0	0.00188
+declination	C2		0	0.00188
+deficiently	C2		0	0.00188
+disseminate	C2		0	0.00188
+domesticity	C2		0	0.00188
+edification	C2		0	0.00188
+encumbrance	C2		0	0.00188
+euphemistic	C2		0	0.00188
+genomically	C2		0	0.00188
+hypothesize	C2		0	0.00188
+ignominious	C2		0	0.00188
+incongruity	C2		0	0.00188
+incongruous	C2		0	0.00188
+indignantly	C2		0	0.00188
+indulgently	C2		0	0.00188
+ingenuously	C2		0	0.00188
+kinetically	C2		0	0.00188
+lamentation	C2		0	0.00188
+magnanimity	C2		0	0.00188
+melodiously	C2		0	0.00188
+meteorology	C2		0	0.00188
+munificence	C2		0	0.00188
+ponderously	C2		0	0.00188
+portraiture	C2		0	0.00188
+rapturously	C2		0	0.00188
+redundantly	C2		0	0.00188
+remonstrate	C2		0	0.00188
+reverberate	C2		0	0.00188
+selectivity	C2		0	0.00188
+soliloquize	C2		0	0.00188
+stringently	C2		0	0.00188
+subsistence	C2		0	0.00188
+taciturnity	C2		0	0.00188
+tenaciously	C2		0	0.00188
+tranquilize	C2		0	0.00188
+unobtrusive	C2		0	0.00188
+utilization	C2		0	0.00188
+vestigially	C2		0	0.00188
+phase	B2		0	0.00188
+ornate	C2		0	0.00187
+interrogation	C2		0	0.00187
+scenario	C1		0	0.00187
+tough	B2	2007	1	0.00186
+adjoin	C1		0	0.00186
+allege	C1		0	0.00186
+appall	C1		0	0.00186
+baldly	C1		0	0.00186
+damply	C1		0	0.00186
+dither	C1		0	0.00186
+fiddly	C1		0	0.00186
+gamely	C1		0	0.00186
+glumly	C1		0	0.00186
+impish	C1		0	0.00186
+induct	C1		0	0.00186
+intuit	C1		0	0.00186
+smugly	C1		0	0.00186
+tautly	C1		0	0.00186
+tedium	C1		0	0.00186
+radar	B2		0	0.00186
+rocky	B2		0	0.00185
+gypsy	C1		0	0.00185
+patch	B2		0	0.00185
+attached	B2		0	0.00185
+opulent	C2		0	0.00185
+whip	B2		0	0.00184
+amateur	C1		0	0.00184
+nest	-	2015,2020	2	0.00184
+adulterate	C2		0	0.00184
+angularity	C2		0	0.00184
+archetypal	C2		0	0.00184
+astringent	C2		0	0.00184
+caffeinate	C2		0	0.00184
+calamitous	C2		0	0.00184
+chronology	C2		0	0.00184
+colloquial	C2		0	0.00184
+confection	C2		0	0.00184
+denotation	C2		0	0.00184
+derisively	C2		0	0.00184
+echolocate	C2		0	0.00184
+ecotourism	C2		0	0.00184
+fabulation	C2		0	0.00184
+histrionic	C2		0	0.00184
+inartistic	C2		0	0.00184
+inchoately	C2		0	0.00184
+indolently	C2		0	0.00184
+inducement	C2		0	0.00184
+infernally	C2		0	0.00184
+ingratiate	C2		0	0.00184
+locomotion	C2		0	0.00184
+mutinously	C2		0	0.00184
+ostensible	C2		0	0.00184
+perversity	C2		0	0.00184
+preeminent	C2		0	0.00184
+pressurize	C2		0	0.00184
+promotable	C2		0	0.00184
+protrusion	C2		0	0.00184
+punitively	C2		0	0.00184
+remittance	C2		0	0.00184
+revelatory	C2		0	0.00184
+rumination	C2		0	0.00184
+ruminative	C2		0	0.00184
+spuriously	C2		0	0.00184
+telescopic	C2		0	0.00184
+unfeasible	C2		0	0.00184
+unmediated	C2		0	0.00184
+venomously	C2		0	0.00184
+virtuosity	C2		0	0.00184
+hostile	C1		0	0.00184
+lame	B2		0	0.00184
+prom	B2		0	0.00184
+eagle	B2		0	0.00183
+buzzer	C1		0	0.00183
+badge	B2		0	0.00182
+sack	B2		0	0.00182
+daunt	C1		0	0.00182
+verve	C1		0	0.00182
+wryly	C1		0	0.00182
+helicopter	B2		0	0.00181
+naughty	B2		0	0.00181
+whiskey	B2		0	0.00180
+leak	B2		0	0.00180
+plot	B2		0	0.00180
+cosmic	C2		0	0.00180
+adornment	C2		0	0.00180
+amorphous	C2		0	0.00180
+anthology	C2		0	0.00180
+arduously	C2		0	0.00180
+axiomatic	C2		0	0.00180
+callously	C2		0	0.00180
+calorific	C2		0	0.00180
+capacious	C2		0	0.00180
+carbonize	C2		0	0.00180
+correlate	C2		0	0.00180
+demystify	C2		0	0.00180
+deprecate	C2		0	0.00180
+deviantly	C2		0	0.00180
+dubiously	C2		0	0.00180
+economize	C2		0	0.00180
+emolument	C2		0	0.00180
+emulation	C2		0	0.00180
+fluctuate	C2		0	0.00180
+fractious	C2		0	0.00180
+gravitate	C2		0	0.00180
+idiomatic	C2		0	0.00180
+incipient	C2		0	0.00180
+indolence	C2		0	0.00180
+ingenuous	C2		0	0.00180
+lassitude	C2		0	0.00180
+laudatory	C2		0	0.00180
+lyrically	C2		0	0.00180
+modernism	C2		0	0.00180
+mundanity	C2		0	0.00180
+opulently	C2		0	0.00180
+ponderous	C2		0	0.00180
+prurience	C2		0	0.00180
+rapturous	C2		0	0.00180
+recumbent	C2		0	0.00180
+solipsism	C2		0	0.00180
+spatially	C2		0	0.00180
+sulphuric	C2		0	0.00180
+tantalize	C2		0	0.00180
+vandalize	C2		0	0.00180
+vestigial	C2		0	0.00180
+vindicate	C2		0	0.00180
+profit	B2		0	0.00179
+barn	B2		0	0.00179
+flip	B2		0	0.00179
+weed	B2		0	0.00179
+nerves	B2		0	0.00178
+nicely	B2		0	0.00178
+quip	C1		0	0.00178
+legacy	C1		0	0.00177
+fraud	B2		0	0.00177
+bribe	C1		0	0.00177
+ironic	C2		0	0.00176
+gambling	B2		0	0.00176
+adhesion	C2		0	0.00175
+allusion	C2		0	0.00175
+anarchic	C2		0	0.00175
+archival	C2		0	0.00175
+automate	C2		0	0.00175
+cogently	C2		0	0.00175
+contrive	C2		0	0.00175
+derision	C2		0	0.00175
+derisive	C2		0	0.00175
+dwarfism	C2		0	0.00175
+emulsify	C2		0	0.00175
+fabulate	C2		0	0.00175
+farcical	C2		0	0.00175
+hermetic	C2		0	0.00175
+inchoate	C2		0	0.00175
+indolent	C2		0	0.00175
+lyricist	C2		0	0.00175
+mesmeric	C2		0	0.00175
+mutinous	C2		0	0.00175
+opulence	C2		0	0.00175
+postural	C2		0	0.00175
+protrude	C2		0	0.00175
+prurient	C2		0	0.00175
+relegate	C2		0	0.00175
+ruminant	C2		0	0.00175
+ruminate	C2		0	0.00175
+salivary	C2		0	0.00175
+stoicism	C2		0	0.00175
+stultify	C2		0	0.00175
+syllabic	C2		0	0.00175
+timidity	C2		0	0.00175
+voracity	C2		0	0.00175
+exude	C2		0	0.00175
+buzz	B2		0	0.00175
+headquarters	B2		0	0.00174
+abuse	B2		0	0.00174
+underwear	B2		0	0.00174
+prick	B2		0	0.00173
+quest	C1		0	0.00172
+walker	B2		0	0.00171
+brevity	C2		0	0.00171
+equable	C2		0	0.00171
+genomic	C2		0	0.00171
+nascent	C2		0	0.00171
+opacity	C2		0	0.00171
+subsist	C2		0	0.00171
+totemic	C2		0	0.00171
+determined	B2		0	0.00171
+profile	B2		0	0.00171
+creepy	B2		0	0.00171
+grief	B2		0	0.00170
+worrying	B2		0	0.00170
+widow	B2		0	0.00170
+offense	B2		0	0.00170
+blade	B2		0	0.00170
+corps	C1		0	0.00169
+underground	B2		0	0.00169
+goat	B2		0	0.00168
+allude	C2		0	0.00167
+cogent	C2		0	0.00167
+extant	C2		0	0.00167
+incise	C2		0	0.00167
+truism	C2		0	0.00167
+verdict	C1		0	0.00167
+obey	B2		0	0.00165
+laundry	B2		0	0.00164
+edify	C2		0	0.00164
+prise	C2		0	0.00164
+relief	B2		0	0.00163
+starving	B2		0	0.00162
+lust	C1		0	0.00162
+chop	B2		0	0.00161
+tattoo	B2		0	0.00161
+pitch	B2		0	0.00161
+hack	C1		0	0.00160
+pulse	B2		0	0.00160
+shed	B2		0	0.00159
+hood	B2		0	0.00159
+slap	B2		0	0.00158
+backup	B2		0	0.00157
+lousy	B2		0	0.00157
+costume	B2		0	0.00157
+packed	B2		0	0.00156
+traitor	B2		0	0.00156
+landing	B2		0	0.00156
+considering	B2		0	0.00156
+timing	B2		0	0.00155
+fate	B2		0	0.00154
+goose	C1		0	0.00154
+trunk	B2		0	0.00153
+frankly	B2		0	0.00153
+surrender	B2		0	0.00153
+booth	B2		0	0.00153
+reckon	B2		0	0.00152
+deputy	B2		0	0.00151
+lifetime	B2		0	0.00151
+nerve	B2		0	0.00149
+grounds	C1		0	0.00147
+impressed	B2		0	0.00145
+chip	B2		0	0.00144
+legend	B2		0	0.00143
+tunnel	B2		0	0.00141
+cheat	B2		0	0.00141
+assault	B2		0	0.00141
+gross	B2		0	0.00140
+noble	B2		0	0.00140
+understanding	B2		0	0.00139
+deck	B2		0	0.00139
+abandoned	B2		0	0.00139
+wipe	B2		0	0.00139
+blast	B2		0	0.00137
+jersey	C1		0	0.00136
+coward	B2		0	0.00135
+nightmare	B2		0	0.00134
+wicked	C1		0	0.00133
+clan	C1		0	0.00130
+senator	B2		0	0.00130
+swing	B2		0	0.00128
+guts	B2		0	0.00128
+navy	B2		0	0.00128
+loan	B2		0	0.00127
+mask	B2		0	0.00127
+learning	B2		0	0.00126
+charming	B2		0	0.00126
+gunshot	B2		0	0.00125
+friendly	B2		0	0.00125
+alert	B2		0	0.00125
+choreography	C2		0	0.00124
+cinematography	C2		0	0.00124
+flesh	B2		0	0.00123
+headmistress	C2		0	0.00123
+stock	B2		0	0.00121
+misdemeanor	C2		0	0.00121
+convinced	B2		0	0.00119
+extracurricular	C2		0	0.00119
+rape	B2		0	0.00119
+tail	B2		0	0.00119
+equilibrium	C2		0	0.00119
+client	B2		0	0.00118
+master	B2	2021	1	0.00118
+destiny	B2		0	0.00118
+patronizing	C2		0	0.00118
+squad	B2		0	0.00118
+practitioner	C2		0	0.00118
+cinematographer	C2		0	0.00117
+paramount	C2		0	0.00116
+reconcile	C2		0	0.00116
+apprehend	C2		0	0.00116
+whirlwind	C2		0	0.00116
+route	B2		0	0.00115
+minefield	C2		0	0.00115
+scavenger	C2		0	0.00115
+hindsight	C2		0	0.00115
+suffering	B2		0	0.00115
+melancholy	C2		0	0.00115
+promenade	C2		0	0.00114
+treachery	C2		0	0.00114
+stratosphere	C2		0	0.00114
+autopilot	C2		0	0.00114
+perverse	C2		0	0.00113
+hunting	B2		0	0.00113
+reproach	C2		0	0.00113
+depraved	C2		0	0.00113
+hysteria	C2		0	0.00113
+denounce	C2		0	0.00113
+maverick	C2		0	0.00113
+disperse	C2		0	0.00113
+crippling	C2		0	0.00112
+homestead	C2		0	0.00112
+artifact	C2		0	0.00112
+remains	B2		0	0.00112
+contagion	C2		0	0.00112
+delicatessen	C2		0	0.00112
+menacing	C2		0	0.00112
+brimstone	C2		0	0.00111
+euphoria	C2		0	0.00111
+uncanny	C2		0	0.00111
+curator	C2		0	0.00111
+unravel	C2		0	0.00110
+transmitter	C2		0	0.00110
+wayward	C2		0	0.00110
+conduit	C2		0	0.00110
+mystique	C2		0	0.00110
+rebound	C2		0	0.00110
+condone	C2		0	0.00110
+philistine	C2		0	0.00110
+secular	C2		0	0.00109
+philanthropy	C2		0	0.00109
+splinter	C2		0	0.00109
+resounding	C2		0	0.00109
+reptilian	C2		0	0.00109
+succumb	C2		0	0.00109
+removed	C1		0	0.00109
+redundancy	C2		0	0.00109
+derelict	C2		0	0.00108
+painstaking	C2		0	0.00108
+dribble	C2		0	0.00108
+punch	B2		0	0.00108
+exalted	C2		0	0.00108
+huddle	C2		0	0.00108
+malice	C2		0	0.00108
+apostle	C2		0	0.00108
+unnerving	C2		0	0.00108
+banish	C2		0	0.00108
+hermit	C2		0	0.00108
+recourse	C2		0	0.00108
+innuendo	C2		0	0.00108
+cordon	C2		0	0.00108
+cocoon	C2		0	0.00108
+corpus	C2		0	0.00108
+notoriety	C2		0	0.00108
+theme	B2		0	0.00108
+maggot	C2		0	0.00107
+wolf	B2		0	0.00107
+constrained	C2		0	0.00107
+parameter	C2		0	0.00107
+breadwinner	C2		0	0.00107
+sulphur	C2		0	0.00107
+chill	C1		0	0.00107
+vortex	C2		0	0.00107
+trifle	C2		0	0.00107
+buzzard	C2		0	0.00107
+hamper	C2		0	0.00106
+vermin	C2		0	0.00106
+recluse	C2		0	0.00106
+hinder	C2		0	0.00106
+painstakingly	C2		0	0.00106
+baroque	C2		0	0.00106
+posturing	C2		0	0.00106
+babble	C2		0	0.00106
+wallow	C2		0	0.00106
+cast	B2		0	0.00105
+blitz	C2		0	0.00105
+gambit	C2		0	0.00105
+brood	C2		0	0.00105
+prone	C2		0	0.00105
+diffuse	C2		0	0.00105
+synthesis	C2		0	0.00105
+perch	C2		0	0.00105
+adhere	C2		0	0.00105
+haughty	C2		0	0.00105
+forlorn	C2		0	0.00105
+blubber	C2		0	0.00105
+agile	C2		0	0.00104
+knack	C2		0	0.00104
+annex	C2		0	0.00104
+remorseful	C2		0	0.00104
+topple	C2		0	0.00104
+shimmer	C2		0	0.00104
+squint	C2		0	0.00104
+menace	C2		0	0.00104
+magpie	C2		0	0.00104
+impresario	C2		0	0.00104
+interlocking	C2		0	0.00104
+scroll	C2		0	0.00103
+myriad	C2		0	0.00103
+topography	C2		0	0.00103
+quiver	C2		0	0.00103
+blight	C2		0	0.00103
+slab	C2		0	0.00103
+chrysalis	C2		0	0.00103
+cloister	C2		0	0.00103
+irrevocably	C2		0	0.00103
+nigh	C2		0	0.00103
+ostensibly	C2		0	0.00102
+laryngitis	C2		0	0.00102
+moor	C2		0	0.00102
+jargon	C2		0	0.00102
+mercantile	C2		0	0.00102
+disparaging	C2		0	0.00102
+verbatim	C2		0	0.00102
+seedy	C2		0	0.00102
+turret	C2		0	0.00102
+virtuoso	C2		0	0.00102
+plume	C2		0	0.00102
+rift	C2		0	0.00102
+abject	C2		0	0.00102
+bogus	C2		0	0.00101
+solicit	C2		0	0.00101
+gout	C2		0	0.00101
+hook	B2		0	0.00101
+hitherto	C2		0	0.00101
+mesh	C2		0	0.00101
+freak	B2		0	0.00101
+scholarly	C2		0	0.00101
+swivel	C2		0	0.00101
+helm	C2		0	0.00101
+hapless	C2		0	0.00101
+legion	C2		0	0.00101
+mariner	C2		0	0.00101
+brink	C2		0	0.00101
+austere	C2		0	0.00101
+prissy	C2		0	0.00101
+angst	C2		0	0.00100
+adept	C2		0	0.00100
+angular	C2		0	0.00100
+repose	C2		0	0.00100
+burgeoning	C2		0	0.00100
+brim	C2		0	0.00100
+rickety	C2		0	0.00100
+electrode	C2		0	0.00100
+behest	C2		0	0.00100
+subsidy	C2		0	0.00100
+pyre	C2		0	0.00100
+collider	C2		0	0.00100
+sandwiched	C2		0	0.00100
+crack	B2		0	0.00100
+archetype	C2		0	0.00099
+bereft	C2		0	0.00099
+haphazard	C2		0	0.00099
+coax	C2		0	0.00098
+inexorably	C2		0	0.00098
+maelstrom	C2		0	0.00098
+cloistered	C2		0	0.00098
+facsimile	C2		0	0.00098
+impeccably	C2		0	0.00098
+flighty	C2		0	0.00098
+saving	B2		0	0.00098
+buccaneer	C2		0	0.00098
+overlay	C2		0	0.00098
+slither	C2		0	0.00097
+commode	C2		0	0.00097
+drudgery	C2		0	0.00097
+hitch	C2		0	0.00097
+antidote	C2		0	0.00097
+merit	C2		0	0.00097
+arcane	C2		0	0.00097
+verily	C2		0	0.00097
+thicket	C2		0	0.00097
+gauche	C2		0	0.00097
+antediluvian	C2		0	0.00097
+compellingly	C2		0	0.00097
+deprecatingly	C2		0	0.00097
+disparagingly	C2		0	0.00097
+hypnotherapy	C2		0	0.00097
+idiosyncrasy	C2		0	0.00097
+imperceptibly	C2		0	0.00097
+ingratiating	C2		0	0.00097
+ingratiatingly	C2		0	0.00097
+octogenarian	C2		0	0.00097
+paralyzingly	C2		0	0.00097
+patronizingly	C2		0	0.00097
+pervasiveness	C2		0	0.00097
+resoundingly	C2		0	0.00097
+solitariness	C2		0	0.00097
+stultifyingly	C2		0	0.00097
+tantalizingly	C2		0	0.00097
+undiminishing	C2		0	0.00097
+unencumbered	C2		0	0.00097
+unobtrusiveness	C2		0	0.00097
+mate	B2		0	0.00096
+plumage	C2		0	0.00096
+feign	C2		0	0.00096
+abhor	C2		0	0.00096
+rife	C2		0	0.00096
+opaque	C2		0	0.00096
+averse	C2		0	0.00095
+gale	C2		0	0.00095
+attuned	C2		0	0.00095
+rebuke	C2		0	0.00095
+oblique	C2		0	0.00095
+wistful	C2		0	0.00095
+fixed	B2		0	0.00094
+fete	C2		0	0.00094
+egalitarian	C2		0	0.00094
+elephantine	C2		0	0.00094
+flightiness	C2		0	0.00094
+haphazardly	C2		0	0.00094
+intersperse	C2		0	0.00094
+irrelevancy	C2		0	0.00094
+unnervingly	C2		0	0.00094
+unpromising	C2		0	0.00094
+unsurpassed	C2		0	0.00094
+unsuspected	C2		0	0.00094
+sexy	B2		0	0.00094
+fallacy	C2		0	0.00094
+lurid	C2		0	0.00094
+edifice	C2		0	0.00094
+wheeze	C2		0	0.00093
+bauble	C2		0	0.00093
+dampen	C2		0	0.00093
+loiter	C2		0	0.00093
+minster	C2		0	0.00093
+outmoded	C2		0	0.00093
+madame	B2		0	0.00093
+romp	C2		0	0.00093
+milieu	C2		0	0.00093
+jarring	C2		0	0.00093
+jury	B2		0	0.00093
+spire	C2		0	0.00093
+antithesis	C2		0	0.00092
+buffoonery	C2		0	0.00092
+colloquium	C2		0	0.00092
+disdainful	C2		0	0.00092
+emulsifier	C2		0	0.00092
+enduringly	C2		0	0.00092
+formidably	C2		0	0.00092
+hauntingly	C2		0	0.00092
+indiscrete	C2		0	0.00092
+infallibly	C2		0	0.00092
+interweave	C2		0	0.00092
+menacingly	C2		0	0.00092
+presuppose	C2		0	0.00092
+smattering	C2		0	0.00092
+unfeasibly	C2		0	0.00092
+glitz	C2		0	0.00092
+resound	C2		0	0.00092
+avian	C2		0	0.00092
+remit	C2		0	0.00092
+revenge	B2		0	0.00092
+acreage	C2		0	0.00091
+suck	B2		0	0.00091
+growing	B2		0	0.00091
+lower	B2		0	0.00091
+denote	C2		0	0.00091
+hull	C2		0	0.00091
+flit	C2		0	0.00091
+whir	C2		0	0.00090
+sacrifice	C1		0	0.00090
+mangle	C2		0	0.00090
+austerely	C2		0	0.00090
+disparage	C2		0	0.00090
+dissemble	C2		0	0.00090
+evokingly	C2		0	0.00090
+exaltedly	C2		0	0.00090
+haughtily	C2		0	0.00090
+leavening	C2		0	0.00090
+midwifery	C2		0	0.00090
+plutocrat	C2		0	0.00090
+proscribe	C2		0	0.00090
+secularly	C2		0	0.00090
+summarily	C2		0	0.00090
+unexcused	C2		0	0.00090
+unharried	C2		0	0.00090
+wistfully	C2		0	0.00090
+wordsmith	C2		0	0.00090
+contract	B2		0	0.00090
+ethos	C2		0	0.00089
+ravish	C2		0	0.00089
+patchy	C2		0	0.00089
+divorce	B2		0	0.00089
+singe	C2		0	0.00088
+cull	C2		0	0.00088
+allot	C2		0	0.00088
+arcanely	C2		0	0.00088
+artifice	C2		0	0.00088
+bereftly	C2		0	0.00088
+blubbery	C2		0	0.00088
+brandish	C2		0	0.00088
+brouhaha	C2		0	0.00088
+drabness	C2		0	0.00088
+encumber	C2		0	0.00088
+engender	C2		0	0.00088
+ephemera	C2		0	0.00088
+flagging	C2		0	0.00088
+hotelier	C2		0	0.00088
+metalled	C2		0	0.00088
+moribund	C2		0	0.00088
+neophyte	C2		0	0.00088
+patchily	C2		0	0.00088
+snobbery	C2		0	0.00088
+taciturn	C2		0	0.00088
+etch	C2		0	0.00087
+ardor	C2		0	0.00087
+wane	C2		0	0.00087
+epoxy	C2		0	0.00087
+besiege	C2		0	0.00086
+connote	C2		0	0.00086
+consign	C2		0	0.00086
+cultish	C2		0	0.00086
+detract	C2		0	0.00086
+enabler	C2		0	0.00086
+enthuse	C2		0	0.00086
+etching	C2		0	0.00086
+flatout	C2		0	0.00086
+insular	C2		0	0.00086
+luridly	C2		0	0.00086
+mottled	C2		0	0.00086
+reissue	C2		0	0.00086
+shamble	C2		0	0.00086
+snippet	C2		0	0.00086
+squirmy	C2		0	0.00086
+suffuse	C2		0	0.00086
+tacitly	C2		0	0.00086
+unnerve	C2		0	0.00086
+wordage	C2		0	0.00086
+expected	B2		0	0.00086
+accrue	C2		0	0.00084
+aghast	C2		0	0.00084
+angsty	C2		0	0.00084
+cosset	C2		0	0.00084
+deaden	C2		0	0.00084
+glitzy	C2		0	0.00084
+leaven	C2		0	0.00084
+ordain	C2		0	0.00084
+porten	C2		0	0.00084
+reverb	C2		0	0.00084
+revile	C2		0	0.00084
+romper	C2		0	0.00084
+tetchy	C2		0	0.00084
+totter	C2		0	0.00084
+axiom	C2		0	0.00082
+blurb	C2		0	0.00082
+crony	C2		0	0.00082
+embed	C2		0	0.00082
+posit	C2		0	0.00082
+qualm	C2		0	0.00082
+sheaf	C2		0	0.00082
+tacit	C2		0	0.00082
+wrack	C2		0	0.00082
+spare	B2		0	0.00082
+floe	C2		0	0.00080
+laud	C2		0	0.00080
+mien	C2		0	0.00080
+skew	C2		0	0.00080
+teem	C2		0	0.00080
+gang	B2		0	0.00077
+planning	B2		0	0.00074
+dumb	B2		0	0.00074
+project	B2		0	0.00073
+inspector	B2		0	0.00072
+united	B2		0	0.00071
+minister	B2		0	0.00071
+counsel	C2		0	0.00068
+commander	B2		0	0.00068
+crew	B2		0	0.00066
+willing	B2		0	0.00064
+shooting	B2		0	0.00064
+devil	B2		0	0.00062
+throat	B2		0	0.00057
+bout	C2		0	0.00056
+narrator	B2		0	0.00056
+corpse	C2		0	0.00055
+grand	B2		0	0.00050
+madam	B2		0	0.00046
+bloody	B2		0	0.00043
+evil	B2		0	0.00043
+fighting	B2		0	0.00042
+mama	B2		0	0.00040
+idiot	B2		0	0.00036
+found	B2	2006,2007	3	0.00036
+darling	B2		0	0.00029
+moving	B2		0	0.00029
+known	B2		0	0.00025
+means	B2		0	0.00015
+times	B2		0	0.00015
+standing	C2		0	0.00014
+damn	B2		0	0.00014
+hell	B2		0	0.00008
+trying	C1		0	0.00006

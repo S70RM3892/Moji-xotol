@@ -85,14 +85,45 @@ if (existsSync(ovPath)) {
   }
 }
 
+// --- 京大の過去問(2005-2024)の集計: 語 → 出た年度と「覚える価値」。scripts/analyze-exams.py が作る ---
+const exam = new Map();
+for (const line of readFileSync(new URL('../data/kyodai-words.tsv', import.meta.url), 'utf8').split('\n')) {
+  if (!line || line.startsWith('#')) continue;
+  const [w, lv, years, , value] = line.split('\t');
+  exam.set(w, { lv, years: years ? years.split(',').map((y) => Number(y) % 100) : [], value: Number(value) });
+}
+// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 過去問に出た年度(下2桁)]
+const row = (word, tier, cefr, gloss) => {
+  const x = exam.get(word);
+  return [word, tier, cefr, gloss, x ? Math.round(x.value * 1e5) : 0, x ? x.years : []];
+};
+
 const words = [];
-const stats = { noGloss: 0, functionWord: 0, length: 0 };
+const stats = { noGloss: 0, functionWord: 0, length: 0, examOnly: 0 };
 for (const [word, e] of entries) {
   if (word.length < MIN_LEN || word.length > MAX_LEN) { stats.length++; continue; }
   if (!e.content) { stats.functionWord++; continue; }
   const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
   if (!gloss) { stats.noGloss++; continue; }
-  words.push([word, TIER[e.cefr], e.cefr, gloss]);
+  words.push(row(word, TIER[e.cefr], e.cefr, gloss));
+}
+// 語彙リストにはないが過去問に出た語（subsequent, underlying, trajectory など）を、京大層の語として加える。
+// 複数形で出ていて辞書に見出しがないものは、もとの形に寄せる
+const added = new Map();
+for (const [w, x] of exam) {
+  if (x.lv !== '-' || !x.years.length) continue;
+  let word = w;
+  if (!ej.has(word) && word.endsWith('s') && ej.has(word.slice(0, -1))) word = word.slice(0, -1);
+  if (entries.has(word) || word.length < MIN_LEN || word.length > MAX_LEN) continue;
+  const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
+  if (!gloss) continue;
+  const prev = added.get(word);
+  const years = [...new Set([...(prev?.years ?? []), ...x.years])].sort((a, b) => a - b);
+  added.set(word, { gloss, years, value: Math.max(prev?.value ?? 0, x.value) });
+}
+for (const [word, x] of added) {
+  words.push([word, 2, 'KU', x.gloss, Math.round(x.value * 1e5), x.years]);
+  stats.examOnly++;
 }
 words.sort((a, b) => (a[0] < b[0] ? -1 : 1));
 writeFileSync(new URL('../src/data/words.json', import.meta.url), JSON.stringify(words));
