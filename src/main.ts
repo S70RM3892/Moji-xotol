@@ -1,9 +1,8 @@
 import { HERO, ICON } from './art';
-import { cellsOf } from './core/board';
 import { Eater } from './core/eater';
 import { DEFAULTS, Game, type Placement, type Task, WILD } from './core/game';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng, sampleWord } from './core/words';
-import { boom, burst, buzz, confetti, countUp, flashScreen, fly, popup, rays, ring, setSound, sfx, spotlight } from './fx';
+import { setSound, sfx, toast } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
@@ -121,12 +120,9 @@ let game: Game;
 let nextCount = 2;
 let last: Placement | null = null;
 let fresh = new Set<string>(); // 直前の1手で初めて図鑑に入った語
-let drawn = 0; // 直前の1手で引いた枚数（手札の右端から数える）
 let busy = false; // お題達成の演出中は置けない
 let ending = false;
 let gameNew: string[] = []; // この局で見つけた碑文
-/** マスごとの演出。描き直しても途中から続くよう開始時刻で持つ */
-const fx = new Map<string, { name: string; start: number; dur: number }>();
 
 const today = () => new Date().toLocaleDateString('sv');
 function hash(text: string): number {
@@ -154,8 +150,7 @@ function earn(ids: string[]): void {
     gameNew.push(id);
     const ins = INSCRIPTIONS.find((x) => x.id === id)!;
     setTimeout(() => {
-      sfx.mission();
-      popup(appEl, appEl.clientWidth / 2, 150 + i * 44, `碑文を発見　${ins.name}`, 'found', 2200);
+      toast(appEl, 150 + i * 44, `碑文を発見　${ins.name}`, 'found');
     }, 700 + i * 500);
   });
   save('inscriptions', [...earned]);
@@ -235,46 +230,25 @@ function startGame(s: Setup): void {
   );
   last = null;
   fresh = new Set();
-  drawn = game.hand.length;
-  fx.clear();
   show('play');
   renderPlay();
-  announce(game.task, game.task ? game.cue(game.task) : '', boardEl);
-}
-
-/** 新しいお題を大きく見せる */
-function announce(t: Task | undefined, cue: string, board: HTMLElement): void {
-  if (!t) return;
-  const b = centre(board);
-  const card = el('div', t.shown ? 'bigword intro' : 'bigword intro recall');
-  card.append(
-    el('span', 'tag', t.shown ? '新しい言葉。つづりを見て覚えろ' : '思い出せ'),
-    el('b', '', cue),
-    el('span', 'g', brief(t.word.gloss)),
-  );
-  card.style.left = `${b.x}px`;
-  card.style.top = `${b.y - board.offsetHeight * 0.26}px`; // 手元の盤面を隠さないよう上に寄せる
-  appEl.append(card);
-  setTimeout(() => card.remove(), 1200);
-  if (t.shown) sfx.word(1);
-  else sfx.bet();
 }
 
 // --- 置いたあとの処理 ---
 function afterPlacement(res: Placement): void {
   last = res;
-  celebrate(res);
+  record(res);
   renderPlay();
   if (!res.task) return;
-  // お題達成: 演出のあと、語が壁に吸い込まれて次のお題へ
+  // お題達成: 答えの札を少し見せてから、語を壁から消して次のお題へ
   busy = true;
-  setTimeout(nextTask, showTime(res));
+  answerCard(boardEl, res.task, res.task.shown ? '刻んだ。あとでもう一度出る' : res.task.hints ? 'ヒントで思い出した' : '自力で思い出した');
+  setTimeout(nextTask, DONE_PAUSE);
 }
 function nextTask(): void {
   game.advance();
   busy = false;
   last = null;
-  drawn = game.hand.length;
   if (game.over) {
     ending = true;
     renderPlay();
@@ -282,44 +256,34 @@ function nextTask(): void {
     return;
   }
   renderPlay();
-  announce(game.task, game.task ? game.cue(game.task) : '', boardEl);
 }
 
 function doPlace(i: number, { r, c }: Pos, as?: string): void {
-  const before = game.hand.length;
   const res = game.place(i, r, c, as);
   if (!res) return;
-  drawn = Math.max(0, game.hand.length - before + 1);
   afterPlacement(res);
 }
 
-/** 連鎖の読み上げで、1語あたりにかける時間 */
-const CALL_GAP = 190;
-/** 単語ができたときの演出にかかる時間 */
-const showTime = (res: Placement) => (res.chain ? res.chain * CALL_GAP + (res.task ? 2000 : 800) : 0);
-const cellEl = (r: number, c: number) => boardEl.querySelector<HTMLElement>(`[data-k="${r},${c}"]`);
-/** 要素の中心。app 内の座標（ポップアップ用）と画面上の座標（粉用） */
-function centre(node: HTMLElement) {
+/** お題を終えたあと、答えの札を見せておく時間 */
+const DONE_PAUSE = 1000;
+/** 壁の中央に、語・字形・意味を書いた札を出す */
+function answerCard(board: HTMLElement, t: Task, tag: string, cls = ''): void {
   const a = appEl.getBoundingClientRect();
-  const b = node.getBoundingClientRect();
-  return { x: b.left - a.left + b.width / 2, y: b.top - a.top + b.height / 2, px: b.left + b.width / 2, py: b.top + b.height / 2 };
-}
-function restart(node: HTMLElement, cls: string): void {
-  node.classList.remove(cls);
-  void node.offsetWidth;
-  node.classList.add(cls);
+  const b = board.getBoundingClientRect();
+  const card = el('div', `bigword ${cls}`.trim());
+  card.append(el('span', 'tag', tag), el('span', 'gl', spell(t.word.text)), el('b', '', t.word.text), el('span', 'g', brief(t.word.gloss)));
+  card.style.left = `${b.left - a.left + b.width / 2}px`;
+  card.style.top = `${b.top - a.top + b.height / 2}px`;
+  appEl.append(card);
+  setTimeout(() => card.remove(), DONE_PAUSE);
 }
 
-function celebrate(res: Placement): void {
-  const key = (r: number, c: number) => `${r},${c}`;
-  fx.set(key(res.r, res.c), { name: 'pop', start: performance.now(), dur: 170 });
+/** 1手の結果を記録する: 図鑑・碑文・音 */
+function record(res: Placement): void {
   fresh = new Set();
   if (!res.chain) {
     sfx.bet();
     return;
-  }
-  for (const [r, c] of res.lit) {
-    if (r !== res.r || c !== res.c) fx.set(key(r, c), { name: 'revive', start: performance.now(), dur: 420 });
   }
   for (const w of res.words) {
     if (w.kind !== 'plain' && !zukan.has(w.found.text)) {
@@ -329,78 +293,8 @@ function celebrate(res: Placement): void {
   }
   if (fresh.size) save('zukan', [...zukan]);
   earn(inscriptionsForPlacement(res));
-  buzz(res.task ? [20, 40, 20, 40, 60] : 12);
-
-  // できた単語を短い順に1語ずつ読み上げる: マスが光り、単語が浮かび、粉が散り、音階が上がる
-  const ws = [...res.words].sort((a, b) => a.found.text.length - b.found.text.length);
-  ws.forEach((w, i) => {
-    setTimeout(() => {
-      const nodes = cellsOf(w.found).map(([r, c]) => cellEl(r, c)).filter((n): n is HTMLElement => !!n);
-      nodes.forEach((n, k) => {
-        n.style.animation = '';
-        n.style.setProperty('--d', `${k * 28}ms`);
-        restart(n, 'flash');
-      });
-      const mid = nodes[Math.floor(nodes.length / 2)];
-      if (!mid) return;
-      const p = centre(mid);
-      popup(appEl, p.x, p.y, w.found.text.toUpperCase(), `call ${w.kind}`, 800);
-      burst(p.px, p.py, w.kind === 'plain' ? 14 : 44);
-      ring(p.px, p.py, w.kind === 'plain' ? 0.6 : 1);
-      fly(p.px, p.py, $('score'), w.kind === 'plain' ? 3 : 9);
-      sfx.note(i);
-    }, i * CALL_GAP);
-  });
-
-  // 読み上げのあと: 合計点、連鎖数、壁の揺れ。お題なら周りが暗くなり、単語が叩きつけられる
-  setTimeout(() => {
-    const cell = cellEl(res.r, res.c);
-    const wall = boardEl.parentElement!;
-    const power = Math.min(5, res.chain) + (res.task ? 2 : 0);
-    if (cell) {
-      const p = centre(cell);
-      popup(appEl, p.x, p.y - 20, `+${res.total}`, res.total >= 300 ? 'pts big' : 'pts');
-      if (res.chain >= 2) popup(appEl, p.x, p.y - 66, `${res.chain}連鎖！`, `chain slam c${Math.min(res.chain, 5)}`, 1500);
-      burst(p.px, p.py, Math.min(220, 24 + power * 30));
-      ring(p.px, p.py, 1 + power * 0.5);
-      if (power >= 3) setTimeout(() => ring(p.px, p.py, 2 + power * 0.6), 110);
-    }
-    if (res.chain >= 2 || res.task) {
-      wall.style.setProperty('--amp', String(power));
-      restart(wall, 'shake');
-      boom(power / 3);
-    }
-    if (power >= 3) flashScreen(0.12 * power);
-    const t = res.task;
-    if (!t) {
-      sfx.word(res.chain);
-      return;
-    }
-    sfx.mission();
-    restart($('shine'), 'on');
-    const b = centre(boardEl);
-    spotlight(b.px, b.py);
-    rays(b.px, b.py);
-    confetti();
-    if (!t.shown) setTimeout(confetti, 350);
-    for (const [r, c] of game.pending ?? []) {
-      const n = cellEl(r, c);
-      if (!n) continue;
-      const q = centre(n);
-      for (let k = 0; k < 5; k++) setTimeout(() => burst(q.px, q.py, 10), 200 + k * 160);
-    }
-    const big = el('div', 'bigword');
-    const tag = t.shown ? '刻んだ。あとでもう一度出る' : t.hints ? 'ヒントで思い出した' : '自力で思い出した！';
-    big.append(el('span', 'gl', spell(t.word.text)), el('b', '', t.word.text), el('span', 'g', brief(t.word.gloss)), el('span', 'tag', tag));
-    big.style.left = `${b.x}px`;
-    big.style.top = `${b.y}px`;
-    appEl.append(big);
-    setTimeout(() => {
-      boom(1.6);
-      flashScreen(0.5);
-    }, 230);
-    setTimeout(() => big.remove(), 1900);
-  }, ws.length * CALL_GAP);
+  if (res.task) sfx.mission();
+  else sfx.word(res.chain);
 }
 
 // --- ドラッグ: 手札から盤面へ。待ちの文字は盤面の上で動かせるし、手札にも戻せる ---
@@ -431,9 +325,7 @@ function endDrag(drop: boolean): void {
   if (!over) return;
   if ('hand' in d.from) {
     if (over.id === 'trash') {
-      const before = game.hand.length;
       if (game.discard(d.from.hand)) {
-        drawn = Math.max(0, game.hand.length - before + 1);
         last = null;
         sfx.bet();
         renderPlay('1枚すてた。');
@@ -449,7 +341,6 @@ function endDrag(drop: boolean): void {
   const { r, c } = d.from.cell;
   if (over.id === 'hand') {
     if (game.takeBack(r, c)) {
-      drawn = 1;
       last = null;
       renderPlay();
     }
@@ -668,18 +559,16 @@ function finish(o: Outcome): void {
       : [el('li', 'empty', 'お題のほかに受験語はできなかった')]),
   );
   show('result');
-  if (grade === 'S' || grade === 'A') confetti();
   if (levelOf(xp) > before) {
     const lv = levelOf(xp);
     const gift = AMULETS.filter((a) => a.level > before && a.level <= lv).map((a) => `護符「${a.name}」`);
-    setTimeout(() => popup(appEl, appEl.clientWidth / 2, 110, `Lv ${lv}　${titleOf(lv)}${gift.length ? `　${gift.join('・')}を得た` : ''}`, 'banner', 2200), 400);
+    toast(appEl, 110, `Lv ${lv}　${titleOf(lv)}${gift.length ? `　${gift.join('・')}を得た` : ''}`, 'banner');
   }
 }
 
 // --- 喰らうモード ---
 let eater: Eater;
 let hintCell: [number, number] | null = null;
-let freshWall = true; // 壁を作り直した直後は、文字がめくれて現れる
 const eboardEl = $('eboard');
 
 function startEat(s: Setup): void {
@@ -697,14 +586,12 @@ function startEat(s: Setup): void {
     makeRng(s.seed),
   );
   hintCell = null;
-  freshWall = true;
   show('eat');
   renderEat();
-  announce(eater.task, eater.task ? eater.cue(eater.task) : '', eboardEl);
 }
 
 function renderEat(note = ''): void {
-  countUp($('escore'), eater.score);
+  $('escore').textContent = String(eater.score);
   $('estep').textContent = String(Math.min(eater.current + 1, eater.tasks.length));
   $('esteps').textContent = `/ ${eater.tasks.length}`;
   $('elives').textContent = SIGN.ankh.repeat(Math.max(0, eater.lives));
@@ -727,10 +614,6 @@ function renderEat(note = ''): void {
         lettered(d, ch);
         if (eater.spat[r][c]) cls.push('spat');
         if (hintCell?.[0] === r && hintCell[1] === c) cls.push('hintcell');
-        if (freshWall) {
-          cls.push('fresh');
-          d.style.setProperty('--d', `${(Math.abs(r - eater.pos[0]) + Math.abs(c - eater.pos[1])) * 28}ms`);
-        }
       } else cls.push('eaten');
       d.className = cls.join(' ');
       d.dataset.k = `${r},${c}`;
@@ -738,7 +621,6 @@ function renderEat(note = ''): void {
     }
   }
   eboardEl.replaceChildren(...cells);
-  freshWall = false;
 
   $('efeed').replaceChildren(
     el('div', 'hint', note || (t?.shown ? 'つづりの順に、隣の文字へ進め。' : '次の1文字はどれだ。違う文字には進めず、命が減る。')),
@@ -749,56 +631,31 @@ function renderEat(note = ''): void {
   $<HTMLButtonElement>('eskip').disabled = !live;
 }
 
-const ecell = (r: number, c: number) => eboardEl.querySelector<HTMLElement>(`[data-k="${r},${c}"]`);
-
 function eatMove(dr: number, dc: number): void {
   if ($('eat').hidden || busy || ending) return;
   const step = eater.move(dr, dc);
-  if (step.kind === 'blocked') {
-    const g = eboardEl.querySelector<HTMLElement>('.god');
-    if (g) restart(g, 'bump');
-    return;
-  }
+  if (step.kind === 'blocked') return;
   if (step.kind === 'walk') {
     renderEat();
     return;
   }
   if (step.kind === 'wrong') {
-    renderEat(`${step.ch.toUpperCase()} ではない。吐き出した。`);
-    const n = ecell(step.r, step.c);
-    if (n) {
-      restart(n, 'no');
-      const p = centre(n);
-      popup(appEl, p.x, p.y, '×', 'call wrong', 700);
-    }
     sfx.bad();
-    buzz(60);
-    boom(0.6);
     if (step.failed) failEat();
+    else renderEat(`${step.ch.toUpperCase()} ではない。命が1つ減った。`);
     return;
   }
   // 正しい文字を食べた
   hintCell = null;
-  const from = ecell(step.r, step.c);
-  const p = from ? centre(from) : null;
-  renderEat();
-  const g = eboardEl.querySelector<HTMLElement>('.god');
-  if (g) restart(g, 'chomp');
   sfx.note(eater.progress - 1);
-  buzz(10);
-  if (p) {
-    popup(appEl, p.x, p.y, step.ch.toUpperCase(), 'call target', 700);
-    burst(p.px, p.py, 26 + Math.min(eater.combo, 10) * 4);
-    ring(p.px, p.py, 0.7);
-    fly(p.px, p.py, $('escore'), 4);
+  if (!step.done) {
+    renderEat();
+    return;
   }
-  if (!step.done) return;
 
   // 語を食べ切った
   const t = eater.task!;
   busy = true;
-  const wall = eboardEl.parentElement!;
-  const b = centre(eboardEl);
   if (!zukan.has(t.word.text)) {
     zukan.add(t.word.text);
     save('zukan', [...zukan]);
@@ -806,32 +663,10 @@ function eatMove(dr: number, dc: number): void {
   const got: string[] = ['first'];
   if (!t.shown && t.hints === 0 && t.word.tier === 2) got.push('kyodai');
   earn(got);
-  setTimeout(() => {
-    sfx.mission();
-    buzz([20, 40, 20, 40, 60]);
-    wall.style.setProperty('--amp', '5');
-    restart(wall, 'shake');
-    restart($('eshine'), 'on');
-    spotlight(b.px, b.py);
-    rays(b.px, b.py);
-    confetti();
-    if (!t.shown) setTimeout(confetti, 350);
-    burst(b.px, b.py, 160);
-    ring(b.px, b.py, 3);
-    popup(appEl, b.x, b.y - 110, `+${step.bonus}`, 'pts big', 1500);
-    const big = el('div', 'bigword');
-    const tag = t.shown ? '食べた。あとでもう一度出る' : t.hints ? 'ヒントで思い出した' : '自力で思い出した！';
-    big.append(el('span', 'gl', spell(t.word.text)), el('b', '', t.word.text), el('span', 'g', brief(t.word.gloss)), el('span', 'tag', tag));
-    big.style.left = `${b.x}px`;
-    big.style.top = `${b.y}px`;
-    appEl.append(big);
-    setTimeout(() => {
-      boom(1.6);
-      flashScreen(0.5);
-    }, 230);
-    setTimeout(() => big.remove(), 1900);
-  }, 180);
-  setTimeout(nextEat, 2200);
+  sfx.mission();
+  renderEat(`食べ切った。+${step.bonus}`);
+  answerCard(eboardEl, t, t.shown ? '食べた。あとでもう一度出る' : t.hints ? 'ヒントで思い出した' : '自力で思い出した');
+  setTimeout(nextEat, DONE_PAUSE);
 }
 
 /** 正解を見せてから次のお題へ */
@@ -839,31 +674,21 @@ function failEat(): void {
   const t = eater.task;
   if (!t) return;
   busy = true;
-  const b = centre(eboardEl);
-  const card = el('div', 'bigword intro recall');
-  card.append(el('span', 'tag', '正解はこれ。次の局でもう一度'), el('span', 'gl', spell(t.word.text)), el('b', '', t.word.text), el('span', 'g', brief(t.word.gloss)));
-  card.style.left = `${b.x}px`;
-  card.style.top = `${b.y}px`;
-  appEl.append(card);
-  renderEat();
-  setTimeout(() => {
-    card.remove();
-    nextEat();
-  }, 1900);
+  renderEat('正解を見て、次へ。');
+  answerCard(eboardEl, t, '正解はこれ。次の局でもう一度', 'recall');
+  setTimeout(nextEat, DONE_PAUSE);
 }
 
 function nextEat(): void {
   eater.advance();
   busy = false;
   hintCell = null;
-  freshWall = true;
   if (eater.over) {
     ending = true;
     setTimeout(endEat, 300);
     return;
   }
   renderEat();
-  announce(eater.task, eater.cue(eater.task!), eboardEl);
 }
 
 function endEat(): void {
@@ -909,9 +734,7 @@ $('ehint').onclick = () => {
   if (cur?.shown && cur.state === 'todo') {
     const note = knowWord(eater.tasks, cur, (next) => eater.swap(next));
     hintCell = null;
-    freshWall = true;
     renderEat(note);
-    announce(eater.task, eater.cue(eater.task!), eboardEl);
     return;
   }
   hintCell = eater.hint();
@@ -982,7 +805,7 @@ function drawTrail(host: HTMLElement, tasks: Task[]): void {
 }
 
 function renderPlay(note = ''): void {
-  countUp($('score'), game.score);
+  $('score').textContent = String(game.score);
   $('step').textContent = String(Math.min(game.current + 1, game.tasks.length));
   $('steps').textContent = `/ ${game.tasks.length}`;
   $('chain').textContent = String(game.maxChain);
@@ -1015,12 +838,6 @@ function renderPlay(note = ''): void {
       }
       d.className = cls.join(' ');
       d.dataset.k = k;
-      const f = fx.get(k);
-      if (f) {
-        const elapsed = performance.now() - f.start;
-        if (elapsed < f.dur) d.style.animation = `${f.name} ${f.dur}ms ${-elapsed}ms both`;
-        else fx.delete(k);
-      }
       cells.push(d);
     }
   }
@@ -1058,13 +875,11 @@ function renderPlay(note = ''): void {
       const b = el('button', ch === WILD ? 'tile wild' : 'tile');
       if (ch === WILD) b.append(el('span', 'gl', SIGN.star));
       else lettered(b, ch);
-      if (i >= game.hand.length - drawn) b.classList.add('in');
       b.setAttribute('aria-label', ch === WILD ? '何にでもなる札' : ch);
       b.onpointerdown = (e) => startDrag(e, { hand: i });
       return b;
     }),
   );
-  drawn = 0;
   $('next').replaceChildren(...game.queue.slice(0, nextCount).map((ch) => el('i', '', ch === WILD ? '★' : ch)));
 
   const live = !!t && t.state === 'todo' && !busy && !ending;
@@ -1202,9 +1017,7 @@ $('hint').onclick = () => {
   if (cur?.shown && cur.state === 'todo') {
     const note = knowWord(game.tasks, cur, (next) => game.swap(next));
     last = null;
-    drawn = game.hand.length;
     renderPlay(note);
-    announce(game.task, game.cue(game.task!), boardEl);
     return;
   }
   if (!game.hint()) return;
@@ -1218,18 +1031,10 @@ $('skip').onclick = () => {
   if (!t) return;
   // 正解を見せてから次へ
   busy = true;
-  const b = centre(boardEl);
-  const card = el('div', 'bigword intro recall');
-  card.append(el('span', 'tag', '正解はこれ。次の局でもう一度'), el('span', 'gl', spell(t.word.text)), el('b', '', t.word.text), el('span', 'g', brief(t.word.gloss)));
-  card.style.left = `${b.x}px`;
-  card.style.top = `${b.y}px`;
-  appEl.append(card);
   sfx.bad();
   renderPlay();
-  setTimeout(() => {
-    card.remove();
-    nextTask();
-  }, 1900);
+  answerCard(boardEl, t, '正解はこれ。次の局でもう一度', 'recall');
+  setTimeout(nextTask, DONE_PAUSE);
 };
 const soundBtn = $('sound');
 const drawSound = () => {
