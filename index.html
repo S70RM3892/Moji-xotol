@@ -70,6 +70,7 @@
         <h2 data-sign="palette">単語図鑑</h2>
         <div class="card" id="zukan"></div>
         <p class="note" id="zukannote"></p>
+        <button id="tostats">過去問の分析データを見る</button>
 
         <h2 data-sign="eye">刻むモードの遊び方</h2>
         <ol class="rules">
@@ -81,6 +82,13 @@
           <li>単語にならなかった文字（点線）は、何度でもつかんで動かせる。要らない札は「すてる」へ運ぶ。</li>
           <li>星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
           <li>評価は、つづりなしのお題をヒントなしで作れた割合で決まる。</li>
+        </ol>
+        <h2 data-sign="roll">読み解くモードの遊び方</h2>
+        <ol class="rules">
+          <li>英文が1文出る。日本語に訳さず、英語のまま意味をつかんだら「読めた」を押す。</li>
+          <li>本文が隠れ、3つの英文が出る。同じ意味のものを選ぶ。読み返すこともできるが、得点は半分になる。</li>
+          <li>答えたあとに、その文の構文と骨組みの説明が出る。</li>
+          <li>文は6段階（基本の修飾 → 句で広げる → 節を組み合わせる → 特殊構文 → 圧縮と省略 → 京大型の長い一文）。1分あたり110語以上で正しく読めるのが2回続くと段階が上がり、間違えると下がる。</li>
         </ol>
         <h2 data-sign="eye">読むモードの遊び方</h2>
         <ol class="rules">
@@ -181,6 +189,47 @@
         <p id="rnote" class="note" role="status"></p>
       </section>
 
+      <section id="parse" hidden>
+        <div class="topbar">
+          <div class="scorebox"><span class="gl" data-sign="roll" aria-hidden="true"></span><b id="pscore">0</b><span>点</span></div>
+          <div class="meter"><span>文</span><b id="pstep">1</b><span id="psteps">/ 10</span></div>
+          <div class="meter"><span>段階</span><b id="plevel">1</b></div>
+          <button id="pquit" class="mini">おわる</button>
+        </div>
+        <div class="mission parsecard" aria-live="polite">
+          <div class="mhead"><span class="kind" id="pkind"></span><span class="tier" id="ptag" hidden></span></div>
+          <p id="ptext" class="ptext" lang="en"></p>
+        </div>
+        <div id="pchoices" class="choices one" lang="en"></div>
+        <div class="actions">
+          <button id="pgo" class="primary big">読めた</button>
+          <button id="pagain">もう一度読む（得点は半分）</button>
+          <button id="pnext" class="primary big">次の文へ</button>
+        </div>
+        <p id="pnote" class="note pnote" role="status"></p>
+      </section>
+
+      <section id="stats" hidden>
+        <header class="brand"><span class="gl" data-sign="eye" aria-hidden="true"></span><h1>分析</h1><button id="statback" class="mini">もどる</button></header>
+        <div class="fret" aria-hidden="true"></div>
+        <div class="seg" id="statexam" role="group" aria-label="試験"></div>
+        <p class="note" id="statsum"></p>
+        <h2 data-sign="sun">本文の語のレベル</h2>
+        <div class="card" id="statlevels"></div>
+        <p class="note" id="stattypes"></p>
+        <h2 data-sign="water">出題歴と、次に出る確率</h2>
+        <div class="tablewrap" id="statrepeat"></div>
+        <p class="note" id="statrepeatnote"></p>
+        <h2 data-sign="eye">予測の検証</h2>
+        <div class="tablewrap" id="statmodel"></div>
+        <p class="note" id="statmodelnote"></p>
+        <h2 data-sign="palette">覚える価値の高い語</h2>
+        <input id="statq" type="search" placeholder="語や和訳でしぼりこむ" aria-label="語や和訳でしぼりこむ" />
+        <p class="note" id="statcount"></p>
+        <ul id="statwords" class="wordlist statwords"></ul>
+        <button id="statmore">もっと見る</button>
+      </section>
+
       <section id="result" hidden>
         <header class="brand"><span class="gl" data-sign="jackal" aria-hidden="true"></span><h1>検分</h1><span class="note" id="resmode"></span></header>
         <div class="fret" aria-hidden="true"></div>
@@ -216,7 +265,7 @@
 
       <footer>
         語彙レベル: CEFR-J Wordlist 1.5（東京外国語大学 投野由紀夫研究室）／Octanove Vocabulary Profile C1/C2（CC BY-SA 4.0）。
-        和訳: ejdict-hand（パブリックドメイン）。判定辞書: ENABLE。
+        和訳: ejdict-hand（パブリックドメイン）。品詞と語義の順: Princeton WordNet 3.0／日本語 WordNet（NICT）／JMdict（EDRDG、CC BY-SA 4.0）。判定辞書: ENABLE。
       </footer>
     </main>
     <!-- app:end -->

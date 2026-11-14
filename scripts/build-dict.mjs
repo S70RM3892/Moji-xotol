@@ -85,6 +85,19 @@ if (existsSync(ovPath)) {
   }
 }
 
+// --- 品詞つきの和訳: scripts/build-glosses.py が作る（品詞は CEFR-J と WordNet、訳語は ejdict を品詞ごとに振り分けたもの） ---
+const tagged = new Map();
+const glossPath = new URL('../data/glosses.tsv', import.meta.url);
+if (existsSync(glossPath)) {
+  for (const line of readFileSync(glossPath, 'utf8').split('\n')) {
+    if (!line || line.startsWith('#')) continue;
+    const [w, pos, gloss] = line.split('\t');
+    tagged.set(w, { pos, gloss });
+  }
+}
+/** 語の和訳: 手で直したもの → 品詞つきの和訳 → ejdict をそのまま整形したもの、の順に使う */
+const glossFor = (word) => overrides.get(word) ?? tagged.get(word)?.gloss ?? cleanGloss(ej.get(word) ?? '');
+
 // --- 過去問の集計: 語 → 出た年度と「覚える価値」。scripts/analyze-exams.py が作る ---
 function loadExam(name) {
   const map = new Map();
@@ -97,11 +110,11 @@ function loadExam(name) {
 }
 const kyodai = loadExam('kyodai'); // 京都大学 2000-2026
 const kyote = loadExam('kyote'); // 共通テスト・センター試験 2004-2026
-// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 京大の過去問に出た年度(下2桁), 共テでの覚える価値(×10万), 共テ・センターに出た年度数]
+// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 京大の過去問に出た年度(下2桁), 共テでの覚える価値(×10万), 共テ・センターに出た年度数, 品詞(n名 v動 a形 r副、主な順)]
 const row = (word, tier, cefr, gloss) => {
   const k = kyodai.get(word);
   const c = kyote.get(word);
-  return [word, tier, cefr, gloss, k ? Math.round(k.value * 1e5) : 0, k ? k.years : [], c ? Math.round(c.value * 1e5) : 0, c ? c.years.length : 0];
+  return [word, tier, cefr, gloss, k ? Math.round(k.value * 1e5) : 0, k ? k.years : [], c ? Math.round(c.value * 1e5) : 0, c ? c.years.length : 0, tagged.get(word)?.pos ?? ''];
 };
 
 const words = [];
@@ -109,7 +122,7 @@ const stats = { noGloss: 0, functionWord: 0, length: 0, examOnly: 0 };
 for (const [word, e] of entries) {
   if (word.length < MIN_LEN || word.length > MAX_LEN) { stats.length++; continue; }
   if (!e.content) { stats.functionWord++; continue; }
-  const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
+  const gloss = glossFor(word);
   if (!gloss) { stats.noGloss++; continue; }
   words.push(row(word, TIER[e.cefr], e.cefr, gloss));
 }
@@ -123,7 +136,7 @@ for (const [exam, label, tier] of [[kyodai, 'KU', 2], [kyote, 'CT', 0]]) {
     let word = w;
     if (!ej.has(word) && word.endsWith('s') && ej.has(word.slice(0, -1))) word = word.slice(0, -1);
     if (entries.has(word) || added.has(word) || word.length < MIN_LEN || word.length > MAX_LEN) continue;
-    const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
+    const gloss = glossFor(word);
     if (!gloss) continue;
     // 寄せた形の集計値は、もとの語のものを使う
     if (!exam.has(word)) exam.set(word, x);

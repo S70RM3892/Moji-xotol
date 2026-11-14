@@ -299,9 +299,11 @@ scored = [(predict(coef, features(w, y)), t) for w, y, t in test]
 scored.sort(reverse=True)
 pos = sum(t for _, t in scored)
 print(f"\n検証（{SPLIT + 1}〜{years[-1]}年度、学習にもモデルの設計にも使っていない）: 候補 {len(scored)} 語年のうち実際に出たのは {pos}（{100 * pos / len(scored):.2f}%、予測の平均は {100 * sum(p for p, _ in scored) / len(scored):.2f}%）")
+validation = []
 for frac in (0.01, 0.05, 0.2):
     top = scored[: int(len(scored) * frac)]
     hit = sum(t for _, t in top)
+    validation.append({"top": frac, "hit": hit / len(top), "share": hit / pos, "lift": hit / len(top) / (pos / len(scored))})
     print(f"  予測上位 {int(frac * 100):2d}%: 的中率 {100 * hit / len(top):5.2f}%（全体の {100 * hit / pos:4.1f}% を拾う、ランダムの {hit / len(top) / (pos / len(scored)):.1f} 倍）")
 
 # ---------- 4. 書き出し ----------
@@ -353,3 +355,30 @@ if WRITE:
         for w in easy:
             f.write(f"{w}\t{level.get(w, '-')}\t{','.join(str(y) for y in appear[w])}\t{total[w]}\t0\n")
     print(f"\n{path} に難語 {len(out)} 語、それ以外 {len(easy)} 語を書き出した")
+
+    # 画面で見るための要約（src/data/analysis.json）。試験ごとに1項目
+    import json
+
+    summary_path = ROOT / "src" / "data" / "analysis.json"
+    summary = json.loads(summary_path.read_text()) if summary_path.exists() else {}
+    summary[PROFILE] = {
+        "title": TITLE,
+        "years": [years[0], years[-1]],
+        "tokens": N,
+        "levels": {lv: round(100 * agg[lv] / N, 1) for lv in ORDER} | {"表外": round(100 * agg["off"] / N, 1)},
+        "types": {g: {"n": len(by_group[g]), "once": round(100 * sum(1 for x in by_group[g] if x == 1) / len(by_group[g]))} for g in by_group if g != "A1-B1" and by_group[g]},
+        "repeat": {
+            "from": FIRST,
+            "bands": BAND,
+            "history": H,
+            "rate": [[round(100 * table[(b, h)][0] / table[(b, h)][1], 2) if table[(b, h)][1] else None for h in H] for b in range(4)],
+        },
+        "model": {
+            "train": [FIRST, SPLIT],
+            "test": [SPLIT + 1, years[-1]],
+            "base": round(100 * pos / len(scored), 2),
+            "rows": [{"top": int(v["top"] * 100), "hit": round(100 * v["hit"], 1), "share": round(100 * v["share"]), "lift": round(v["lift"], 1)} for v in validation],
+        },
+    }
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=1) + "\n")
+    print(f"{summary_path} を更新した")

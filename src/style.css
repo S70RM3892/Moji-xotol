@@ -518,3 +518,30 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 
 .mission .mhead { flex-wrap: wrap; row-gap: 4px; }
 .mission .kind { white-space: nowrap; }
+
+/* --- 読み解くモード --- */
+.ptext { grid-column: 1 / -1; margin: 0; font: 500 1.2rem/1.65 Georgia, 'Times New Roman', serif; text-wrap: pretty; }
+.choices.one { grid-template-columns: 1fr; }
+.choices.one .choice { font: 500 1rem/1.5 Georgia, 'Times New Roman', serif; }
+.pnote { min-height: 3.2em; font-size: 0.9rem; color: var(--text); }
+.wordlist .sent { flex-basis: 100%; font: 500 0.95rem/1.55 Georgia, 'Times New Roman', serif; }
+@media (min-width: 880px) and (orientation: landscape) {
+  #parse { max-width: 900px; margin: 0 auto; }
+  .ptext { font-size: 1.5rem; }
+  .choices.one .choice { font-size: 1.15rem; }
+}
+
+/* --- 分析 --- */
+#stats .brand button { margin-left: auto; }
+.tablewrap { overflow-x: auto; }
+.tablewrap table { width: 100%; border-collapse: collapse; font-size: 0.8rem; font-variant-numeric: tabular-nums; background: var(--panel); }
+.tablewrap th, .tablewrap td { padding: 6px 8px; border: 1.5px solid var(--black); text-align: right; white-space: nowrap; }
+.tablewrap th { text-align: left; font-weight: 600; }
+.tablewrap tr:first-child th { background: var(--ground); color: var(--cream); text-align: right; white-space: normal; }
+.tablewrap tr:first-child th:first-child { text-align: left; }
+#statq { width: 100%; padding: 10px 12px; font: inherit; background: var(--cream); color: var(--black); border: 2px solid var(--black); border-radius: 3px; }
+.statwords .rank { flex: none; width: 2.6em; text-align: right; font-size: 0.72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.statwords .tag { flex: none; font-size: 0.66rem; font-weight: 700; padding: 0 7px; border: 1.5px solid var(--black); border-radius: 999px; background: var(--teal); color: var(--black); }
+#statlevels .zrow span:first-child { width: 2.6em; }
+#statlevels .zrow span:last-child { width: 3.6em; }
+@media (min-width: 880px) and (orientation: landscape) { #stats { max-width: 1000px; margin: 0 auto; } }

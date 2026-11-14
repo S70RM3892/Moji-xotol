@@ -17,6 +17,8 @@ export interface Word {
   ctValue: number;
   /** 共通テスト・センター試験(2004-2026)に出た年度数 */
   ctYears: number;
+  /** 品詞（n名 v動 a形 r副）。主なものから順に並ぶ。和訳も同じ順に [名] [動] … と区切ってある */
+  pos: string;
 }
 
 export const TIER_LABEL = ['共テ', '難関2次', '京大'] as const;
@@ -38,8 +40,8 @@ export const MODE_WEIGHTS: Record<'nankan', [number, number, number]> = {
 // A1（中学初級）はお題にしない。A2 もほとんど出さない
 const CEFR_WEIGHT: Record<string, number> = { A1: 0, A2: 0.2, B1: 1.5, B2: 1, C1: 1, C2: 0.6 };
 
-export const WORDS: Word[] = (raw as [string, Tier, string, string, number, number[], number, number][]).map(
-  ([text, tier, cefr, gloss, value, years, ctValue, ctYears]) => ({ text, tier, cefr, gloss, value, years, ctValue, ctYears }),
+export const WORDS: Word[] = (raw as [string, Tier, string, string, number, number[], number, number, string][]).map(
+  ([text, tier, cefr, gloss, value, years, ctValue, ctYears, pos]) => ({ text, tier, cefr, gloss, value, years, ctValue, ctYears, pos }),
 );
 export const WORD_MAP = new Map(WORDS.map((w) => [w.text, w]));
 

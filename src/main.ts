@@ -4,9 +4,11 @@ import { DEFAULTS, Game, type Placement, type Task, WILD } from './core/game';
 import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng, sampleWord } from './core/words';
 import { setSound, sfx, toast } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
+import analysis from './data/analysis.json';
+import { LEVEL_NAME, SENTENCES, type Sentence } from './data/sentences';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
-type Kind = 'tile' | 'eat' | 'read';
+type Kind = 'tile' | 'eat' | 'read' | 'parse';
 /** むずかしさ。お題の文字数の範囲は遊ぶ形で変わる（刻むは盤面の幅、喰らうは道の長さが上限） */
 const LEVELS = [
   { label: 'やさしい', min: 4, tileMax: 6, eatMax: 6, cue: 2, wilds: 3, note: 'お題は4〜6文字。思い出すときは頭の2文字が見える。' },
@@ -66,6 +68,7 @@ function save(key: string, value: unknown): void {
 const KINDS: { value: Kind; label: string; note: string }[] = [
   { value: 'tile', label: '刻む', note: '手札の文字をドラッグして、壁に語を並べる。連鎖と倍率マスで点を伸ばす。' },
   { value: 'eat', label: '喰らう', note: '壁いっぱいの文字の中で文字食い邪神を動かし、語をつづりの順に食べさせる。' },
+  { value: 'parse', label: '読み解く', note: '英文を1文読み、同じ意味の英文を選ぶ。日本語に訳さず、英語のまま意味を取る練習。文の入り組み方が6段階で上がっていく。' },
   { value: 'read', label: '読む', note: '英単語を見て、意味を即答する。長文を速く読むための練習。1.5秒以内に答えられた語を「瞬時に読める語」として数える。' },
 ];
 let kind = load<Kind>('kind', 'tile');
@@ -100,9 +103,9 @@ function loadValid(text: string): void {
     if (g) glossOf.set(w, g);
   }
 }
-/** 1行に収めるための短い和訳: 最初の語義だけ、補足の括弧を外す */
-const brief = (g: string) => g.split('／')[0].replace(/[〈〉]/g, '');
-const gloss = (w: string) => WORD_MAP.get(w)?.gloss.split('／')[0] ?? glossOf.get(w) ?? '';
+/** 1行に収めるための短い和訳: 主な品詞の、最初の語義だけ（和訳は「[動] a、b／c　[名] d」の形） */
+const brief = (g: string) => g.split('　')[0].split('／')[0];
+const gloss = (w: string) => (WORD_MAP.has(w) ? brief(WORD_MAP.get(w)!.gloss) : (glossOf.get(w) ?? ''));
 
 // --- 1局の状態 ---
 interface Setup {
@@ -137,8 +140,8 @@ const dailyKey = () => boardKey({ kind, seed: dailySeed(), mode, level });
 const unlocked = () => AMULETS.filter((a) => a.level <= levelOf(xp));
 const activeAmulets = () => unlocked().filter((a) => chosen.includes(a.id)).slice(0, MAX_AMULETS);
 
-function show(view: 'home' | 'play' | 'eat' | 'read' | 'result'): void {
-  for (const v of ['home', 'play', 'eat', 'read', 'result']) $(v).hidden = v !== view;
+function show(view: 'home' | 'play' | 'eat' | 'read' | 'parse' | 'stats' | 'result'): void {
+  for (const v of ['home', 'play', 'eat', 'read', 'parse', 'stats', 'result']) $(v).hidden = v !== view;
   scrollTo(0, 0);
 }
 
@@ -204,6 +207,7 @@ function startGame(s: Setup): void {
   busy = false;
   if (s.kind === 'eat') return startEat(s);
   if (s.kind === 'read') return startRead();
+  if (s.kind === 'parse') return startParse();
   const L = LEVELS[s.level];
   const opts = {
     wilds: L.wilds,
@@ -591,14 +595,6 @@ const fluent = load<Record<string, [number, number]>>('fluent', {});
 const slow = new Set(load<string[]>('slow', []).filter((w) => WORD_MAP.has(w)));
 const isFluent = (w: string) => (fluent[w]?.[0] ?? 0) >= 3;
 
-/** 和訳の形（動詞・形容詞・名詞）。同じ形の選択肢を並べて、形だけで答えが分からないようにする */
-function glossShape(g: string, text = ''): string {
-  if (text.endsWith('ly')) return 'd'; // 副詞
-  const head = brief(g).split('、')[0];
-  if (head.startsWith('…') || /(する|[るうくすつぶむぐ])$/.test(head)) return 'v';
-  if (/(い|な|の|的|た)$/.test(head)) return 'a';
-  return 'n';
-}
 /** その層の試験の本文で出会う語。出た年度が多い語ほど出やすい */
 function readPool(): { word: Word; weight: number }[] {
   return WORDS.filter((w) => w.cefr !== 'A1' && w.text.length >= 4)
@@ -645,13 +641,13 @@ function startRead(): void {
   }
   const shapes = new Map<string, Word[]>();
   for (const { word } of pool) {
-    const k = `${word.tier}${glossShape(word.gloss, word.text)}`;
+    const k = `${word.tier}${word.pos[0] ?? ''}`; // 同じ層・同じ品詞の語から選択肢を取る
     shapes.set(k, [...(shapes.get(k) ?? []), word]);
   }
   readItems = chosen
     .sort(() => Math.random() - 0.5)
     .map((word) => {
-      const same = shapes.get(`${word.tier}${glossShape(word.gloss, word.text)}`) ?? [];
+      const same = shapes.get(`${word.tier}${word.pos[0] ?? ''}`) ?? [];
       const options = [word];
       for (let tries = 0; options.length < 4 && tries < 200; tries++) {
         const cand = same[Math.floor(Math.random() * same.length)] ?? WORDS[Math.floor(Math.random() * WORDS.length)];
@@ -821,6 +817,318 @@ $('rquit').onclick = () => {
     renderHome();
     show('home');
   }
+};
+
+// --- 読み解くモード: 英文を1文読み、同じ意味の英文を選ぶ。訳さずに英語のまま意味を取る練習 ---
+const PARSE_COUNT = 10;
+/** 京大の本文（1題およそ550語）を5分で読む速さ */
+const PACE_WPM = 110;
+/** いまの段階（1〜6）。速く正しく読めると上がり、間違えると下がる */
+let parseLevel = Math.min(6, Math.max(1, load<number>('parseLevel', 2)));
+/** 正しく読めたことのある文 */
+const parseSeen = new Set(load<string[]>('parseSeen', []));
+interface ParseItem {
+  s: Sentence;
+  options: string[];
+  picked: number | null;
+  readMs: number;
+  reread: boolean;
+  phase: 'read' | 'ask' | 'done';
+}
+let parseItems: ParseItem[] = [];
+let parseScore = 0;
+let parseShown = 0;
+let parseStreak = 0;
+const wordsIn = (text: string) => text.split(/\s+/).length;
+const wpmOf = (item: ParseItem) => Math.round(wordsIn(item.s.text) / (Math.max(item.readMs, 300) / 60000));
+const parseRight = (item: ParseItem) => item.picked !== null && item.options[item.picked] === item.s.options[0];
+
+function startParse(): void {
+  parseItems = [];
+  parseScore = 0;
+  parseStreak = 0;
+  show('parse');
+  nextParse();
+}
+
+/** いまの段階の文から、まだ読めていないものを優先して1つ選ぶ */
+function nextParse(): void {
+  if (parseItems.length >= PARSE_COUNT) return endParse();
+  const used = new Set(parseItems.map((x) => x.s));
+  let pool: Sentence[] = [];
+  for (let d = 0; d < 6 && !pool.length; d++) {
+    pool = SENTENCES.filter((x) => Math.abs(x.level - parseLevel) === d && !used.has(x));
+  }
+  if (!pool.length) return endParse();
+  const fresh = pool.filter((x) => !parseSeen.has(x.text));
+  const from = fresh.length ? fresh : pool;
+  const s = from[Math.floor(Math.random() * from.length)];
+  parseItems.push({ s, options: [...s.options].sort(() => Math.random() - 0.5), picked: null, readMs: 0, reread: false, phase: 'read' });
+  parseShown = performance.now();
+  renderParse();
+}
+
+function renderParse(): void {
+  const item = parseItems[parseItems.length - 1];
+  const done = item.phase === 'done';
+  $('pscore').textContent = String(parseScore);
+  $('pstep').textContent = String(parseItems.length);
+  $('psteps').textContent = `/ ${PARSE_COUNT}`;
+  $('plevel').textContent = String(item.s.level);
+  $('pkind').textContent = item.phase === 'read' ? '1回で意味をつかめ' : done ? LEVEL_NAME[item.s.level] : '同じ意味の文はどれ？';
+  const tag = $('ptag');
+  tag.hidden = !done;
+  tag.textContent = item.s.tag;
+  // 選ぶあいだは本文を隠す（読み返さずに意味を持っておく練習）。読み返したら本文を出したままにする
+  const text = $('ptext');
+  text.hidden = item.phase === 'ask' && !item.reread;
+  text.textContent = item.s.text;
+  $('pchoices').replaceChildren(
+    ...(item.phase === 'read'
+      ? []
+      : item.options.map((o, i) => {
+          const b = el('button', 'choice');
+          b.append(el('span', 'key', String(i + 1)), el('span', 'g', o));
+          if (done) {
+            b.disabled = true;
+            if (o === item.s.options[0]) b.classList.add('right');
+            else if (i === item.picked) b.classList.add('wrong');
+          } else b.onclick = () => answerParse(i);
+          return b;
+        })),
+  );
+  $('pgo').hidden = item.phase !== 'read';
+  $('pagain').hidden = item.phase !== 'ask' || item.reread;
+  $('pnext').hidden = !done;
+  $('pnext').textContent = parseItems.length >= PARSE_COUNT ? '結果を見る' : '次の文へ';
+  const wpm = wpmOf(item);
+  $('pnote').textContent =
+    item.phase === 'read'
+      ? `${wordsIn(item.s.text)}語。訳さずに読み、意味がつかめたら「読めた」を押す。`
+      : item.phase === 'ask'
+        ? `読むのに ${(item.readMs / 1000).toFixed(1)}秒（1分あたり ${wpm}語。目安は ${PACE_WPM}語）。1〜3のキーでも選べる。`
+        : `${parseRight(item) ? '正解。' : '違う。'}${item.s.note}`;
+}
+
+function answerParse(i: number): void {
+  const item = parseItems[parseItems.length - 1];
+  if (!item || item.phase !== 'ask') return;
+  item.picked = i;
+  item.phase = 'done';
+  const ok = parseRight(item);
+  const fast = wpmOf(item) >= PACE_WPM && !item.reread;
+  if (ok) {
+    parseSeen.add(item.s.text);
+    const speed = Math.max(0, Math.min(100, wpmOf(item) - 60));
+    parseScore += Math.round((100 + speed + item.s.level * 20) * (item.reread ? 0.5 : 1));
+    // 速く正しく読めたのが2回続いたら、段階を上げる
+    parseStreak = fast ? parseStreak + 1 : 0;
+    if (parseStreak >= 2 && parseLevel < 6) {
+      parseLevel++;
+      parseStreak = 0;
+    }
+    sfx.word(item.s.level);
+  } else {
+    parseStreak = 0;
+    if (parseLevel > 1) parseLevel--;
+    sfx.bad();
+  }
+  save('parseLevel', parseLevel);
+  save('parseSeen', [...parseSeen]);
+  renderParse();
+}
+
+function endParse(): void {
+  const done = parseItems.filter((x) => x.phase === 'done');
+  const right = done.filter(parseRight);
+  const speeds = right.map(wpmOf).sort((a, b) => a - b);
+  const median = speeds.length ? speeds[speeds.length >> 1] : 0;
+  const { prev, before } = account(parseScore);
+  const grade = right.length >= 9 && median >= PACE_WPM ? 'S' : right.length >= 8 ? 'A' : right.length >= 6 ? 'B' : 'C';
+  $('resmode').textContent = '読み解く';
+  const g = $('grade');
+  g.className = `grade g-${grade}`;
+  g.textContent = grade;
+  const row = (label: string, value: string) => {
+    const d = el('div');
+    d.append(el('span', '', label), el('b', '', value));
+    return d;
+  };
+  $('resrows').replaceChildren(
+    row('正解', `${right.length} / ${done.length}`),
+    row(`読む速さ（正解した文の中央値。目安 ${PACE_WPM}語/分）`, `${median}語/分`),
+    row('いまの段階', `${parseLevel}: ${LEVEL_NAME[parseLevel]}`),
+    row('合計', `${parseScore}`),
+  );
+  $('resrecord').textContent =
+    `読めた文は通算 ${parseSeen.size} / ${SENTENCES.length}。` + (prev !== undefined && parseScore > prev ? ` 自己ベスト更新: ${prev} → ${parseScore}` : '');
+  $('resnew').replaceChildren();
+  const review = done.filter((x) => !parseRight(x) || x.reread);
+  $('misshead').textContent = `見直す文（${review.length}文）`;
+  $('resmissions').replaceChildren(
+    ...(review.length
+      ? review.map((x) => {
+          const li = el('li', parseRight(x) ? 'ok' : 'ng');
+          li.append(
+            el('span', 'mark', parseRight(x) ? '△' : '×'),
+            el('span', 'tier', `段階${x.s.level}・${x.s.tag}`),
+            el('span', 'sent', x.s.text),
+            el('span', 'why skill', `＝ ${x.s.options[0]}`),
+            el('span', 'why luck', x.s.note),
+          );
+          return li;
+        })
+      : [el('li', 'empty', '全部、読み返さずに正しく読めた')]),
+  );
+  $('foundhead').hidden = true;
+  $('resfound').hidden = true;
+  $('retry').hidden = true;
+  show('result');
+  levelUpNotice(before);
+}
+
+$('pgo').onclick = () => {
+  const item = parseItems[parseItems.length - 1];
+  if (!item || item.phase !== 'read') return;
+  item.readMs = performance.now() - parseShown;
+  item.phase = 'ask';
+  renderParse();
+};
+$('pagain').onclick = () => {
+  const item = parseItems[parseItems.length - 1];
+  if (!item || item.phase !== 'ask') return;
+  item.reread = true;
+  renderParse();
+};
+$('pnext').onclick = nextParse;
+$('pquit').onclick = () => {
+  if (parseItems.some((x) => x.phase === 'done')) endParse();
+  else {
+    renderHome();
+    show('home');
+  }
+};
+document.addEventListener('keydown', (e) => {
+  if ($('parse').hidden) return;
+  const item = parseItems[parseItems.length - 1];
+  if (!item) return;
+  if (item.phase === 'ask' && /^[1-3]$/.test(e.key)) answerParse(Number(e.key) - 1);
+  else if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    if (item.phase === 'read') $('pgo').click();
+    else if (item.phase === 'done') nextParse();
+  }
+});
+
+// --- 分析データを見る ---
+type Exam = 'kyodai' | 'kyote';
+const POS_NAME: Record<string, string> = { n: '名', v: '動', a: '形', r: '副' };
+let statExam: Exam = 'kyodai';
+let statShown = 60;
+
+function renderStats(): void {
+  const d = analysis[statExam];
+  const table = (head: string[], rows: string[][]) => {
+    const t = el('table');
+    const tr = el('tr');
+    head.forEach((h) => tr.append(el('th', '', h)));
+    t.append(tr);
+    for (const r of rows) {
+      const line = el('tr');
+      r.forEach((c, i) => line.append(el(i ? 'td' : 'th', '', c)));
+      t.append(line);
+    }
+    return t;
+  };
+  $('statexam').replaceChildren(
+    ...(['kyodai', 'kyote'] as Exam[]).map((x) => {
+      const b = el('button', '', x === 'kyodai' ? '京大' : '共テ・センター');
+      b.setAttribute('aria-pressed', String(x === statExam));
+      b.onclick = () => {
+        statExam = x;
+        statShown = 60;
+        renderStats();
+      };
+      return b;
+    }),
+  );
+  $('statsum').textContent = `${d.title} ${d.years[0]}〜${d.years[1]}年度の問題を読み取って数えた、延べ ${d.tokens.toLocaleString()} 語の集計。`;
+
+  // 1. 語のレベル
+  $('statlevels').replaceChildren(
+    ...Object.entries(d.levels).map(([lv, pct]) => {
+      const row = el('div', 'zrow');
+      const track = el('span', 'bar');
+      const fill = el('i');
+      fill.style.width = `${pct}%`;
+      track.append(fill);
+      row.append(el('span', '', lv), track, el('span', '', `${pct}%`));
+      return row;
+    }),
+  );
+  $('stattypes').textContent =
+    '難しい語の種類数: ' +
+    Object.entries(d.types)
+      .map(([g, v]) => `${g} ${v.n}語（うち1年度だけ ${v.once}%）`)
+      .join('、') +
+    '。';
+
+  // 2. 出題歴と、次に出る確率
+  $('statrepeat').replaceChildren(
+    table(
+      ['一般的な頻度', ...d.repeat.history],
+      d.repeat.bands.map((b, i) => [b, ...d.repeat.rate[i].map((v) => (v === null ? '−' : `${v}%`))]),
+    ),
+  );
+  $('statrepeatnote').textContent = `難しい語が、ある年度の問題に出る確率（${d.repeat.from}〜${d.years[1]}年度）。左の列ほど出題歴が少ない。一度出た語は、出たことのない語の何倍も出やすい。`;
+
+  // 3. 予測の検証
+  $('statmodel').replaceChildren(
+    table(
+      ['予測の上位', '実際に出た割合', '出た難語のうち拾えた割合', 'でたらめに選ぶ場合との比'],
+      d.model.rows.map((r) => [`${r.top}%`, `${r.hit}%`, `${r.share}%`, `${r.lift}倍`]),
+    ),
+  );
+  $('statmodelnote').textContent = `${d.model.train[0]}〜${d.model.train[1]}年度で作った予測を、使っていない ${d.model.test[0]}〜${d.model.test[1]}年度で確かめた結果。難語が1年度に出る割合は平均 ${d.model.base}%。`;
+
+  // 4. 覚える価値の高い語
+  const value = (w: Word) => (statExam === 'kyodai' ? w.value : w.ctValue);
+  const q = $<HTMLInputElement>('statq').value.trim().toLowerCase();
+  const ranked = WORDS.filter((w) => value(w) > 0).sort((a, b) => value(b) - value(a));
+  const hits = ranked.map((w, i) => ({ w, rank: i + 1 })).filter(({ w }) => !q || w.text.includes(q) || w.gloss.includes(q));
+  $('statcount').textContent = `${hits.length.toLocaleString()} 語（全 ${ranked.length.toLocaleString()} 語を、覚える価値の高い順に並べてある）`;
+  $('statwords').replaceChildren(
+    ...hits.slice(0, statShown).map(({ w, rank }) => {
+      const li = el('li');
+      const state = learned[w.text] && !missed.has(w.text) ? '覚えた' : isFluent(w.text) ? '瞬時' : '';
+      li.append(
+        el('span', 'rank', String(rank)),
+        el('span', 'word', w.text),
+        el('span', 'tier', `${w.cefr}・${[...w.pos].map((c) => POS_NAME[c]).join('')}`),
+        ...(hasPast(w) ? [el('span', 'past', pastLabel(w))] : []),
+        ...(state ? [el('span', 'tag', state)] : []),
+        el('span', 'g', w.gloss),
+      );
+      return li;
+    }),
+  );
+  $('statmore').hidden = hits.length <= statShown;
+}
+$('tostats').onclick = () => {
+  show('stats');
+  renderStats();
+};
+$('statback').onclick = () => {
+  renderHome();
+  show('home');
+};
+$('statq').oninput = () => {
+  statShown = 60;
+  renderStats();
+};
+$('statmore').onclick = () => {
+  statShown += 120;
+  renderStats();
 };
 
 // --- 喰らうモード ---
@@ -1176,9 +1484,10 @@ function renderHome(): void {
   const dailyBest = boards[dailyKey()];
   $('kindnote').textContent = KINDS.find((k) => k.value === kind)!.note + (kind === 'tile' ? '' : ' 護符は使わない。');
   $('fluent').textContent = String(Object.keys(fluent).filter(isFluent).length);
-  $('daily').hidden = kind === 'read';
-  $('dailynote').hidden = kind === 'read';
-  $('start').textContent = kind === 'read' ? '20語を読む' : 'ランダムな盤';
+  const drill = kind === 'read' || kind === 'parse';
+  $('daily').hidden = drill;
+  $('dailynote').hidden = drill;
+  $('start').textContent = kind === 'read' ? '20語を読む' : kind === 'parse' ? `10文を読み解く（いま 段階${parseLevel}: ${LEVEL_NAME[parseLevel]}）` : 'ランダムな盤';
   $('dailynote').textContent =
     dailyBest === undefined
       ? '今日の盤は1日同じ並び。新しい語を3つ、見て作り、あとで思い出す。'

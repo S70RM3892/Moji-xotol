@@ -18613,7 +18613,7 @@ diagram
 diagrams	diagram の変化形
 diagraph
 dial
-dialect
+dialect	方言、なまり
 dialects	dialect の変化形
 dialed	dial の変化形
 dialer	dial の変化形
@@ -31088,7 +31088,7 @@ hallos	hallo の変化形
 hallot
 halloth
 hallow	…を神聖にする、神聖なものとする
-hallowed
+hallowed	神聖な、あがめられる
 hallower	聖人
 hallows	hallow の変化形
 halls	hall の変化形
@@ -38079,7 +38079,7 @@ landless
 landline
 landlord
 landman
-landmark
+landmark	境界標識
 landmass	大陸地
 landmen
 lands	land の変化形
@@ -55944,7 +55944,7 @@ reaper	刈り取り機、刈り手、収穫者
 reapers	reaper の変化形
 reaphook
 reaping	reap の変化形
-reappear	再び姿を現す
+reappear
 reapply
 reaps	reap の変化形
 rear
@@ -62872,7 +62872,7 @@ short
 shortage
 shortcut
 shorted	short の変化形
-shorten
+shorten	…を短くする、縮める
 shortens	shorten の変化形
 shorter	short の変化形
 shortest	short の変化形
@@ -65444,7 +65444,7 @@ souk
 souks
 soul
 souled	soul の変化形
-soulful
+soulful	魂のこもった、気持ちのこもった
 soulless	魂のない、人情のない
 soullike
 souls	soul の変化形
@@ -70182,7 +70182,7 @@ temples	temple の変化形
 templet	型板
 templets	templet の変化形
 tempo
-temporal
+temporal	時の、時間の
 tempos	tempo の変化形
 temps
 tempt
