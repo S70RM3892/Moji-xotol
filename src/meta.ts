@@ -69,6 +69,7 @@ export const INSCRIPTIONS: Inscription[] = [
   { id: 'bare', name: '素手の書記', hint: '護符に頼らず、高みへ。', text: '護符なしで評価Sを取った。' },
   { id: 'kyodai', name: '京の門', hint: 'いちばん難しい層の言葉を、自力で。', text: '京大層のお題を、ヒントなしで思い出して作った。' },
   { id: 'mirror', name: '鏡の言葉', hint: '逆さに読める護符がある。', text: '逆向きに読んで単語を作った。' },
+  { id: 'glutton', name: '無傷の饗宴', hint: '邪神は、一度も吐き出さなかった。', text: '喰らうモードで、1局を一度も間違えずに食べ切った。' },
   { id: 'again', name: '磨き直し', hint: '同じ盤に、もう一度向き合う。', text: '同じ盤をやり直して自己ベストを更新した。' },
   { id: 'zukan100', name: '語り部', hint: '図鑑に百の言葉。', text: '単語図鑑が100語に達した。' },
   { id: 'zukan500', name: '大書庫', hint: '図鑑に五百の言葉。', text: '単語図鑑が500語に達した。' },

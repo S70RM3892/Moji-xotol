@@ -42,6 +42,9 @@
           </div>
         </div>
 
+        <h2 data-sign="jackal">遊ぶ形</h2>
+        <div class="seg" id="kinds" role="group" aria-label="遊ぶ形"></div>
+        <p class="note" id="kindnote"></p>
         <h2 data-sign="sun">層</h2>
         <div class="seg" id="modes" role="group" aria-label="モード"></div>
         <p class="note" id="modenote"></p>
@@ -66,7 +69,7 @@
         <h2 data-sign="palette">単語図鑑</h2>
         <div class="card" id="zukan"></div>
 
-        <h2 data-sign="eye">遊び方</h2>
+        <h2 data-sign="eye">刻むモードの遊び方</h2>
         <ol class="rules">
           <li>お題は1語ずつ出る。その語の文字が手札に届くので、ドラッグして壁の好きな場所に並べる。縦でも横でもいい。</li>
           <li>初めての語は、まずつづりを<b>見ながら</b>作る。少しあとで同じ語が<b>つづりなし</b>でもう一度出るので、思い出して作る。</li>
@@ -75,6 +78,14 @@
           <li>単語にならなかった文字（点線）は、何度でもつかんで動かせる。要らない札は「すてる」へ運ぶ。</li>
           <li>星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
           <li>評価は、つづりなしのお題をヒントなしで作れた割合で決まる。</li>
+        </ol>
+        <h2 data-sign="jackal">喰らうモードの遊び方</h2>
+        <ol class="rules">
+          <li>壁いっぱいに文字が並ぶ。矢印ボタン（キーボードの矢印、壁の上のスワイプでもいい）で文字食い邪神を1マスずつ動かす。</li>
+          <li>お題の語を、つづりの順に食べさせる。正しい文字のマスへは進めて、食べたマスは空く。</li>
+          <li>違う文字には進めず、命が1つ減る。1語につき命は3つ。尽きるとその語は失敗で、次の局で覚え直し。</li>
+          <li>道のすぐ横には、取り違えやすい文字が置いてある。次の1文字を本当に覚えているかが問われる。</li>
+          <li>学習の流れは刻むモードと同じ。初めての語はつづりを見ながら、少しあとでつづりなしでもう一度出る。</li>
         </ol>
         </div>
       </section>
@@ -86,19 +97,19 @@
           <div class="meter"><span>最大</span><b id="chain">0</b><span>連鎖</span></div>
           <button id="quit" class="mini">おわる</button>
         </div>
-        <div id="mission" aria-live="polite">
-          <div class="mhead"><span id="mkind" class="kind"></span><span id="mtier" class="tier"></span></div>
-          <div id="mword" class="mword"></div>
-          <div id="mgloss" class="mgloss"></div>
+        <div id="mission" class="mission" aria-live="polite">
+          <div class="mhead"><span class="kind"></span><span class="tier"></span></div>
+          <div class="mword"></div>
+          <div class="mgloss"></div>
         </div>
-        <div id="trail" aria-label="刻んだ言葉"></div>
+        <div id="trail" class="trail" aria-label="刻んだ言葉"></div>
         <div class="wall">
           <div class="fret" aria-hidden="true"></div>
-          <div id="board" aria-label="盤面"></div>
-          <div id="shine" aria-hidden="true"></div>
+          <div id="board" class="board" aria-label="盤面"></div>
+          <div id="shine" class="shine" aria-hidden="true"></div>
           <div class="fret" aria-hidden="true"></div>
         </div>
-        <div id="feed" aria-live="polite"></div>
+        <div id="feed" class="feed" aria-live="polite"></div>
         <div class="rack">
           <div id="hand" aria-label="手札"></div>
           <div class="next"><span>NEXT</span><div id="next"></div></div>
@@ -107,6 +118,42 @@
           <button id="hint">ヒント</button>
           <button id="skip">とばす</button>
           <div id="trash" aria-label="ここへ運ぶと手札を捨てる">すてる <b id="discards">4</b></div>
+        </div>
+      </section>
+
+      <section id="eat" hidden>
+        <div class="topbar">
+          <div class="scorebox"><span class="gl" data-sign="jackal" aria-hidden="true"></span><b id="escore">0</b><span>点</span></div>
+          <div class="meter"><span>お題</span><b id="estep">1</b><span id="esteps">/ 6</span></div>
+          <div class="meter"><span>命</span><b id="elives" class="gl lives"></b></div>
+          <button id="equit" class="mini">おわる</button>
+        </div>
+        <div id="emission" class="mission" aria-live="polite">
+          <div class="mhead"><span class="kind"></span><span class="tier"></span></div>
+          <div class="mword"></div>
+          <div class="mgloss"></div>
+        </div>
+        <div id="etrail" class="trail" aria-label="食べた言葉"></div>
+        <div class="wall">
+          <div class="fret" aria-hidden="true"></div>
+          <div id="eboard" class="board" aria-label="壁"></div>
+          <div id="eshine" class="shine" aria-hidden="true"></div>
+          <div class="fret" aria-hidden="true"></div>
+        </div>
+        <div id="efeed" class="feed" aria-live="polite"></div>
+        <div class="controls">
+          <div class="side">
+            <button id="ehint">ヒント</button>
+            <button id="eskip">とばす</button>
+          </div>
+          <div class="pad">
+            <button id="up" aria-label="上へ">▲</button>
+            <button id="left" aria-label="左へ">◀</button>
+            <img id="padicon" alt="" />
+            <button id="right" aria-label="右へ">▶</button>
+            <button id="down" aria-label="下へ">▼</button>
+          </div>
+          <div class="side combo"><span>連食</span><b id="ecombo">0</b></div>
         </div>
       </section>
 

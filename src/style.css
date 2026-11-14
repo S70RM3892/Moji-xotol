@@ -38,7 +38,7 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 /* 漆喰のざらつきとひびを、どの色の面にも重ねる */
-body, .painted, .card, .wall, h2, button, .tile, .cell, #missions li, .tablet, .grade, .sheet {
+body, .painted, .card, .wall, h2, button, .tile, .cell, .missions li, .tablet, .grade, .sheet {
   background-image: var(--plaster);
   background-size: 384px;
   background-blend-mode: overlay;
@@ -162,7 +162,7 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .rules b { color: var(--gold-text); }
 
 /* --- プレイ --- */
-#play { gap: 7px; }
+:is(#play, #eat) { gap: 7px; }
 .topbar { display: flex; align-items: baseline; gap: 12px; font-variant-numeric: tabular-nums; }
 .scorebox { margin-right: auto; display: flex; align-items: baseline; gap: 4px; }
 .scorebox .gl { font-size: 1.5rem; color: var(--gold-text); align-self: center; }
@@ -172,8 +172,8 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .meter.low b { color: var(--red); }
 
 /* お題はカルトゥーシュ（王名枠）: 長円の枠と、端の結び目 */
-#missions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-#missions li {
+.missions { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.missions li {
   position: relative;
   display: flex; align-items: baseline; gap: 5px; min-width: 0;
   padding: 2px 20px 2px 10px;
@@ -181,14 +181,14 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
   border: 2px solid var(--black); border-radius: 999px;
   font-size: 0.78rem; line-height: 1.4; cursor: pointer;
 }
-#missions li::after { content: ''; position: absolute; right: 8px; top: -2px; bottom: -2px; width: 3px; background: var(--black); }
-#missions li.open { flex-wrap: wrap; border-radius: 14px; padding-block: 6px; }
-#missions .gloss { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-#missions li.open .gloss { white-space: normal; flex-basis: 60%; }
-#missions .len { flex: none; font-variant-numeric: tabular-nums; opacity: 0.7; }
-#missions li.done { background-color: var(--teal); }
-#missions .spell { font: 800 0.8rem var(--font-carve); letter-spacing: 0.06em; text-transform: uppercase; }
-#missions li.open button { flex: none; margin-left: auto; }
+.missions li::after { content: ''; position: absolute; right: 8px; top: -2px; bottom: -2px; width: 3px; background: var(--black); }
+.missions li.open { flex-wrap: wrap; border-radius: 14px; padding-block: 6px; }
+.missions .gloss { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.missions li.open .gloss { white-space: normal; flex-basis: 60%; }
+.missions .len { flex: none; font-variant-numeric: tabular-nums; opacity: 0.7; }
+.missions li.done { background-color: var(--teal); }
+.missions .spell { font: 800 0.8rem var(--font-carve); letter-spacing: 0.06em; text-transform: uppercase; }
+.missions li.open button { flex: none; margin-left: auto; }
 .tier { flex: none; font-size: 0.62rem; border: 1px solid currentColor; border-radius: 2px; padding: 0 3px; white-space: nowrap; opacity: 0.8; }
 
 /* 盤は壁そのもの: 赤土の地を帯ではさむ */
@@ -196,7 +196,7 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .wall .fret { height: 16px; border: none; }
 .wall .fret:first-child { border-bottom: 2px solid var(--black); }
 .wall .fret:last-child { border-top: 2px solid var(--black); }
-#board {
+.board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
@@ -235,17 +235,17 @@ button:focus-visible, .cell:focus-visible { outline: 3px solid var(--ochre); out
 .cell.star::after { content: '★'; position: absolute; top: 0; left: 2px; font: 0.5rem var(--font-body); }
 .fixing .cell.wait { border-color: var(--ochre); color: var(--ochre); }
 
-#feed { min-height: 3.9em; display: flex; flex-direction: column; gap: 1px; font-size: 0.8rem; line-height: 1.3; }
-#feed .sum { font: 800 0.95rem var(--font-carve); color: var(--gold-text); }
-#feed .w { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
-#feed .w b { font: 800 0.82rem var(--font-carve); letter-spacing: 0.05em; text-transform: uppercase; }
-#feed .w .gl { flex: none; font-size: 0.95rem; line-height: 1; color: var(--muted); }
-#feed .w .g { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); }
-#feed .w .p { font-variant-numeric: tabular-nums; }
-#feed .w.target b, #feed .w.mission b { color: var(--teal); }
-#feed .w.plain { color: var(--muted); }
-#feed .new { font-size: 0.6rem; font-weight: 700; color: var(--cream); background: var(--red); border-radius: 2px; padding: 0 3px; }
-#feed .hint { color: var(--muted); }
+.feed { min-height: 3.9em; display: flex; flex-direction: column; gap: 1px; font-size: 0.8rem; line-height: 1.3; }
+.feed .sum { font: 800 0.95rem var(--font-carve); color: var(--gold-text); }
+.feed .w { display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+.feed .w b { font: 800 0.82rem var(--font-carve); letter-spacing: 0.05em; text-transform: uppercase; }
+.feed .w .gl { flex: none; font-size: 0.95rem; line-height: 1; color: var(--muted); }
+.feed .w .g { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); }
+.feed .w .p { font-variant-numeric: tabular-nums; }
+.feed .w.target b, .feed .w.mission b { color: var(--teal); }
+.feed .w.plain { color: var(--muted); }
+.feed .new { font-size: 0.6rem; font-weight: 700; color: var(--cream); background: var(--red); border-radius: 2px; padding: 0 3px; }
+.feed .hint { color: var(--muted); }
 
 .rack { display: flex; align-items: flex-end; gap: 10px; }
 #hand { flex: 1; display: flex; gap: 5px; min-height: 58px; }
@@ -335,8 +335,8 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 /* 単語ができた瞬間 */
 .cell.flash { animation: flash 0.55s var(--d, 0ms) ease-out both; z-index: 2; }
 .wall.shake { animation: shake 0.5s ease-out; }
-#shine { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-#shine.on::after {
+.shine { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.shine.on::after {
   content: ''; position: absolute; inset: 0;
   background: linear-gradient(105deg, #fff0 30%, #fff8 50%, #fff0 70%);
   animation: sweep 0.9s ease-out both;
@@ -409,7 +409,7 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 @keyframes stamp { 0% { opacity: 0; transform: scale(2.2) rotate(-12deg); } 100% { opacity: 1; transform: rotate(-3deg); } }
 @keyframes drawin { 0% { opacity: 0; transform: translateX(14px); } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .cell, .grade, .tile.in, .wall.shake, #shine.on::after { animation: none !important; }
+  .cell, .grade, .tile.in, .wall.shake, .shine.on::after { animation: none !important; }
   .bigword { animation: none; transform: translate(-50%, -50%); }
   .popup { animation-duration: 0.9s; }
 }
@@ -458,28 +458,28 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
   #app { max-width: 1240px; padding-block: 14px 20px; }
   #home, #result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; align-items: start; }
   #result > .brand, #result > .fret { grid-column: 1 / -1; }
-  #play:not([hidden]) ~ footer { display: none; }
+  :is(#play, #eat):not([hidden]) ~ footer { display: none; }
   #studylist { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   #study #begin { align-self: center; min-width: 360px; }
 
-  #play {
+  :is(#play, #eat) {
     display: grid;
     grid-template-columns: auto minmax(320px, 1fr);
     grid-template-rows: auto auto auto 1fr auto auto;
     column-gap: 28px; row-gap: 10px;
     align-items: start;
   }
-  #play > * { grid-column: 2; }
-  #play .wall {
+  :is(#play, #eat) > * { grid-column: 2; }
+  :is(#play, #eat) .wall {
     grid-column: 1; grid-row: 1 / -1; align-self: center;
     width: min(calc(100dvh - 44px), 62vw); max-width: none; margin: 0;
   }
   .cell { font-size: clamp(1.3rem, 3.4vh, 2.4rem); }
   .cell.b2, .cell.b3 { font-size: 1rem; }
   .wall .fret { height: 22px; }
-  #missions { gap: 6px; }
-  #missions li { font-size: 0.95rem; padding-block: 5px; }
-  #feed { font-size: 0.95rem; min-height: 5em; align-self: end; }
+  .missions { gap: 6px; }
+  .missions li { font-size: 0.95rem; padding-block: 5px; }
+  .feed { font-size: 0.95rem; min-height: 5em; align-self: end; }
   #hand { gap: 8px; min-height: 84px; }
   .tile { max-width: 76px; height: 82px; font-size: 2rem; }
   .tile .gl { font-size: 1.3rem; }
@@ -500,9 +500,9 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 }
 
 /* --- 単語を作りやすくする手がかり --- */
-#missions .spell.cue { letter-spacing: 0.12em; opacity: 0.75; }
-#missions li.flowing { box-shadow: 0 0 0 3px var(--ochre); }
-#missions .flow { flex: none; font-size: 0.62rem; font-weight: 700; background: var(--ochre); border: 1.5px solid var(--black); border-radius: 999px; padding: 0 6px; }
+.missions .spell.cue { letter-spacing: 0.12em; opacity: 0.75; }
+.missions li.flowing { box-shadow: 0 0 0 3px var(--ochre); }
+.missions .flow { flex: none; font-size: 0.62rem; font-weight: 700; background: var(--ochre); border: 1.5px solid var(--black); border-radius: 999px; padding: 0 6px; }
 .cell.good { box-shadow: inset 0 0 0 3px var(--cream); filter: brightness(1.35); }
 .cell.great { box-shadow: inset 0 0 0 4px var(--teal), 0 0 12px 2px var(--teal); filter: brightness(1.5); }
 #droptip {
@@ -514,18 +514,18 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 #droptip.no { background: var(--cream); color: var(--black); font: 600 0.75rem var(--font-body); }
 
 /* --- いまのお題（1語ずつ） --- */
-#mission {
+.mission {
   display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center;
   padding: 8px 14px; border: 3px solid var(--black); border-radius: 18px;
   background-color: var(--cream); background-image: var(--plaster); background-size: 384px; background-blend-mode: overlay;
   color: var(--black); box-shadow: 0 0 0 2px var(--ochre);
 }
-#mission.recall { box-shadow: 0 0 0 2px var(--lapis); }
-#mission.done { background-color: var(--teal); }
-#mission .mhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
-#mission .kind { font-size: 0.72rem; font-weight: 700; padding: 0 9px; border: 1.5px solid var(--black); border-radius: 999px; background: var(--ochre); }
-#mission.recall .kind { background: var(--lapis); color: var(--cream); }
-#mission .mgloss { grid-column: 1 / -1; font-size: 0.95rem; line-height: 1.45; }
+.mission.recall { box-shadow: 0 0 0 2px var(--lapis); }
+.mission.done { background-color: var(--teal); }
+.mission .mhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.mission .kind { font-size: 0.72rem; font-weight: 700; padding: 0 9px; border: 1.5px solid var(--black); border-radius: 999px; background: var(--ochre); }
+.mission.recall .kind { background: var(--lapis); color: var(--cream); }
+.mission .mgloss { grid-column: 1 / -1; font-size: 0.95rem; line-height: 1.45; }
 .mword { grid-column: 1 / -1; display: flex; gap: 4px; flex-wrap: wrap; }
 .mword .slot {
   width: 34px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -534,10 +534,10 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 }
 .mword .slot .gl { font-size: 0.7rem; opacity: 0.6; line-height: 1; }
 .mword .slot.hidden { background: transparent; border-style: dashed; }
-#trail { display: flex; flex-wrap: wrap; gap: 4px 10px; min-height: 1.3rem; font-size: 1.05rem; line-height: 1.2; }
-#trail .gl { padding: 0 6px; border: 1.5px solid var(--muted); border-radius: 999px; color: var(--muted); }
-#trail .gl.ok { color: var(--teal); border-color: var(--teal); }
-#trail .gl.ng { color: var(--red); border-color: var(--red); }
+.trail { display: flex; flex-wrap: wrap; gap: 4px 10px; min-height: 1.3rem; font-size: 1.05rem; line-height: 1.2; }
+.trail .gl { padding: 0 6px; border: 1.5px solid var(--muted); border-radius: 999px; color: var(--muted); }
+.trail .gl.ok { color: var(--teal); border-color: var(--teal); }
+.trail .gl.ng { color: var(--red); border-color: var(--red); }
 .bigword.intro { animation-duration: 1.5s; border-radius: 22px; }
 .bigword.intro b { letter-spacing: 0.16em; }
 .bigword.intro .tag { background: var(--ochre); order: -1; font-size: 0.75rem; }
@@ -559,10 +559,52 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 }
 .tile.ghost.wild { background-color: var(--lapis); color: var(--cream); }
 @media (min-width: 880px) and (orientation: landscape) {
-  #mission { padding: 12px 18px; }
+  .mission { padding: 12px 18px; }
   .mword .slot { width: 46px; height: 54px; font-size: 1.7rem; }
   .mword .slot .gl { font-size: 0.95rem; }
-  #mission .mgloss { font-size: 1.1rem; }
-  #trail { font-size: 1.3rem; }
+  .mission .mgloss { font-size: 1.1rem; }
+  .trail { font-size: 1.3rem; }
   .tile.ghost { font-size: 2rem; }
 }
+
+/* --- 喰らうモード: 壁いっぱいの文字と、文字食い邪神 --- */
+#eboard .cell { background-color: var(--cream); border: 2px solid var(--black); box-shadow: none; cursor: default; }
+#eboard .cell.eaten { background-color: var(--recess); border-color: transparent; box-shadow: inset 0 0 0 1px #0000004d; }
+#eboard .cell.spat { background-color: var(--red); color: var(--cream); }
+#eboard .cell.spat::after { content: '×'; position: absolute; top: 0; left: 3px; font: 700 0.7rem var(--font-body); }
+#eboard .cell.hintcell { background-color: var(--ochre); box-shadow: 0 0 0 3px var(--ochre), 0 0 14px 4px var(--ochre); z-index: 1; }
+#eboard .cell.god {
+  background: var(--black) center / cover no-repeat; background-blend-mode: normal; border-color: var(--ochre); box-shadow: 0 0 0 2px var(--black), 0 0 16px 3px var(--ochre); z-index: 2;
+  animation: godidle 1.6s ease-in-out infinite;
+}
+#eboard .cell.god.chomp { animation: chomp 0.28s ease-out; }
+#eboard .cell.god.bump { animation: bump 0.25s ease-out; }
+#eboard .cell.no { animation: no 0.35s ease-out; z-index: 3; }
+#eboard .cell.fresh { animation: flipin 0.4s var(--d, 0ms) ease-out both; }
+.meter b.lives { font: 400 1.25rem 'Glyphs'; color: var(--red); letter-spacing: 0.08em; }
+.controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.controls .side { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.controls .side button { font-size: 0.82rem; white-space: nowrap; }
+.controls .side { min-width: 5.5em; }
+.controls .combo { align-items: center; gap: 0; color: var(--muted); font-size: 0.72rem; }
+.controls .combo b { font: 800 2rem var(--font-carve); color: var(--gold-text); line-height: 1; }
+.pad { flex: none; display: grid; grid-template: repeat(3, 58px) / repeat(3, 58px); gap: 4px; }
+.pad button { padding: 0; font-size: 1.3rem; touch-action: manipulation; }
+.pad #up { grid-area: 1 / 2; } .pad #left { grid-area: 2 / 1; } .pad #right { grid-area: 2 / 3; } .pad #down { grid-area: 3 / 2; }
+.pad img { grid-area: 2 / 2; width: 100%; height: 100%; border: 2px solid var(--black); border-radius: 50%; object-fit: cover; }
+@keyframes godidle { 0%, 100% { transform: none; } 50% { transform: scale(1.06); } }
+@keyframes chomp { 0% { transform: scale(1.45) rotate(-8deg); } 45% { transform: scale(0.85) rotate(5deg); } 100% { transform: none; } }
+@keyframes bump { 0%, 100% { transform: none; } 40% { transform: scale(0.9); } }
+@keyframes no { 0%, 100% { transform: none; } 20% { transform: translateX(-6px) rotate(-4deg); } 40% { transform: translateX(6px) rotate(4deg); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+@keyframes flipin { 0% { transform: rotateY(90deg) scale(0.8); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (min-width: 880px) and (orientation: landscape) {
+  .pad { grid-template: repeat(3, 84px) / repeat(3, 84px); gap: 6px; }
+  .pad button { font-size: 1.9rem; }
+  .controls .side button { padding-block: 14px; font-size: 0.95rem; }
+  .controls .combo b { font-size: 3rem; }
+}
+@media (prefers-reduced-motion: reduce) { #eboard .cell { animation: none !important; } }
+
+.popup.call.wrong { color: var(--red); font-size: 2.4rem; }
+.touch-eat { touch-action: none; }
+#eboard { touch-action: none; }

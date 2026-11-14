@@ -3,7 +3,10 @@
 // 初めての語は、まずつづりを見ながら作り（知る）、少しあとでつづりなしでもう一度作る（思い出す）。
 // 置いた文字を含む単語ができれば得点（複数なら連鎖）。単語にならない文字は「待ち」で、自由に動かせる。
 import { type Found, type Grid, type Mask, type WordSet, cellsOf, emptyGrid, emptyMask, findWords } from './board';
-import { type Mode, type Rng, type Word, WORD_MAP, sampleWord } from './words';
+import { type Task, cueOf, planTasks, taskMult } from './tasks';
+import { type Mode, type Rng, type Word, WORD_MAP } from './words';
+
+export { type Task, taskMult } from './tasks';
 
 export interface GameOptions {
   mode: Mode;
@@ -73,14 +76,6 @@ export interface Scored {
   kind: WordKind;
   pts: number;
 }
-export interface Task {
-  word: Word;
-  /** つづりを見ながら作る（知る）。false なら思い出す */
-  shown: boolean;
-  /** 使ったヒントの数（1回で1文字見える） */
-  hints: number;
-  state: 'todo' | 'done' | 'skipped';
-}
 export interface Placement {
   r: number;
   c: number;
@@ -103,10 +98,6 @@ export interface Placement {
   cross: boolean;
 }
 
-/** お題の語の点。見て作る=1倍、ヒントを使って思い出す=1.5倍、自力で思い出す=3倍 */
-export function taskMult(task: Task): number {
-  return task.shown ? 1 : task.hints ? 1.5 : 3;
-}
 export function scoreWord(text: string, task?: Task | null): { kind: WordKind; pts: number } {
   const w = WORD_MAP.get(text);
   if (!w) return { kind: 'plain', pts: text.length };
@@ -172,40 +163,7 @@ export class Game {
     this.wild = emptyMask(n);
     this.bonus = Array.from({ length: n }, () => Array<number>(n).fill(1));
 
-    // 語を選ぶ: 覚え直す語 → 新しい語（合わせて newWords 語）、それとは別に、前に作れた語を2語まで
-    const isNew = o.isNew ?? (() => true);
-    const fits = (w: Word) => w.text.length <= o.maxLen;
-    const fresh: Word[] = [];
-    const known: Word[] = [];
-    for (const w of o.relearn ?? []) if (fits(w) && !fresh.includes(w) && fresh.length < o.newWords - 1) fresh.push(w);
-    for (const w of o.recall ?? []) if (fits(w) && !known.includes(w) && !fresh.includes(w) && known.length < 2) known.push(w);
-    for (let tries = 0; fresh.length < o.newWords && tries < 200; tries++) {
-      const w = sampleWord(o.mode, rng, o.maxLen);
-      if (fresh.includes(w) || known.includes(w)) continue;
-      if (isNew(w)) fresh.push(w);
-      else if (known.length < 2) known.push(w);
-    }
-
-    // 並べる: 新しい語は「見て作る」→ ほかの語を1つはさんで →「思い出す」
-    const sources: { word: Word; fresh: boolean }[] = [];
-    for (let i = 0; i < Math.max(fresh.length, known.length + 2); i++) {
-      if (fresh[i]) sources.push({ word: fresh[i], fresh: true });
-      if (i >= 2 && known[i - 2]) sources.push({ word: known[i - 2], fresh: false });
-    }
-    const task = (word: Word, shown: boolean): Task => ({ word, shown, hints: 0, state: 'todo' });
-    let waiting: Word | null = null;
-    for (const s of sources) {
-      this.tasks.push(task(s.word, s.fresh));
-      if (waiting) {
-        this.tasks.push(task(waiting, false));
-        waiting = null;
-      }
-      if (s.fresh) {
-        if (waiting) this.tasks.push(task(waiting, false));
-        waiting = s.word;
-      }
-    }
-    if (waiting) this.tasks.push(task(waiting, false));
+    this.tasks = planTasks(o, rng);
     for (let i = 0; i < o.wilds; i++) this.wildAt.push(Math.floor(rng() * this.tasks.length));
 
     // 種と倍率マス: 互いに重ならない位置にばらまく
@@ -258,10 +216,7 @@ export class Game {
   }
   /** お題の見せ方: 見て作るなら全部、思い出すなら頭の数文字 + 伏せ字 */
   cue(t: Task): string {
-    const text = t.word.text;
-    if (t.shown || t.state !== 'todo') return text;
-    const open = Math.min(text.length, this.cueLetters + t.hints);
-    return text.slice(0, open) + '·'.repeat(text.length - open);
+    return cueOf(t, this.cueLetters);
   }
   isWaiting(r: number, c: number): boolean {
     return !!this.grid[r][c] && !this.lit[r][c] && !this.seed[r][c];

@@ -164,3 +164,53 @@ describe('Game', () => {
     expect([s.recalls, s.solo, s.allSolo]).toEqual([2, 0, 0]);
   });
 });
+
+describe('Eater（喰らうモード）', () => {
+  it('どの壁でも、次の1文字はちょうど1方向にだけある（道が1本に決まる）', async () => {
+    const { Eater } = await import('../src/core/eater');
+    for (let seed = 1; seed <= 60; seed++) {
+      const g = new Eater({ mode: seed % 2 ? 'kyote' : 'kyodai', maxLen: 7, newWords: 3 }, makeRng(seed));
+      while (!g.over) {
+        const word = g.task!.word.text;
+        for (let i = 0; i < word.length; i++) {
+          const options = [[-1, 0], [1, 0], [0, -1], [0, 1]].filter(([dr, dc]) => g.grid[g.pos[0] + dr]?.[g.pos[1] + dc] === word[i]);
+          expect(options).toHaveLength(1);
+          const step = g.move(options[0][0], options[0][1]);
+          expect(step.kind).toBe('eat');
+        }
+        expect(g.task!.state).toBe('done');
+        g.advance();
+      }
+      expect(g.settle().solo).toBe(g.tasks.filter((t) => !t.shown).length);
+    }
+  });
+
+  it('違う文字には進めず、命が減る。命が尽きるとそのお題は失敗', async () => {
+    const { Eater } = await import('../src/core/eater');
+    const g = new Eater({ mode: 'kyote', maxLen: 6, newWords: 3, lives: 2 }, makeRng(3));
+    const word = g.task!.word.text;
+    const wrong = [[-1, 0], [1, 0], [0, -1], [0, 1]].find(([dr, dc]) => {
+      const ch = g.grid[g.pos[0] + dr]?.[g.pos[1] + dc];
+      return ch && ch !== word[0];
+    })!;
+    const before = [...g.pos];
+    const first = g.move(wrong[0], wrong[1]);
+    expect(first).toMatchObject({ kind: 'wrong', failed: false });
+    expect(g.pos).toEqual(before);
+    expect(g.lives).toBe(1);
+    expect(g.move(wrong[0], wrong[1])).toMatchObject({ kind: 'wrong', failed: true });
+    expect(g.task!.state).toBe('skipped');
+    g.advance();
+    expect(g.lives).toBe(2);
+    expect(g.current).toBe(1);
+  });
+
+  it('ヒントは次のマスを教え、思い出すお題なら自力ではなくなる', async () => {
+    const { Eater } = await import('../src/core/eater');
+    const g = new Eater({ mode: 'kyote', maxLen: 6, newWords: 3 }, makeRng(8));
+    g.tasks[0].shown = false;
+    const cell = g.hint()!;
+    expect(g.grid[cell[0]][cell[1]]).toBe(g.task!.word.text[0]);
+    expect(g.task!.hints).toBe(1);
+  });
+});
