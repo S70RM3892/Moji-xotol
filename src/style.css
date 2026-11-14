@@ -465,7 +465,7 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
   #play {
     display: grid;
     grid-template-columns: auto minmax(320px, 1fr);
-    grid-template-rows: auto auto 1fr auto auto auto;
+    grid-template-rows: auto auto auto 1fr auto auto;
     column-gap: 28px; row-gap: 10px;
     align-items: start;
   }
@@ -512,3 +512,57 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 }
 #droptip.yes { background: var(--teal); color: var(--black); }
 #droptip.no { background: var(--cream); color: var(--black); font: 600 0.75rem var(--font-body); }
+
+/* --- いまのお題（1語ずつ） --- */
+#mission {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center;
+  padding: 8px 14px; border: 3px solid var(--black); border-radius: 18px;
+  background-color: var(--cream); background-image: var(--plaster); background-size: 384px; background-blend-mode: overlay;
+  color: var(--black); box-shadow: 0 0 0 2px var(--ochre);
+}
+#mission.recall { box-shadow: 0 0 0 2px var(--lapis); }
+#mission.done { background-color: var(--teal); }
+#mission .mhead { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+#mission .kind { font-size: 0.72rem; font-weight: 700; padding: 0 9px; border: 1.5px solid var(--black); border-radius: 999px; background: var(--ochre); }
+#mission.recall .kind { background: var(--lapis); color: var(--cream); }
+#mission .mgloss { grid-column: 1 / -1; font-size: 0.95rem; line-height: 1.45; }
+.mword { grid-column: 1 / -1; display: flex; gap: 4px; flex-wrap: wrap; }
+.mword .slot {
+  width: 34px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 2px solid var(--black); border-radius: 3px; background: var(--panel); color: var(--text);
+  font: 800 1.25rem var(--font-carve); line-height: 1; text-transform: uppercase;
+}
+.mword .slot .gl { font-size: 0.7rem; opacity: 0.6; line-height: 1; }
+.mword .slot.hidden { background: transparent; border-style: dashed; }
+#trail { display: flex; flex-wrap: wrap; gap: 4px 10px; min-height: 1.3rem; font-size: 1.05rem; line-height: 1.2; }
+#trail .gl { padding: 0 6px; border: 1.5px solid var(--muted); border-radius: 999px; color: var(--muted); }
+#trail .gl.ok { color: var(--teal); border-color: var(--teal); }
+#trail .gl.ng { color: var(--red); border-color: var(--red); }
+.bigword.intro { animation-duration: 1.5s; border-radius: 22px; }
+.bigword.intro b { letter-spacing: 0.16em; }
+.bigword.intro .tag { background: var(--ochre); order: -1; font-size: 0.75rem; }
+.bigword.intro.recall { box-shadow: 0 0 0 3px var(--lapis), 0 0 0 5px var(--black), 0 8px 0 5px #0006; }
+.bigword.intro.recall .tag { background: var(--lapis); color: var(--cream); }
+#trash {
+  flex: 1; display: grid; place-items: center; padding: 9px 8px;
+  border: 2px dashed var(--muted); border-radius: 3px; color: var(--muted); font-size: 0.82rem; font-weight: 600;
+}
+#trash.off { opacity: 0.4; }
+#trash.drop { border-color: var(--red); background: var(--red); color: var(--cream); border-style: solid; }
+#hand.drop { outline: 3px solid var(--ochre); outline-offset: 4px; border-radius: 4px; }
+.cell.wait { touch-action: none; cursor: grab; }
+.tile.ghost {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  background-color: var(--cream); background-image: var(--plaster); background-size: 384px; background-blend-mode: overlay;
+  color: var(--black); border: 2px solid var(--black); border-radius: 3px;
+  font: 800 1.35rem var(--font-carve); line-height: 1; text-transform: uppercase;
+}
+.tile.ghost.wild { background-color: var(--lapis); color: var(--cream); }
+@media (min-width: 880px) and (orientation: landscape) {
+  #mission { padding: 12px 18px; }
+  .mword .slot { width: 46px; height: 54px; font-size: 1.7rem; }
+  .mword .slot .gl { font-size: 0.95rem; }
+  #mission .mgloss { font-size: 1.1rem; }
+  #trail { font-size: 1.3rem; }
+  .tile.ghost { font-size: 2rem; }
+}

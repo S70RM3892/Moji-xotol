@@ -1,16 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { emptyGrid, emptyMask, findWords } from '../src/core/board';
 import { DEFAULTS, Game, WILD } from '../src/core/game';
-import { bestMove, makeLexicon } from '../src/core/solver';
 import { MODE_WEIGHTS, type Mode, WORD_MAP, makeRng, sampleWord } from '../src/core/words';
 
-const lex = makeLexicon(['rat', 'rate', 'ate', 'at', 'tea', 'eat', 'export', 'port', 'or', 'ox']);
+const valid = new Set(['rat', 'rate', 'ate', 'at', 'tea', 'eat', 'ox', 'or']);
+const RATE = WORD_MAP.get('rate')!;
 
-/** 盤面を空にして、決まった手札で始める */
-function blank(hand: string[], queue: string[] = []): Game {
-  const g = new Game({ mode: 'kyote', seeds: 0, bonus2: 0, bonus3: 0, wilds: 0 }, makeRng(1), lex.valid);
+/** 盤面を空にして、お題と手札を決めて始める */
+function blank(hand: string[], shown = true): Game {
+  const g = new Game({ mode: 'kyote', seeds: 0, bonus2: 0, bonus3: 0, wilds: 0 }, makeRng(1), valid);
+  g.tasks = [
+    { word: RATE, shown, hints: 0, state: 'todo' },
+    { word: WORD_MAP.get('abandon')!, shown: false, hints: 0, state: 'todo' },
+  ];
+  g.current = 0;
   g.hand = hand;
-  g.queue = queue;
+  g.queue = [];
   return g;
 }
 
@@ -25,131 +30,55 @@ describe('sampleWord', () => {
 });
 
 describe('findWords', () => {
-  it('置いた文字を含む部分だけを、縦横とも拾う', () => {
+  it('置いた文字を含む部分だけを、縦横とも拾う。鏡文字なら逆向きも', () => {
     const grid = emptyGrid(8);
     'rate'.split('').forEach((ch, i) => (grid[2][i] = ch));
     grid[3][3] = 'a';
     grid[4][3] = 't';
     const fresh = emptyMask(8);
     fresh[2][3] = true; // 最後に置いた e
-    const words = findWords(grid, fresh, lex.valid).map((w) => `${w.text}${w.down ? '↓' : '→'}`);
-    expect(words.sort()).toEqual(['ate→', 'eat↓', 'rate→']);
+    const read = (g: string[][], f: boolean[][], mirror: boolean) => findWords(g, f, valid, mirror).map((w) => `${w.text}${w.down ? '↓' : '→'}`).sort();
+    expect(read(grid, fresh, false)).toEqual(['ate→', 'eat↓', 'rate→']);
+
+    const back = emptyGrid(8);
+    'tar'.split('').forEach((ch, i) => (back[0][i] = ch));
+    const end = emptyMask(8);
+    end[0][2] = true;
+    expect(read(back, end, false)).toEqual([]);
+    expect(read(back, end, true)).toEqual(['rat→']);
   });
 });
 
-describe('Game', () => {
-  it('単語にならない1枚は待ちになり、あとの1枚で生き返って連鎖になる', () => {
-    const g = blank(['r', 'a', 'e', 't']);
-    expect(g.place(0, 0, 0)!.chain).toBe(0); // r
-    expect(g.place(0, 0, 1)!.chain).toBe(0); // a
-    expect(g.place(0, 0, 3)!.chain).toBe(0); // e を1マス空けて置く
-    expect(g.waiting).toHaveLength(3);
-    const res = g.place(0, 0, 2)!; // 真ん中に t
-    expect(res.words.map((w) => w.found.text).sort()).toEqual(['at', 'ate', 'rat', 'rate']);
-    expect(res.chain).toBe(4);
-    expect(res.total).toBe((2 + 3 + 3 + 40) * 4); // rate は共テ語 10×4、ほかは文字数
-    expect(g.waiting).toHaveLength(0);
+describe('お題の並び', () => {
+  it('新しい語は「見て作る」→ 別の語をはさんで →「思い出す」の順に出る', () => {
+    const g = new Game({ mode: 'kyote' }, makeRng(5), valid);
+    const seq = g.tasks.map((t) => `${t.word.text}:${t.shown ? '見' : '思'}`);
+    const words = [...new Set(g.tasks.map((t) => t.word.text))];
+    expect(words).toHaveLength(DEFAULTS.newWords);
+    expect(g.tasks).toHaveLength(DEFAULTS.newWords * 2);
+    for (const w of words) {
+      const see = seq.indexOf(`${w}:見`);
+      const recall = seq.indexOf(`${w}:思`);
+      expect(see).toBeGreaterThanOrEqual(0);
+      expect(recall).toBeGreaterThan(see);
+    }
+    // 1語目の「思い出す」は、2語目の「見て作る」のあと
+    expect(seq.indexOf(`${words[0]}:思`)).toBe(2);
   });
 
-  it('お題は3倍、つづりを見たお題は通常の点になる', () => {
-    const play = (reveal: boolean) => {
-      const g = blank(['r', 'a', 't', 'e']);
-      g.missions[0] = { word: WORD_MAP.get('rate')!, done: false, revealed: false };
-      if (reveal) g.reveal(0);
-      'rat'.split('').forEach((_, i) => g.place(0, 0, i));
-      const res = g.place(0, 0, 3)!;
-      expect(res.cleared.map((w) => w.text)).toEqual(['rate']);
-      return res.words.find((w) => w.found.text === 'rate')!.pts;
-    };
-    expect(play(false)).toBe(120);
-    expect(play(true)).toBe(40);
+  it('前に作れた語は、つづりなしで1回だけ出る。覚え直す語は見るところから', () => {
+    const known = WORD_MAP.get('rate')!;
+    const again = WORD_MAP.get('fuel')!;
+    const g = new Game({ mode: 'kyote', recall: [known], relearn: [again], isNew: (w) => w !== known }, makeRng(5), valid);
+    expect(g.tasks.filter((t) => t.word === known).map((t) => t.shown)).toEqual([false]);
+    expect(g.tasks.filter((t) => t.word === again).map((t) => t.shown)).toEqual([true, false]);
   });
 
-  it('倍率マス・★・手数・減点', () => {
-    const g = blank(['o', WILD, 'q'], []);
-    g.bonus[0][1] = 3;
-    g.turnsLeft = 3;
-    g.place(0, 0, 0); // o
-    expect(g.place(0, 0, 1)).toBeNull(); // ★は文字の指定が要る
-    const res = g.place(0, 0, 1, 'x')!; // ox を×3マスで
-    expect(res.total).toBe(2 * 3);
-    expect(g.wild[0][1]).toBe(true);
-    g.place(0, 5, 5); // q は待ちのまま
-    expect(g.over).toBe(true);
-    const s = g.settle();
-    expect(s.dead).toBe(1);
-    expect(s.total).toBe(Math.max(0, 6 - DEFAULTS.deadPenalty));
-  });
-
-  it('1手もどすと盤面・手札・得点が元に戻る', () => {
-    const g = blank(['a', 't'], ['e']);
-    g.place(0, 0, 0);
-    g.place(0, 0, 1); // at
-    expect(g.score).toBe(2);
-    expect(g.undo()).toBe(true);
-    expect(g.score).toBe(0);
-    expect(g.hand).toEqual(['t', 'e']); // a を置いたときに e を引いている
-    expect(g.grid[0][1]).toBe('');
-    expect(g.undo()).toBe(false); // もどせるのは1手だけ
-  });
-
-  it('手直し: 待ちの文字は拾って置き直せる。成立した文字は拾えない', () => {
-    const g = blank(['x', 'a', 't'], []);
-    g.place(0, 4, 4); // x は待ち
-    expect(g.pickUp(4, 4)).toBe(true);
-    expect(g.hand).toContain('x');
-    expect(g.grid[4][4]).toBe('');
-    expect(g.fixesLeft).toBe(DEFAULTS.fixes - 1);
-    g.place(g.hand.indexOf('a'), 0, 0);
-    g.place(g.hand.indexOf('t'), 0, 1); // at が成立
-    expect(g.pickUp(0, 0)).toBe(false);
-  });
-
-  it('鏡文字: 逆向きに読んだ単語も成立する', () => {
-    const play = (mirror: boolean) => {
-      const g = new Game({ mode: 'kyote', seeds: 0, bonus2: 0, bonus3: 0, wilds: 0, mirror }, makeRng(1), lex.valid);
-      g.hand = ['t', 'a', 'r'];
-      g.place(0, 0, 0); // t
-      g.place(0, 0, 1); // a
-      return g.place(0, 0, 2)!.words.map((w) => w.found.text).sort(); // 並びは t a r
-    };
-    expect(play(false)).toEqual([]);
-    expect(play(true)).toEqual(['rat']);
-  });
-
-  it('届かなかったお題について、来なかった文字を返す', () => {
-    const g = blank(['p', 'o', 'r'], []);
-    g.seen = [];
-    expect(g.shortfall('port')).toEqual(['p', 'o', 'r', 't']);
-    g.seen = ['p', 'o', 'r', WILD];
-    expect(g.shortfall('port')).toEqual([]); // t は★で埋まる
-    g.seen = ['p', 'o', 'r'];
-    expect(g.shortfall('port')).toEqual(['t']);
-  });
-
-  it('置かずに下見できる。お題の文字はまとまって流れてくる', () => {
-    const g = blank(['t'], []);
-    g.grid[0][0] = 'r';
-    g.grid[0][1] = 'a';
-    const pv = g.preview('t', 0, 2);
-    expect(pv.words.map((w) => w.found.text).sort()).toEqual(['at', 'rat']);
-    expect(pv.total).toBe((2 + 3) * 2);
-    expect(g.grid[0][2]).toBe(''); // 盤面は変わらない
-
-    const real = new Game({ mode: 'kyote', jitter: 0, wilds: 0, fillers: 0 }, makeRng(4), lex.valid);
-    // ばらつき0なら、最初のお題の文字が先頭にそのまま並ぶ
-    const first = real.missions[0].word.text;
-    const head = [...real.hand, ...real.queue].slice(0, first.length);
-    expect(head.sort()).toEqual([...first].sort());
-    expect(real.isFlowing(0)).toBe(true);
-    expect(real.isFlowing(5)).toBe(false);
-  });
-
-  it('袋はお題の文字をすべて含む', () => {
-    const g = new Game({ mode: 'kyodai' }, makeRng(9), lex.valid);
-    const pool = [...g.hand, ...g.queue];
-    for (const m of g.missions) {
-      for (const ch of m.word.text) {
+  it('最初の手札に、1語目の文字が全部入っている', () => {
+    for (let seed = 1; seed <= 20; seed++) {
+      const g = new Game({ mode: 'kyodai' }, makeRng(seed), valid);
+      const pool = [...g.hand];
+      for (const ch of g.task!.word.text) {
         const i = pool.indexOf(ch);
         expect(i).toBeGreaterThanOrEqual(0);
         pool.splice(i, 1);
@@ -158,12 +87,80 @@ describe('Game', () => {
   });
 });
 
-describe('bestMove', () => {
-  it('手札1枚で作れる最高点の手を返す', () => {
-    const grid = emptyGrid(8);
-    'rat'.split('').forEach((ch, i) => (grid[2][i + 1] = ch));
-    const mv = bestMove(grid, ['e', 'x'], lex, lex.valid, (ws) => ws.length, 1)!;
-    expect(mv.tiles).toEqual([{ r: 2, c: 4, ch: 'e' }]);
-    expect(mv.words.map((w) => w.text).sort()).toEqual(['ate', 'rate']);
+describe('Game', () => {
+  it('並べ終えるとお題達成。語は advance で壁から消え、次のお題の文字が届く', () => {
+    const g = blank(['r', 'a', 't', 'e', 'x', 'y', 'z']);
+    g.place(0, 0, 0); // r
+    g.place(0, 0, 1); // a
+    const three = g.place(0, 0, 2)!; // t → rat, at
+    expect(three.words.map((w) => w.found.text).sort()).toEqual(['at', 'rat']);
+    expect(three.task).toBeNull();
+    const res = g.place(0, 0, 3)!; // e → rate, ate
+    expect(res.task?.word.text).toBe('rate');
+    expect(res.words.find((w) => w.found.text === 'rate')!.pts).toBe(40); // 見て作るのは1倍
+    expect(g.place(0, 5, 5)).toBeNull(); // 演出が終わるまで置けない
+    g.advance();
+    expect(g.grid[0].slice(0, 4)).toEqual(['', '', '', '']);
+    expect(g.current).toBe(1);
+    expect(g.hand).toHaveLength(DEFAULTS.handSize);
+    expect(g.hand).toEqual(expect.arrayContaining(['x', 'y'])); // 持ち越すのは2枚まで
+    expect(g.hand).not.toContain('z');
+    for (const ch of 'abandon') expect([...g.hand, ...g.queue]).toContain(ch);
+  });
+
+  it('思い出すお題は自力で3倍、ヒントを使うと1.5倍。ヒントは1文字ずつ見える', () => {
+    const solo = blank(['r', 'a', 't', 'e'], false);
+    expect(solo.cue(solo.task!)).toBe('r···');
+    'rat'.split('').forEach((_, i) => solo.place(0, 0, i));
+    expect(solo.place(0, 0, 3)!.words.find((w) => w.kind === 'mission')!.pts).toBe(120);
+
+    const hinted = blank(['r', 'a', 't', 'e'], false);
+    expect(hinted.hint()).toBe(true);
+    expect(hinted.cue(hinted.task!)).toBe('ra··');
+    'rat'.split('').forEach((_, i) => hinted.place(0, 0, i));
+    expect(hinted.place(0, 0, 3)!.words.find((w) => w.kind === 'mission')!.pts).toBe(60);
+  });
+
+  it('待ちの文字は動かせるし、手札にも戻せる。成立した文字は動かない', () => {
+    const g = blank(['a', 't', 'x']);
+    g.place(0, 0, 0); // a
+    g.place(1, 4, 4); // x は待ち
+    expect(g.isWaiting(4, 4)).toBe(true);
+    expect(g.takeBack(4, 4)).toBe(true);
+    expect(g.hand).toContain('x');
+    g.place(g.hand.indexOf('t'), 5, 5); // t を離れた場所に
+    const res = g.move(5, 5, 0, 1)!; // a の隣へ動かす → at
+    expect(res.words.map((w) => w.found.text)).toEqual(['at']);
+    expect(g.grid[5][5]).toBe('');
+    expect(g.move(0, 1, 6, 6)).toBeNull();
+    expect(g.takeBack(0, 0)).toBe(false);
+  });
+
+  it('倍率マス・★・捨てる・下見', () => {
+    const g = blank(['o', WILD, 'q']);
+    g.bonus[0][1] = 3;
+    g.place(0, 0, 0); // o
+    expect(g.preview('x', 0, 1).total).toBe(2 * 3);
+    expect(g.grid[0][1]).toBe(''); // 下見では盤面は変わらない
+    expect(g.place(0, 0, 1)).toBeNull(); // ★は文字の指定が要る
+    const res = g.place(0, 0, 1, 'x')!; // ox を×3マスで
+    expect(res.total).toBe(6);
+    expect(res.wild).toBe(true);
+    expect(g.discard(0)).toBe(true);
+    expect(g.hand).toEqual([]);
+    expect(g.discardsLeft).toBe(DEFAULTS.discards - 1);
+  });
+
+  it('とばすと次のお題へ進み、手札は入れ替わる。精算は思い出せた数を数える', () => {
+    const g = blank(['r', 'a', 't', 'e'], false);
+    expect(g.skip()?.word.text).toBe('rate');
+    g.advance();
+    expect(g.current).toBe(1);
+    expect(g.hand).not.toContain('r'.repeat(2));
+    g.skip();
+    g.advance();
+    expect(g.over).toBe(true);
+    const s = g.settle();
+    expect([s.recalls, s.solo, s.allSolo]).toEqual([2, 0, 0]);
   });
 });

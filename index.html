@@ -68,33 +68,30 @@
 
         <h2 data-sign="eye">遊び方</h2>
         <ol class="rules">
-          <li>手札をドラッグして、置きたいマスで離すと1枚置ける。つかむと単語ができるマスが光り、マスの上では何ができるかが出る。</li>
-          <li>置いた文字を含む英単語が縦か横にできれば得点。並び全体が単語でなくていい。1枚で複数できると<b>連鎖</b>で、合計に連鎖数が掛かる。</li>
-          <li>単語にならなくても置ける。その文字は<b>待ち</b>（点線の下書き）になり、あとの文字で単語の一部になれば色が入る。待ちのまま終わると1枚 −15点。</li>
-          <li>袋の中身はお題6語の文字とおまけ。お題の文字は上から順にまとまって流れてくる（「文字が来ている」の印が目安）。袋の最後の数枚は届かないので、後ろのお題ほど賭けになる。</li>
-          <li><b>手直し</b>で、手札を捨てるか、待ちの文字を拾って置き直せる。星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
-          <li>局の前に<b>写本</b>でお題を見る。初めての語はつづりも見える（知る）。壁に向かうと意味と字数だけになる（思い出す）。作れなかった語は復習に回り、一度作れた語はつづりなしでもう一度出る。</li>
-          <li>評価は自力で達成したお題の数（5語以上 S、4語 A、2〜3語 B）。</li>
+          <li>お題は1語ずつ出る。その語の文字が手札に届くので、ドラッグして壁の好きな場所に並べる。縦でも横でもいい。</li>
+          <li>初めての語は、まずつづりを<b>見ながら</b>作る。少しあとで同じ語が<b>つづりなし</b>でもう一度出るので、思い出して作る。</li>
+          <li>思い出せないときは<b>ヒント</b>で1文字ずつ見える。自力で思い出すと3倍、ヒントを使うと1.5倍。</li>
+          <li>置いた文字を含む英単語ができれば得点。1枚でいくつもできると<b>連鎖</b>で、合計に連鎖数が掛かる。つかんだ札で単語ができるマスは光る。</li>
+          <li>単語にならなかった文字（点線）は、何度でもつかんで動かせる。要らない札は「すてる」へ運ぶ。</li>
+          <li>星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
+          <li>評価は、つづりなしのお題をヒントなしで作れた割合で決まる。</li>
         </ol>
         </div>
-      </section>
-
-      <section id="study" hidden>
-        <header class="brand"><span class="gl" data-sign="roll" aria-hidden="true"></span><h1>写本</h1><span class="note">知る → 思い出す</span></header>
-        <div class="fret" aria-hidden="true"></div>
-        <p class="note" id="studynote"></p>
-        <ul id="studylist"></ul>
-        <button id="begin" class="primary big">覚えた。壁に向かう</button>
       </section>
 
       <section id="play" hidden>
         <div class="topbar">
           <div class="scorebox"><span class="gl" data-sign="scarab" aria-hidden="true"></span><b id="score">0</b><span>点</span></div>
-          <div class="meter"><span>のこり</span><b id="turns">0</b><span>手</span></div>
+          <div class="meter"><span>お題</span><b id="step">1</b><span id="steps">/ 8</span></div>
           <div class="meter"><span>最大</span><b id="chain">0</b><span>連鎖</span></div>
           <button id="quit" class="mini">おわる</button>
         </div>
-        <ul id="missions" aria-label="お題"></ul>
+        <div id="mission" aria-live="polite">
+          <div class="mhead"><span id="mkind" class="kind"></span><span id="mtier" class="tier"></span></div>
+          <div id="mword" class="mword"></div>
+          <div id="mgloss" class="mgloss"></div>
+        </div>
+        <div id="trail" aria-label="刻んだ言葉"></div>
         <div class="wall">
           <div class="fret" aria-hidden="true"></div>
           <div id="board" aria-label="盤面"></div>
@@ -107,10 +104,10 @@
           <div class="next"><span>NEXT</span><div id="next"></div></div>
         </div>
         <div class="actions">
-          <button id="undo">1手もどす</button>
-          <button id="fix">手直し <b id="fixes">4</b></button>
+          <button id="hint">ヒント</button>
+          <button id="skip">とばす</button>
+          <div id="trash" aria-label="ここへ運ぶと手札を捨てる">すてる <b id="discards">4</b></div>
         </div>
-        <p id="bag" class="note"></p>
       </section>
 
       <section id="result" hidden>
@@ -130,7 +127,7 @@
         <div id="resnew"></div>
         </div>
         <div class="col">
-        <h2 data-sign="roll">お題</h2>
+        <h2 data-sign="roll">この局の言葉</h2>
         <ul id="resmissions" class="wordlist"></ul>
         <h2 id="foundhead" data-sign="palette">見つけた受験語</h2>
         <ul id="resfound" class="wordlist"></ul>

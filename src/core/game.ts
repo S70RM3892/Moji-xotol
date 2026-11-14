@@ -1,58 +1,57 @@
 // 1局の進行。
-// 毎手1枚、好きな空きマスに置く。置いた文字を含む単語ができれば得点（複数なら連鎖）。
-// 単語にならなくても置ける＝「待ち」。あとから来る文字でつながれば成立し、最後まで残れば減点。
-// 袋はお題の文字 + おまけ + ★。お題の文字は上から順にだいたいまとまって流れてくるので、手札に混ざるのは1〜2語ぶん。
-// いつ来るかは運で、手数が尽きると袋の残りは来ない。
+// お題は1語ずつ出る。その語の文字が手札に届くので、盤面の好きな場所に並べて作る。
+// 初めての語は、まずつづりを見ながら作り（知る）、少しあとでつづりなしでもう一度作る（思い出す）。
+// 置いた文字を含む単語ができれば得点（複数なら連鎖）。単語にならない文字は「待ち」で、自由に動かせる。
 import { type Found, type Grid, type Mask, type WordSet, cellsOf, emptyGrid, emptyMask, findWords } from './board';
 import { type Mode, type Rng, type Word, WORD_MAP, sampleWord } from './words';
 
 export interface GameOptions {
   mode: Mode;
   size?: number;
-  /** お題の語数 */
-  missions?: number;
+  /** お題にする語の最大文字数 */
+  maxLen?: number;
+  /** 1局で新しく覚える語数 */
+  newWords?: number;
   handSize?: number;
-  /** お題と関係なく混ぜる文字数 */
-  fillers?: number;
+  /** お題1語につき混ぜる、お題と関係ない文字の数 */
+  fillersPerTask?: number;
   /** 何の文字にでもなる札の枚数 */
   wilds?: number;
-  /** 置ける回数。指定しなければ「袋の枚数 − shortage」 */
-  turns?: number;
-  /** 袋のうち最後まで来ない枚数。0なら全部来る */
-  shortage?: number;
-  /** 文字が流れてくる順のばらつき。大きいほど前後のお題の文字が混ざる */
-  jitter?: number;
   /** 最初から盤面にある文字数 */
   seeds?: number;
   /** 得点が2倍・3倍になるマスの数 */
   bonus2?: number;
   bonus3?: number;
-  /** 手直し（手札を捨てる・待ちの文字を拾う）の回数 */
-  fixes?: number;
+  /** 手札を捨てられる回数 */
+  discards?: number;
   /** 逆向きに読んでも単語として成立させる */
   mirror?: boolean;
   /** 待ちのまま終わった文字1枚の減点 */
   deadPenalty?: number;
-  /** お題に必ず入れる語（復習用） */
-  include?: Word[];
-  maxMissionLen?: number;
+  /** 思い出すお題で最初から見せる文字数 */
+  cueLetters?: number;
+  /** 覚え直す語（前に作れなかった語）。新しい語と同じ扱いで、見てから思い出す */
+  relearn?: Word[];
+  /** 前に自力で作れた語。つづりなしで出す */
+  recall?: Word[];
+  /** まだ自力で作ったことのない語か */
+  isNew?: (word: Word) => boolean;
 }
 
 export const DEFAULTS = {
   size: 8,
-  missions: 6,
+  maxLen: 6,
+  newWords: 3,
   handSize: 7,
-  fillers: 8,
+  fillersPerTask: 1,
   wilds: 2,
-  shortage: 4,
-  jitter: 5,
   seeds: 4,
   bonus2: 5,
   bonus3: 2,
-  fixes: 4,
+  discards: 4,
   mirror: false,
-  deadPenalty: 15,
-  maxMissionLen: 6,
+  deadPenalty: 5,
+  cueLetters: 1,
 };
 
 /** 層ごとの基礎点 × 文字数 */
@@ -60,8 +59,10 @@ export const TIER_POINTS = [10, 15, 20];
 export const MAX_CHAIN_MULT = 8;
 /** 何の文字にでもなる札 */
 export const WILD = '*';
-export const ALL_MISSIONS_BONUS = 400;
-export const NO_DEAD_BONUS = 150;
+/** 思い出すお題を全部ヒントなしで作ったときのボーナス */
+export const ALL_SOLO_BONUS = 300;
+/** 次のお題に持ち越せる手札の枚数 */
+const CARRY = 2;
 
 /** おまけ文字の出やすさ。短い語を作りやすい文字に寄せる */
 const FILLER = 'eeeeaaaiioossttrrnnldhmpcuy';
@@ -71,6 +72,14 @@ export interface Scored {
   found: Found;
   kind: WordKind;
   pts: number;
+}
+export interface Task {
+  word: Word;
+  /** つづりを見ながら作る（知る）。false なら思い出す */
+  shown: boolean;
+  /** 使ったヒントの数（1回で1文字見える） */
+  hints: number;
+  state: 'todo' | 'done' | 'skipped';
 }
 export interface Placement {
   r: number;
@@ -85,29 +94,24 @@ export interface Placement {
   cellMult: number;
   total: number;
   /** この1枚で達成したお題 */
-  cleared: Word[];
+  task: Task | null;
   /** この1枚で「待ち」から成立に変わったマス（置いたマス自身を含む） */
   lit: [number, number][];
   /** 両隣が埋まっているすき間に置いた */
   between: boolean;
   /** 縦と横の両方に単語ができた */
   cross: boolean;
-  /** 達成したお題が、先に達成したお題と文字を共有している */
-  shared: boolean;
-}
-export interface Mission {
-  word: Word;
-  done: boolean;
-  /** つづりを見た（得点は通常の受験語と同じになり、復習に回る） */
-  revealed: boolean;
 }
 
-export function scoreWord(text: string, mission?: Mission): { kind: WordKind; pts: number } {
+/** お題の語の点。見て作る=1倍、ヒントを使って思い出す=1.5倍、自力で思い出す=3倍 */
+export function taskMult(task: Task): number {
+  return task.shown ? 1 : task.hints ? 1.5 : 3;
+}
+export function scoreWord(text: string, task?: Task | null): { kind: WordKind; pts: number } {
   const w = WORD_MAP.get(text);
   if (!w) return { kind: 'plain', pts: text.length };
   const base = TIER_POINTS[w.tier] * text.length;
-  if (!mission) return { kind: 'target', pts: base };
-  return { kind: 'mission', pts: mission.revealed ? base : base * 3 };
+  return task ? { kind: 'mission', pts: Math.round(base * taskMult(task)) } : { kind: 'target', pts: base };
 }
 
 function shuffle<T>(items: T[], rng: Rng): T[] {
@@ -118,30 +122,12 @@ function shuffle<T>(items: T[], rng: Rng): T[] {
   return items;
 }
 
-/** 1手もどすために覚えておく状態 */
-interface State {
-  grid: Grid;
-  lit: Mask;
-  wild: Mask;
-  hand: string[];
-  queue: string[];
-  done: boolean[];
-  made: { text: string; kind: WordKind }[];
-  missionCells: string[];
-  seen: number;
-  score: number;
-  maxChain: number;
-  fixesLeft: number;
-  placed: number;
-  turnsLeft: number;
-  best: { total: number; word: string };
-}
-
 export class Game {
   readonly size: number;
   readonly handSize: number;
   readonly mirror: boolean;
   readonly deadPenalty: number;
+  readonly cueLetters: number;
   grid: Grid;
   /** 単語の一部になったマス */
   lit: Mask;
@@ -153,63 +139,74 @@ export class Game {
   bonus: number[][];
   hand: string[] = [];
   /** これから引く文字。先頭が次の1枚 */
-  queue: string[];
-  missions: Mission[];
+  queue: string[] = [];
+  tasks: Task[] = [];
+  /** いまのお題の番号 */
+  current = 0;
+  /** 達成したお題のマス。演出のあと advance() で壁から消える */
+  pending: [number, number][] | null = null;
   score = 0;
   maxChain = 0;
-  fixesLeft: number;
+  discardsLeft: number;
   /** 作った単語（重複なし、作った順） */
   made: { text: string; kind: WordKind }[] = [];
   placed = 0;
-  turnsLeft: number;
-  /** 手札に来たことのある文字（運と腕を分けて振り返るため） */
-  seen: string[] = [];
   /** 1手での最高点と、そのときの一番長い単語 */
   best = { total: 0, word: '' };
-  /** 達成したお題が使っているマス */
-  missionCells: string[] = [];
-  /** お題ごとの、文字が流れてくる範囲（引いた枚数で数える） */
-  private flow: [number, number][] = [];
-  private snapshot: State | null = null;
+  private fillers: number;
+  /** ★を混ぜるお題の番号 */
+  private wildAt: number[] = [];
 
-  constructor(options: GameOptions, rng: Rng, private valid: WordSet) {
+  constructor(options: GameOptions, private rng: Rng, private valid: WordSet) {
     const o = { ...DEFAULTS, ...options };
     const n = (this.size = o.size);
     this.handSize = o.handSize;
-    this.fixesLeft = o.fixes;
+    this.discardsLeft = o.discards;
     this.mirror = o.mirror;
     this.deadPenalty = o.deadPenalty;
+    this.cueLetters = o.cueLetters;
+    this.fillers = o.fillersPerTask;
     this.grid = emptyGrid(n);
     this.lit = emptyMask(n);
     this.seed = emptyMask(n);
     this.wild = emptyMask(n);
     this.bonus = Array.from({ length: n }, () => Array<number>(n).fill(1));
 
-    const picked: Word[] = [];
-    for (const w of o.include ?? []) {
-      if (w.text.length <= o.maxMissionLen && !picked.includes(w) && picked.length < o.missions) picked.push(w);
+    // 語を選ぶ: 覚え直す語 → 新しい語（合わせて newWords 語）、それとは別に、前に作れた語を2語まで
+    const isNew = o.isNew ?? (() => true);
+    const fits = (w: Word) => w.text.length <= o.maxLen;
+    const fresh: Word[] = [];
+    const known: Word[] = [];
+    for (const w of o.relearn ?? []) if (fits(w) && !fresh.includes(w) && fresh.length < o.newWords - 1) fresh.push(w);
+    for (const w of o.recall ?? []) if (fits(w) && !known.includes(w) && !fresh.includes(w) && known.length < 2) known.push(w);
+    for (let tries = 0; fresh.length < o.newWords && tries < 200; tries++) {
+      const w = sampleWord(o.mode, rng, o.maxLen);
+      if (fresh.includes(w) || known.includes(w)) continue;
+      if (isNew(w)) fresh.push(w);
+      else if (known.length < 2) known.push(w);
     }
-    while (picked.length < o.missions) {
-      const w = sampleWord(o.mode, rng, o.maxMissionLen);
-      if (!picked.includes(w)) picked.push(w);
-    }
-    shuffle(picked, rng);
-    this.missions = picked.map((word) => ({ word, done: false, revealed: false }));
 
-    // 袋: お題ごとに「その語の文字 + おまけ」をひとかたまりにして順に並べ、近くどうしで順番をばらす
-    const filler = () => FILLER[Math.floor(rng() * FILLER.length)];
-    const stream: { ch: string; key: number }[] = [];
-    picked.forEach((w, i) => {
-      const block = [...w.text];
-      const extra = Math.floor(o.fillers / picked.length) + (i < o.fillers % picked.length ? 1 : 0);
-      for (let k = 0; k < extra; k++) block.push(filler());
-      const start = stream.length;
-      for (const ch of shuffle(block, rng)) stream.push({ ch, key: stream.length + rng() * o.jitter });
-      this.flow.push([start - o.jitter, stream.length + o.jitter + o.handSize]);
-    });
-    for (let i = 0; i < o.wilds; i++) stream.push({ ch: WILD, key: rng() * stream.length });
-    this.queue = stream.sort((a, b) => a.key - b.key).map((x) => x.ch);
-    this.turnsLeft = options.turns ?? Math.max(1, this.queue.length - o.shortage);
+    // 並べる: 新しい語は「見て作る」→ ほかの語を1つはさんで →「思い出す」
+    const sources: { word: Word; fresh: boolean }[] = [];
+    for (let i = 0; i < Math.max(fresh.length, known.length + 2); i++) {
+      if (fresh[i]) sources.push({ word: fresh[i], fresh: true });
+      if (i >= 2 && known[i - 2]) sources.push({ word: known[i - 2], fresh: false });
+    }
+    const task = (word: Word, shown: boolean): Task => ({ word, shown, hints: 0, state: 'todo' });
+    let waiting: Word | null = null;
+    for (const s of sources) {
+      this.tasks.push(task(s.word, s.fresh));
+      if (waiting) {
+        this.tasks.push(task(waiting, false));
+        waiting = null;
+      }
+      if (s.fresh) {
+        if (waiting) this.tasks.push(task(waiting, false));
+        waiting = s.word;
+      }
+    }
+    if (waiting) this.tasks.push(task(waiting, false));
+    for (let i = 0; i < o.wilds; i++) this.wildAt.push(Math.floor(rng() * this.tasks.length));
 
     // 種と倍率マス: 互いに重ならない位置にばらまく
     const cells = shuffle(
@@ -223,49 +220,48 @@ export class Game {
       if (seeds.every(([r2, c2]) => Math.abs(r - r2) + Math.abs(c - c2) >= 3)) seeds.push([r, c]);
     }
     for (const [r, c] of seeds) {
-      this.grid[r][c] = filler();
+      this.grid[r][c] = this.filler();
       this.seed[r][c] = true;
     }
     const free = cells.filter(([r, c]) => !this.grid[r][c]);
     for (let i = 0; i < o.bonus2 + o.bonus3 && i < free.length; i++) {
       this.bonus[free[i][0]][free[i][1]] = i < o.bonus3 ? 3 : 2;
     }
+    this.feed();
+  }
+
+  private filler(): string {
+    return FILLER[Math.floor(this.rng() * FILLER.length)];
+  }
+  /** いまのお題の文字（+ おまけ）を袋に入れて、手札を補充する */
+  private feed(): void {
+    const t = this.task;
+    if (!t) return;
+    // お題の文字を先に、おまけと★をそのあとに引く。手札に入った分は並びをまぜる
+    const extra: string[] = [];
+    for (let i = 0; i < this.fillers; i++) extra.push(this.filler());
+    for (const at of this.wildAt) if (at === this.current) extra.push(WILD);
+    this.queue = [...shuffle([...t.word.text], this.rng), ...shuffle(extra, this.rng)];
     this.draw();
+    shuffle(this.hand, this.rng);
   }
-
   private draw(): void {
-    while (this.hand.length < this.handSize && this.queue.length) {
-      const ch = this.queue.shift()!;
-      this.hand.push(ch);
-      this.seen.push(ch);
-    }
-  }
-  private save(): void {
-    this.snapshot = {
-      grid: this.grid.map((r) => [...r]),
-      lit: this.lit.map((r) => [...r]),
-      wild: this.wild.map((r) => [...r]),
-      hand: [...this.hand],
-      queue: [...this.queue],
-      done: this.missions.map((m) => m.done),
-      made: [...this.made],
-      missionCells: [...this.missionCells],
-      seen: this.seen.length,
-      score: this.score,
-      maxChain: this.maxChain,
-      fixesLeft: this.fixesLeft,
-      placed: this.placed,
-      turnsLeft: this.turnsLeft,
-      best: { ...this.best },
-    };
+    while (this.hand.length < this.handSize && this.queue.length) this.hand.push(this.queue.shift()!);
   }
 
-  get emptyCells(): number {
-    return this.grid.flat().filter((ch) => !ch).length;
+  /** いまのお題。全部終わっていれば undefined */
+  get task(): Task | undefined {
+    return this.tasks[this.current];
   }
-  /** 手数が尽きた、置く文字がない、または置く場所がない */
   get over(): boolean {
-    return this.turnsLeft <= 0 || this.hand.length === 0 || this.emptyCells === 0;
+    return this.current >= this.tasks.length;
+  }
+  /** お題の見せ方: 見て作るなら全部、思い出すなら頭の数文字 + 伏せ字 */
+  cue(t: Task): string {
+    const text = t.word.text;
+    if (t.shown || t.state !== 'todo') return text;
+    const open = Math.min(text.length, this.cueLetters + t.hints);
+    return text.slice(0, open) + '·'.repeat(text.length - open);
   }
   isWaiting(r: number, c: number): boolean {
     return !!this.grid[r][c] && !this.lit[r][c] && !this.seed[r][c];
@@ -276,67 +272,45 @@ export class Game {
     for (let r = 0; r < this.size; r++) for (let c = 0; c < this.size; c++) if (this.isWaiting(r, c)) out.push([r, c]);
     return out;
   }
-  /** いま文字が流れてきているお題か（手札に混ざっていそうか） */
-  isFlowing(i: number): boolean {
-    const [from, to] = this.flow[i];
-    return !this.missions[i].done && this.seen.length >= from && this.seen.length <= to;
-  }
 
   /** (r, c) に ch を置いたらできる単語と得点（置かずに調べる） */
   preview(ch: string, r: number, c: number): { words: Scored[]; total: number } {
     if (this.grid[r]?.[c] !== '') return { words: [], total: 0 };
     this.grid[r][c] = ch;
-    const fresh = emptyMask(this.size);
-    fresh[r][c] = true;
-    const found = findWords(this.grid, fresh, this.valid, this.mirror);
+    const words = this.wordsAt(r, c);
     this.grid[r][c] = '';
-    const words = found.map((f) => ({ found: f, ...scoreWord(f.text, this.missions.find((m) => !m.done && m.word.text === f.text)) }));
     const total = words.reduce((sum, w) => sum + w.pts, 0) * Math.min(MAX_CHAIN_MULT, Math.max(1, words.length)) * (words.length ? this.bonus[r][c] : 1);
     return { words, total };
   }
-
-  get canUndo(): boolean {
-    return this.snapshot !== null;
-  }
-
-  /** 手札 i を (r, c) に置く。★は as で文字を指定する。置けなければ null */
-  place(i: number, r: number, c: number, as?: string): Placement | null {
-    if (this.over || this.grid[r]?.[c] !== '' || i < 0 || i >= this.hand.length) return null;
-    const tile = this.hand[i];
-    const isWild = tile === WILD;
-    if (isWild && !(as && /^[a-z]$/.test(as))) return null;
-    this.save();
-    this.hand.splice(i, 1);
-    this.grid[r][c] = isWild ? as! : tile;
-    this.wild[r][c] = isWild;
-    this.placed++;
-    this.turnsLeft--;
-
+  private wordsAt(r: number, c: number): Scored[] {
     const fresh = emptyMask(this.size);
     fresh[r][c] = true;
-    const found = findWords(this.grid, fresh, this.valid, this.mirror);
-    const cleared: Word[] = [];
+    const t = this.task;
+    return findWords(this.grid, fresh, this.valid, this.mirror).map((f) => ({
+      found: f,
+      ...scoreWord(f.text, t && t.state === 'todo' && !this.pending && f.text === t.word.text ? t : null),
+    }));
+  }
+
+  /** (r, c) に文字が入ったあとの判定と得点 */
+  private resolve(r: number, c: number): Placement {
+    const words = this.wordsAt(r, c);
     const lit: [number, number][] = [];
-    let shared = false;
-    const words: Scored[] = found.map((f) => {
-      const mission = this.missions.find((m) => !m.done && m.word.text === f.text);
-      const keys = cellsOf(f).map(([r2, c2]) => `${r2},${c2}`);
-      if (mission) {
-        mission.done = true;
-        cleared.push(mission.word);
-        shared ||= keys.some((k) => this.missionCells.includes(k));
-        this.missionCells.push(...keys);
+    let task: Task | null = null;
+    for (const w of words) {
+      if (w.kind === 'mission' && !task) {
+        task = this.task!;
+        task.state = 'done';
+        this.pending = cellsOf(w.found);
       }
-      const s = scoreWord(f.text, mission);
-      if (!this.made.some((m) => m.text === f.text)) this.made.push({ text: f.text, kind: s.kind });
-      for (const [r2, c2] of cellsOf(f)) {
+      if (!this.made.some((m) => m.text === w.found.text)) this.made.push({ text: w.found.text, kind: w.kind });
+      for (const [r2, c2] of cellsOf(w.found)) {
         if (!this.lit[r2][c2]) {
           this.lit[r2][c2] = true;
           lit.push([r2, c2]);
         }
       }
-      return { found: f, ...s };
-    });
+    }
     const chain = words.length;
     const chainMult = Math.min(MAX_CHAIN_MULT, Math.max(1, chain));
     const cellMult = chain ? this.bonus[r][c] : 1;
@@ -349,85 +323,89 @@ export class Game {
     const g = this.grid;
     const between = !!((g[r][c - 1] && g[r][c + 1]) || (g[r - 1]?.[c] && g[r + 1]?.[c]));
     const cross = words.some((w) => w.found.down) && words.some((w) => !w.found.down);
-    this.draw();
-    return { r, c, wild: isWild, words, chain, chainMult, cellMult, total, cleared, lit, between, cross, shared };
+    return { r, c, wild: this.wild[r][c], words, chain, chainMult, cellMult, total, task, lit, between, cross };
   }
 
-  /** 手直し: 手札 i を捨てて次を引く */
-  discard(i: number): boolean {
-    if (this.fixesLeft <= 0 || i < 0 || i >= this.hand.length) return false;
-    this.save();
+  /** 手札 i を (r, c) に置く。★は as で文字を指定する。置けなければ null */
+  place(i: number, r: number, c: number, as?: string): Placement | null {
+    if (this.over || this.pending || this.grid[r]?.[c] !== '' || i < 0 || i >= this.hand.length) return null;
+    const tile = this.hand[i];
+    const isWild = tile === WILD;
+    if (isWild && !(as && /^[a-z]$/.test(as))) return null;
     this.hand.splice(i, 1);
-    this.fixesLeft--;
+    this.grid[r][c] = isWild ? as! : tile;
+    this.wild[r][c] = isWild;
+    this.placed++;
+    const res = this.resolve(r, c);
     this.draw();
-    return true;
+    return res;
   }
 
-  /** 手直し: 待ちの文字を盤面から拾って手札に戻す（手数は戻らない） */
-  pickUp(r: number, c: number): boolean {
-    if (this.fixesLeft <= 0 || !this.isWaiting(r, c)) return false;
-    this.save();
+  /** 待ちの文字を別の空きマスへ動かす */
+  move(r: number, c: number, r2: number, c2: number): Placement | null {
+    if (this.over || this.pending || !this.isWaiting(r, c) || this.grid[r2]?.[c2] !== '') return null;
+    this.grid[r2][c2] = this.grid[r][c];
+    this.wild[r2][c2] = this.wild[r][c];
+    this.grid[r][c] = '';
+    this.wild[r][c] = false;
+    return this.resolve(r2, c2);
+  }
+
+  /** 待ちの文字を手札に戻す */
+  takeBack(r: number, c: number): boolean {
+    if (this.pending || !this.isWaiting(r, c)) return false;
     this.hand.push(this.wild[r][c] ? WILD : this.grid[r][c]);
     this.grid[r][c] = '';
     this.wild[r][c] = false;
-    this.fixesLeft--;
     return true;
   }
 
-  /** 直前の1手を取り消す */
-  undo(): boolean {
-    const s = this.snapshot;
-    if (!s) return false;
-    this.grid = s.grid;
-    this.lit = s.lit;
-    this.wild = s.wild;
-    this.hand = s.hand;
-    this.queue = s.queue;
-    this.missions.forEach((m, i) => (m.done = s.done[i]));
-    this.made = s.made;
-    this.missionCells = s.missionCells;
-    this.seen.length = s.seen;
-    this.score = s.score;
-    this.maxChain = s.maxChain;
-    this.fixesLeft = s.fixesLeft;
-    this.placed = s.placed;
-    this.turnsLeft = s.turnsLeft;
-    this.best = s.best;
-    this.snapshot = null;
+  /** 手札 i を捨てて次を引く */
+  discard(i: number): boolean {
+    if (this.discardsLeft <= 0 || i < 0 || i >= this.hand.length) return false;
+    this.hand.splice(i, 1);
+    this.discardsLeft--;
+    this.draw();
     return true;
   }
 
-  /** つづりを見る。以後そのお題の得点は通常の受験語と同じになる */
-  reveal(i: number): void {
-    this.missions[i].revealed = true;
-    this.snapshot = null;
+  /** ヒント: 思い出すお題の文字を、頭から1文字多く見せる */
+  hint(): boolean {
+    const t = this.task;
+    if (!t || t.shown || t.state !== 'todo' || this.cueLetters + t.hints >= t.word.text.length) return false;
+    t.hints++;
+    return true;
   }
 
-  /**
-   * 達成できなかったお題について、足りなかった文字を返す（空なら文字は全部来ていた）。
-   * 手札に来た文字と★、盤面の種で数える。文字の取り合いは考えないので目安。
-   */
-  shortfall(word: string): string[] {
-    const pool = [...this.seen];
-    for (let r = 0; r < this.size; r++) for (let c = 0; c < this.size; c++) if (this.seed[r][c]) pool.push(this.grid[r][c]);
-    const missing: string[] = [];
-    for (const ch of word) {
-      const i = pool.indexOf(ch);
-      if (i >= 0) pool.splice(i, 1);
-      else missing.push(ch);
+  /** いまのお題をあきらめる（advance() で次へ進む） */
+  skip(): Task | null {
+    const t = this.task;
+    if (!t || t.state !== 'todo') return null;
+    t.state = 'skipped';
+    return t;
+  }
+
+  /** 次のお題へ。達成した語は壁から消え、手札は少しだけ持ち越す */
+  advance(): void {
+    const skipped = this.task?.state === 'skipped';
+    for (const [r, c] of this.pending ?? []) {
+      this.grid[r][c] = '';
+      this.lit[r][c] = false;
+      this.wild[r][c] = false;
     }
-    let wilds = pool.filter((ch) => ch === WILD).length;
-    while (wilds-- > 0 && missing.length) missing.pop();
-    return missing;
+    this.pending = null;
+    this.hand = skipped ? [] : this.hand.slice(0, CARRY);
+    this.current++;
+    this.feed();
   }
 
   /** 終了時の精算 */
-  settle(): { dead: number; penalty: number; allMissions: number; noDead: number; total: number } {
+  settle(): { dead: number; penalty: number; recalls: number; solo: number; allSolo: number; total: number } {
     const dead = this.waiting.length;
     const penalty = dead * this.deadPenalty;
-    const allMissions = this.missions.every((m) => m.done) ? ALL_MISSIONS_BONUS : 0;
-    const noDead = dead === 0 && this.placed >= 20 ? NO_DEAD_BONUS : 0;
-    const total = Math.max(0, this.score - penalty + allMissions + noDead);
-    return { dead, penalty, allMissions, noDead, total };
+    const recalls = this.tasks.filter((t) => !t.shown);
+    const solo = recalls.filter((t) => t.state === 'done' && t.hints === 0).length;
+    const allSolo = recalls.length > 0 && solo === recalls.length ? ALL_SOLO_BONUS : 0;
+    return { dead, penalty, recalls: recalls.length, solo, allSolo, total: Math.max(0, this.score - penalty + allSolo) };
   }
 }
