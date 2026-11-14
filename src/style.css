@@ -545,3 +545,32 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
 #statlevels .zrow span:first-child { width: 2.6em; }
 #statlevels .zrow span:last-child { width: 3.6em; }
 @media (min-width: 880px) and (orientation: landscape) { #stats { max-width: 1000px; margin: 0 auto; } }
+
+/* --- 粗読みモード --- */
+.passage { padding: 16px 18px; background: var(--cream); color: var(--black); border: 2px solid var(--black); border-radius: 3px; }
+.passage p { margin: 0 0 1em; font: 500 1.06rem/1.75 Georgia, 'Times New Roman', serif; text-wrap: pretty; }
+.passage p:last-child { margin-bottom: 0; }
+#skim .topbar .meter span:first-child { margin-right: 6px; }
+#sgoal { margin-left: 8px; }
+.sreview { display: grid; gap: 10px; }
+.sreview h2 { margin-top: 8px; }
+.sresult div { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 0.9rem; }
+.sresult b { text-align: right; }
+.sopts, .soutline { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.sopts li { display: grid; grid-template-columns: 1.6em 1fr; gap: 2px 6px; padding: 8px 10px; background: var(--panel); border: 1.5px solid var(--black); border-radius: 3px; }
+.sopts .en { font: 500 0.98rem/1.5 Georgia, 'Times New Roman', serif; }
+.sopts .mark { font-weight: 700; }
+.sopts .why, .sopts .you { grid-column: 2; font-size: 0.8rem; color: var(--muted); }
+.sopts .you { font-weight: 700; color: var(--text); }
+.sopts li.right { border-color: var(--teal); box-shadow: inset 4px 0 0 var(--teal); }
+.sopts li.wrong { border-color: var(--red, #b3402a); box-shadow: inset 4px 0 0 var(--red, #b3402a); }
+.sreview .sq { margin: 0; font: 500 1rem/1.5 Georgia, 'Times New Roman', serif; }
+.ssum { margin: 0; line-height: 1.8; }
+.soutline { counter-reset: para; }
+.soutline li { counter-increment: para; padding-left: 4.2em; text-indent: -4.2em; line-height: 1.6; font-size: 0.92rem; }
+.soutline li::before { content: '第' counter(para) '段落　'; font-weight: 700; }
+@media (min-width: 880px) and (orientation: landscape) {
+  #skim { max-width: 860px; margin: 0 auto; }
+  .passage { padding: 24px 32px; }
+  .passage p { font-size: 1.2rem; }
+}

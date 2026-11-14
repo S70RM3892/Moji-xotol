@@ -83,12 +83,19 @@
           <li>星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
           <li>評価は、つづりなしのお題をヒントなしで作れた割合で決まる。</li>
         </ol>
+        <h2 data-sign="water">粗読みモードの遊び方</h2>
+        <ol class="rules">
+          <li>英語の文章が1題出て、時計が動き出す。訳さず、戻らずに最後まで読み、「読み終えた」を押す。</li>
+          <li>本文が隠れ、要旨を4つの英文から選ぶ。続けて、文章の流れについての問いに答える。</li>
+          <li>答え合わせでは、読む速さ、選択肢ごとの理由（細部・言い過ぎ・逆）、日本語の要旨、段落ごとの役割が出る。本文を骨組みと照らして読み直す。</li>
+          <li>長さは3段階（短い約170語 → 中くらい約270語 → 京大型約600語）。目安は1分あたり120語で、京大の読解1題（近年はおよそ600語）を5分で読む速さ。目安内で2問とも取れると段階が上がり、要旨を外すと下がる。</li>
+        </ol>
         <h2 data-sign="roll">読み解くモードの遊び方</h2>
         <ol class="rules">
           <li>英文が1文出る。日本語に訳さず、英語のまま意味をつかんだら「読めた」を押す。</li>
           <li>本文が隠れ、3つの英文が出る。同じ意味のものを選ぶ。読み返すこともできるが、得点は半分になる。</li>
           <li>答えたあとに、その文の構文と骨組みの説明が出る。</li>
-          <li>文は6段階（基本の修飾 → 句で広げる → 節を組み合わせる → 特殊構文 → 圧縮と省略 → 京大型の長い一文）。1分あたり110語以上で正しく読めるのが2回続くと段階が上がり、間違えると下がる。</li>
+          <li>文は6段階（基本の修飾 → 句で広げる → 節を組み合わせる → 特殊構文 → 圧縮と省略 → 京大型の長い一文）。1分あたり120語以上で正しく読めるのが2回続くと段階が上がり、間違えると下がる。</li>
         </ol>
         <h2 data-sign="eye">読むモードの遊び方</h2>
         <ol class="rules">
@@ -207,6 +214,25 @@
           <button id="pnext" class="primary big">次の文へ</button>
         </div>
         <p id="pnote" class="note pnote" role="status"></p>
+      </section>
+
+      <section id="skim" hidden>
+        <div class="topbar">
+          <div class="meter"><span id="slevel"></span><b id="swords">0</b><span>語</span></div>
+          <div class="meter"><span>経過</span><b id="stime">0:00</b><span id="sgoal"></span></div>
+          <button id="squit" class="mini">おわる</button>
+        </div>
+        <div class="mission parsecard" id="sask" aria-live="polite" hidden>
+          <div class="mhead"><span class="kind" id="skind"></span></div>
+          <p id="sq" class="ptext" lang="en"></p>
+        </div>
+        <div id="schoices" class="choices one" lang="en"></div>
+        <div id="sreview" class="sreview" hidden></div>
+        <div class="actions"><button id="snext" class="primary big">次の文章へ</button></div>
+        <h2 id="stexthead" data-sign="roll" hidden>本文（骨組みと照らして読み直す）</h2>
+        <article id="stext" class="passage" lang="en"></article>
+        <div class="actions"><button id="sgo" class="primary big">読み終えた</button></div>
+        <p id="snote" class="note pnote" role="status"></p>
       </section>
 
       <section id="stats" hidden>

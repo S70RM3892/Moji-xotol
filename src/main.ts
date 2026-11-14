@@ -5,10 +5,11 @@ import { MODE_LABEL, type Mode, TIER_LABEL, WORDS, WORD_MAP, type Word, makeRng,
 import { setSound, sfx, toast } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import analysis from './data/analysis.json';
+import { PASSAGES, PASSAGE_LEVEL, type Passage } from './data/passages';
 import { LEVEL_NAME, SENTENCES, type Sentence } from './data/sentences';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
-type Kind = 'tile' | 'eat' | 'read' | 'parse';
+type Kind = 'tile' | 'eat' | 'read' | 'parse' | 'skim';
 /** むずかしさ。お題の文字数の範囲は遊ぶ形で変わる（刻むは盤面の幅、喰らうは道の長さが上限） */
 const LEVELS = [
   { label: 'やさしい', min: 4, tileMax: 6, eatMax: 6, cue: 2, wilds: 3, note: 'お題は4〜6文字。思い出すときは頭の2文字が見える。' },
@@ -68,6 +69,7 @@ function save(key: string, value: unknown): void {
 const KINDS: { value: Kind; label: string; note: string }[] = [
   { value: 'tile', label: '刻む', note: '手札の文字をドラッグして、壁に語を並べる。連鎖と倍率マスで点を伸ばす。' },
   { value: 'eat', label: '喰らう', note: '壁いっぱいの文字の中で文字食い邪神を動かし、語をつづりの順に食べさせる。' },
+  { value: 'skim', label: '粗読み', note: '文章を1題、時間を計って通読し、要旨を選ぶ。訳さず、戻らず、段落ごとの役割を追う練習。長さは3段階（短い → 中くらい → 京大型の約600語）。' },
   { value: 'parse', label: '読み解く', note: '英文を1文読み、同じ意味の英文を選ぶ。日本語に訳さず、英語のまま意味を取る練習。文の入り組み方が6段階で上がっていく。' },
   { value: 'read', label: '読む', note: '英単語を見て、意味を即答する。長文を速く読むための練習。1.5秒以内に答えられた語を「瞬時に読める語」として数える。' },
 ];
@@ -140,8 +142,8 @@ const dailyKey = () => boardKey({ kind, seed: dailySeed(), mode, level });
 const unlocked = () => AMULETS.filter((a) => a.level <= levelOf(xp));
 const activeAmulets = () => unlocked().filter((a) => chosen.includes(a.id)).slice(0, MAX_AMULETS);
 
-function show(view: 'home' | 'play' | 'eat' | 'read' | 'parse' | 'stats' | 'result'): void {
-  for (const v of ['home', 'play', 'eat', 'read', 'parse', 'stats', 'result']) $(v).hidden = v !== view;
+function show(view: 'home' | 'play' | 'eat' | 'read' | 'parse' | 'skim' | 'stats' | 'result'): void {
+  for (const v of ['home', 'play', 'eat', 'read', 'parse', 'skim', 'stats', 'result']) $(v).hidden = v !== view;
   scrollTo(0, 0);
 }
 
@@ -208,6 +210,7 @@ function startGame(s: Setup): void {
   if (s.kind === 'eat') return startEat(s);
   if (s.kind === 'read') return startRead();
   if (s.kind === 'parse') return startParse();
+  if (s.kind === 'skim') return startSkim();
   const L = LEVELS[s.level];
   const opts = {
     wilds: L.wilds,
@@ -821,8 +824,8 @@ $('rquit').onclick = () => {
 
 // --- 読み解くモード: 英文を1文読み、同じ意味の英文を選ぶ。訳さずに英語のまま意味を取る練習 ---
 const PARSE_COUNT = 10;
-/** 京大の本文（1題およそ550語）を5分で読む速さ */
-const PACE_WPM = 110;
+/** 京大の読解1題（近年はおよそ600語）を5分で読む速さ */
+const PACE_WPM = 120;
 /** いまの段階（1〜6）。速く正しく読めると上がり、間違えると下がる */
 let parseLevel = Math.min(6, Math.max(1, load<number>('parseLevel', 2)));
 /** 正しく読めたことのある文 */
@@ -1017,6 +1020,219 @@ document.addEventListener('keydown', (e) => {
     e.preventDefault();
     if (item.phase === 'read') $('pgo').click();
     else if (item.phase === 'done') nextParse();
+  }
+});
+
+// --- 粗読みモード: 文章を1題、時間を計って通読し、要旨と流れを答える ---
+/** いまの段階（1: 短い / 2: 中くらい / 3: 京大型） */
+let skimLevel = Math.min(3, Math.max(1, load<number>('skimLevel', 1)));
+/** 読んだ文章の記録（題材 → 読む速さと、要旨を取れたか） */
+const skimDone = load<Record<string, { wpm: number; ok: boolean }>>('skimDone', {});
+interface Skim {
+  p: Passage;
+  words: number;
+  phase: 'read' | 'gist' | 'check' | 'done';
+  start: number;
+  readMs: number;
+  gist: string[];
+  check: string[];
+  gistPick: number | null;
+  checkPick: number | null;
+  score: number;
+}
+let skim: Skim | null = null;
+let skimTimer = 0;
+let skimLast = '';
+/** これより速いのは、読まずに進めたと見なす（速さの加点も段階の昇格もなし） */
+const SKIM_MAX_WPM = 450;
+const shuffled = <T>(a: readonly T[]) => [...a].sort(() => Math.random() - 0.5);
+const clock = (ms: number) => `${Math.floor(ms / 60000)}:${String(Math.floor(ms / 1000) % 60).padStart(2, '0')}`;
+
+function startSkim(): void {
+  // いまの段階で、まだ読んでいない文章を優先。なければ近い段階、それもなければ読んだものをもう一度
+  const byNear = (list: Passage[]) => {
+    for (let d = 0; d < 3; d++) {
+      const hit = list.filter((x) => Math.abs(x.level - skimLevel) === d);
+      if (hit.length) return hit;
+    }
+    return [];
+  };
+  let pool = byNear(PASSAGES.filter((x) => !skimDone[x.title]));
+  if (!pool.length) pool = byNear(PASSAGES.filter((x) => x.title !== skimLast));
+  const p = pool[Math.floor(Math.random() * pool.length)];
+  skimLast = p.title;
+  skim = {
+    p,
+    words: p.paragraphs.join(' ').split(/\s+/).length,
+    phase: 'read',
+    start: performance.now(),
+    readMs: 0,
+    gist: shuffled(p.gist.options),
+    check: shuffled(p.check.options),
+    gistPick: null,
+    checkPick: null,
+    score: 0,
+  };
+  clearInterval(skimTimer);
+  skimTimer = window.setInterval(() => {
+    if (skim?.phase === 'read' && !$('skim').hidden) $('stime').textContent = clock(performance.now() - skim.start);
+  }, 1000);
+  show('skim');
+  renderSkim();
+}
+
+function renderSkim(): void {
+  const k = skim;
+  if (!k) return;
+  const { p } = k;
+  const goalMs = (k.words / PACE_WPM) * 60000;
+  $('slevel').textContent = PASSAGE_LEVEL[p.level];
+  $('swords').textContent = String(k.words);
+  $('stime').textContent = clock(k.phase === 'read' ? performance.now() - k.start : k.readMs);
+  $('sgoal').textContent = `目安 ${clock(goalMs)}`;
+  const asking = k.phase === 'gist' || k.phase === 'check';
+  $('sask').hidden = !asking;
+  $('skind').textContent = k.phase === 'gist' ? '問1　この文章の要旨はどれ？' : '問2　文章の流れ';
+  const q = $('sq');
+  q.hidden = k.phase !== 'check';
+  q.textContent = p.check.q;
+  const options = k.phase === 'gist' ? k.gist : k.check;
+  $('schoices').replaceChildren(
+    ...(asking
+      ? options.map((o, i) => {
+          const b = el('button', 'choice');
+          b.append(el('span', 'key', String(i + 1)), el('span', 'g', o));
+          b.onclick = () => answerSkim(i);
+          return b;
+        })
+      : []),
+  );
+  // 答えるあいだは本文を隠す（読み返さずに、頭に残った骨組みで答える）
+  const text = $('stext');
+  text.hidden = asking;
+  if (text.dataset.title !== p.title) {
+    text.dataset.title = p.title;
+    text.replaceChildren(...p.paragraphs.map((t) => el('p', '', t)));
+  }
+  $('sgo').hidden = k.phase !== 'read';
+  $('snext').hidden = k.phase !== 'done';
+  const review = $('sreview');
+  review.hidden = k.phase !== 'done';
+  $('stexthead').hidden = k.phase !== 'done';
+  if (k.phase === 'done') review.replaceChildren(...skimReview(k, goalMs));
+  $('snote').textContent =
+    k.phase === 'read'
+      ? '訳さず、戻らずに最後まで読む。段落ごとに「何をしている段落か」だけ押さえる。読み終えたら下のボタン。'
+      : asking
+        ? `読むのに ${clock(k.readMs)}（1分あたり ${Math.round(k.words / (k.readMs / 60000))}語）。本文は見ずに答える。1〜${options.length}のキーでも選べる。`
+        : '';
+}
+
+/** 答え合わせ: 速さ、2問の正誤と理由、日本語の要旨、段落ごとの役割 */
+function skimReview(k: Skim, goalMs: number): HTMLElement[] {
+  const { p } = k;
+  const wpm = Math.round(k.words / (k.readMs / 60000));
+  const gistOk = k.gist[k.gistPick ?? -1] === p.gist.options[0];
+  const checkOk = k.check[k.checkPick ?? -1] === p.check.options[0];
+  const head = el('div', 'card sresult');
+  const row = (label: string, value: string) => {
+    const d = el('div');
+    d.append(el('span', '', label), el('b', '', value));
+    return d;
+  };
+  head.append(
+    row('題材', p.title),
+    row(`読む時間（目安 ${clock(goalMs)}）`, `${clock(k.readMs)}${wpm > SKIM_MAX_WPM ? '' : k.readMs <= goalMs ? '　目安内' : '　目安より遅い'}`),
+    row(`速さ（目安 ${PACE_WPM}語/分）`, wpm > SKIM_MAX_WPM ? `${wpm}語/分　速すぎるので読んだと見なさない` : `${wpm}語/分`),
+    row('要旨', gistOk ? '取れた' : '外した'),
+    row('流れ', checkOk ? '取れた' : '外した'),
+    row('得点', String(k.score)),
+  );
+  const list = (options: string[], pick: number | null, right: string, why?: (o: string) => string) => {
+    const ul = el('ul', 'sopts');
+    for (const [i, o] of options.entries()) {
+      const li = el('li', o === right ? 'right' : i === pick ? 'wrong' : '');
+      li.append(el('span', 'mark', o === right ? '○' : i === pick ? '×' : '・'), el('span', 'en', o));
+      if (i === pick) li.append(el('span', 'you', 'あなたの答え'));
+      if (why) li.append(el('span', 'why', why(o)));
+      ul.append(li);
+    }
+    return ul;
+  };
+  const outline = el('ol', 'soutline');
+  p.outline.forEach((t) => outline.append(el('li', '', t)));
+  const flow = el('p', 'sq', p.check.q);
+  flow.lang = 'en';
+  return [
+    head,
+    el('h2', '', '問1　要旨'),
+    list(k.gist, k.gistPick, p.gist.options[0], (o) => p.gist.why[p.gist.options.indexOf(o)]),
+    el('h2', '', '問2　流れ'),
+    flow,
+    list(k.check, k.checkPick, p.check.options[0]),
+    el('p', 'note', p.check.note),
+    el('h2', '', '要旨（日本語）'),
+    el('p', 'ssum', p.summary),
+    el('h2', '', '段落ごとの役割'),
+    outline,
+  ];
+}
+
+function answerSkim(i: number): void {
+  const k = skim;
+  if (!k) return;
+  if (k.phase === 'gist') {
+    k.gistPick = i;
+    k.phase = 'check';
+    renderSkim();
+    return;
+  }
+  if (k.phase !== 'check') return;
+  k.checkPick = i;
+  k.phase = 'done';
+  const { p } = k;
+  const wpm = Math.round(k.words / (k.readMs / 60000));
+  const gistOk = k.gist[k.gistPick ?? -1] === p.gist.options[0];
+  const checkOk = k.check[i] === p.check.options[0];
+  // 速さの加点は、要旨が取れたときだけ（読まずに進めても得をしない）
+  const read = wpm <= SKIM_MAX_WPM;
+  k.score = ((gistOk ? 300 : 0) + (checkOk ? 150 : 0) + (gistOk && read ? Math.max(0, Math.min(150, wpm - 60)) : 0)) * p.level;
+  const old = skimDone[p.title];
+  if (!old || gistOk || !old.ok) skimDone[p.title] = { wpm, ok: gistOk };
+  if (gistOk && checkOk && read && wpm >= PACE_WPM && skimLevel < 3) skimLevel++;
+  else if (!gistOk && skimLevel > 1) skimLevel--;
+  save('skimDone', skimDone);
+  save('skimLevel', skimLevel);
+  if (gistOk) sfx.mission();
+  else sfx.bad();
+  const { before } = account(k.score);
+  renderSkim();
+  window.scrollTo(0, 0);
+  levelUpNotice(before);
+}
+
+$('sgo').onclick = () => {
+  if (!skim || skim.phase !== 'read') return;
+  skim.readMs = Math.max(1000, performance.now() - skim.start);
+  skim.phase = 'gist';
+  renderSkim();
+  window.scrollTo(0, 0);
+};
+$('snext').onclick = () => {
+  startSkim();
+  window.scrollTo(0, 0);
+};
+$('squit').onclick = () => {
+  clearInterval(skimTimer);
+  skim = null;
+  renderHome();
+  show('home');
+};
+document.addEventListener('keydown', (e) => {
+  if ($('skim').hidden || !skim) return;
+  if ((skim.phase === 'gist' || skim.phase === 'check') && /^[1-4]$/.test(e.key)) {
+    const n = Number(e.key) - 1;
+    if (n < (skim.phase === 'gist' ? 4 : 3)) answerSkim(n);
   }
 });
 
@@ -1484,10 +1700,10 @@ function renderHome(): void {
   const dailyBest = boards[dailyKey()];
   $('kindnote').textContent = KINDS.find((k) => k.value === kind)!.note + (kind === 'tile' ? '' : ' 護符は使わない。');
   $('fluent').textContent = String(Object.keys(fluent).filter(isFluent).length);
-  const drill = kind === 'read' || kind === 'parse';
+  const drill = kind === 'read' || kind === 'parse' || kind === 'skim';
   $('daily').hidden = drill;
   $('dailynote').hidden = drill;
-  $('start').textContent = kind === 'read' ? '20語を読む' : kind === 'parse' ? `10文を読み解く（いま 段階${parseLevel}: ${LEVEL_NAME[parseLevel]}）` : 'ランダムな盤';
+  $('start').textContent = kind === 'read' ? '20語を読む' : kind === 'parse' ? `10文を読み解く（いま 段階${parseLevel}: ${LEVEL_NAME[parseLevel]}）` : kind === 'skim' ? `1題を粗読みする（いま ${PASSAGE_LEVEL[skimLevel]}）` : 'ランダムな盤';
   $('dailynote').textContent =
     dailyBest === undefined
       ? '今日の盤は1日同じ並び。新しい語を3つ、見て作り、あとで思い出す。'

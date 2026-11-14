@@ -24,7 +24,7 @@ C1/C2 の語と、JMdict 由来の訳語を含むため、生成物を再配布�
 
 和訳を直すときは `data/gloss-overrides.tsv`（`単語<TAB>和訳`、`#` 始まりはコメント）に書いて `npm run dict` を実行する。
 
-`src/data/sentences.ts`（読み解くモードの例文）は、このゲームのために書いたもの。
+`src/data/sentences.ts`（読み解くモードの例文）と `src/data/passages.ts`（粗読みモードの文章）は、このゲームのために書いたもの。
 
 `assets/xolotl.webp` はこのゲームの持ち主が用意したイラスト。アイコンとホームの帯に使う（`src/art.ts` に切り出して埋め込み）。
 
