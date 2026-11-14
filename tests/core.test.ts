@@ -127,6 +127,24 @@ describe('Game', () => {
     expect(g.shortfall('port')).toEqual(['t']);
   });
 
+  it('置かずに下見できる。お題の文字はまとまって流れてくる', () => {
+    const g = blank(['t'], []);
+    g.grid[0][0] = 'r';
+    g.grid[0][1] = 'a';
+    const pv = g.preview('t', 0, 2);
+    expect(pv.words.map((w) => w.found.text).sort()).toEqual(['at', 'rat']);
+    expect(pv.total).toBe((2 + 3) * 2);
+    expect(g.grid[0][2]).toBe(''); // 盤面は変わらない
+
+    const real = new Game({ mode: 'kyote', jitter: 0, wilds: 0, fillers: 0 }, makeRng(4), lex.valid);
+    // ばらつき0なら、最初のお題の文字が先頭にそのまま並ぶ
+    const first = real.missions[0].word.text;
+    const head = [...real.hand, ...real.queue].slice(0, first.length);
+    expect(head.sort()).toEqual([...first].sort());
+    expect(real.isFlowing(0)).toBe(true);
+    expect(real.isFlowing(5)).toBe(false);
+  });
+
   it('袋はお題の文字をすべて含む', () => {
     const g = new Game({ mode: 'kyodai' }, makeRng(9), lex.valid);
     const pool = [...g.hand, ...g.queue];

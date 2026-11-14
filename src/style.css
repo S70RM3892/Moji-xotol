@@ -498,3 +498,17 @@ footer { margin-top: 18px; font-size: 0.66rem; color: var(--muted); line-height:
   .popup.call.target, .popup.call.mission { font-size: 2.2rem; }
   .popup.chain.c3 { font-size: 3rem; } .popup.chain.c4 { font-size: 3.6rem; } .popup.chain.c5 { font-size: 4.4rem; }
 }
+
+/* --- 単語を作りやすくする手がかり --- */
+#missions .spell.cue { letter-spacing: 0.12em; opacity: 0.75; }
+#missions li.flowing { box-shadow: 0 0 0 3px var(--ochre); }
+#missions .flow { flex: none; font-size: 0.62rem; font-weight: 700; background: var(--ochre); border: 1.5px solid var(--black); border-radius: 999px; padding: 0 6px; }
+.cell.good { box-shadow: inset 0 0 0 3px var(--cream); filter: brightness(1.35); }
+.cell.great { box-shadow: inset 0 0 0 4px var(--teal), 0 0 12px 2px var(--teal); filter: brightness(1.5); }
+#droptip {
+  position: fixed; left: 0; top: 0; z-index: 41; pointer-events: none; white-space: nowrap;
+  padding: 3px 12px; border: 2px solid var(--black); border-radius: 999px; box-shadow: 0 3px 0 var(--black);
+  font: 800 0.9rem var(--font-carve); letter-spacing: 0.04em;
+}
+#droptip.yes { background: var(--teal); color: var(--black); }
+#droptip.no { background: var(--cream); color: var(--black); font: 600 0.75rem var(--font-body); }

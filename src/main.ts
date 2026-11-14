@@ -7,9 +7,9 @@ import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
 const LEVELS = [
-  { label: 'やさしい', turns: 38, wilds: 3, note: '38手・★3枚。待ちの9回に1回は外れる。' },
-  { label: 'ふつう', turns: 34, wilds: 2, note: '34手・★2枚。待ちの6回に1回は外れる。' },
-  { label: 'むずかしい', turns: 30, wilds: 1, note: '30手・★1枚。待ちの3回に1回は外れる。追うお題を絞れ。' },
+  { label: 'やさしい', shortage: 0, wilds: 3, maxLen: 5, cue: true, note: 'お題は4〜5文字。頭文字が見える。袋の文字は全部届く。星の札3枚。' },
+  { label: 'ふつう', shortage: 4, wilds: 2, maxLen: 6, cue: true, note: 'お題は4〜6文字。頭文字が見える。袋の最後の4枚は届かない。星の札2枚。' },
+  { label: 'むずかしい', shortage: 9, wilds: 1, maxLen: 7, cue: false, note: 'お題は7文字まで。頭文字なし。袋の最後の9枚は届かない。星の札1枚。' },
 ];
 const MODE_NOTE: Record<Mode, string> = {
   kyote: 'お題の7割が共通テスト水準（CEFR A1〜B1）。',
@@ -158,14 +158,14 @@ function newSetup(daily: boolean): Setup {
   const include = daily
     ? []
     : [...missed]
-        .filter((w) => w.length <= DEFAULTS.maxMissionLen)
+        .filter((w) => w.length <= LEVELS[level].maxLen)
         .map((w) => ({ w, k: pick() }))
         .sort((a, b) => a.k - b.k)
         .slice(0, REVIEW_PER_GAME)
         .map(({ w }) => w);
   if (!daily) {
     // 一度だけ作れた語を1つ混ぜて、今度はつづりを見ずに思い出せるか確かめる
-    const once = Object.keys(learned).filter((w) => learned[w] === 1 && !missed.has(w) && WORD_MAP.has(w) && w.length <= DEFAULTS.maxMissionLen);
+    const once = Object.keys(learned).filter((w) => learned[w] === 1 && !missed.has(w) && WORD_MAP.has(w) && w.length <= LEVELS[level].maxLen);
     if (once.length) include.push(once[Math.floor(pick() * once.length)]);
   }
   return { seed, mode, level, amulets: activeAmulets().map((a) => a.id), include, daily, retry: false };
@@ -176,7 +176,7 @@ function startGame(s: Setup): void {
   const L = LEVELS[s.level];
   const opts = {
     wilds: L.wilds,
-    turns: L.turns,
+    shortage: L.shortage,
     fixes: DEFAULTS.fixes,
     bonus3: DEFAULTS.bonus3,
     handSize: DEFAULTS.handSize,
@@ -186,7 +186,7 @@ function startGame(s: Setup): void {
   const amulets = AMULETS.filter((a) => s.amulets.includes(a.id));
   for (const a of amulets) a.apply(opts);
   nextCount = Math.max(2, ...amulets.map((a) => a.next ?? 0));
-  game = new Game({ mode: s.mode, ...opts, include: s.include.map((w) => WORD_MAP.get(w)!) }, makeRng(s.seed), valid);
+  game = new Game({ mode: s.mode, ...opts, maxMissionLen: L.maxLen, include: s.include.map((w) => WORD_MAP.get(w)!) }, makeRng(s.seed), valid);
   fixing = false;
   openMission = -1;
   last = null;
@@ -203,7 +203,7 @@ function startGame(s: Setup): void {
 function renderStudy(): void {
   const fresh = game.missions.filter((m) => !learned[m.word.text]).length;
   $('studynote').textContent = fresh
-    ? `初めての語が${fresh}つある。つづりと意味を声に出して覚えろ。壁に向かったら、見えるのは意味と字数だけになる。`
+    ? `初めての語が${fresh}つある。つづりと意味を声に出して覚えろ。文字は上のお題から順に流れてくる。`
     : '全部、前に自力で作った語だ。つづりは見せない。意味から思い出せ。';
   $('studylist').replaceChildren(
     ...game.missions.map((m) => {
@@ -411,6 +411,8 @@ function endDrag(drop: boolean): void {
   d.ghost.remove();
   d.src.classList.remove('lifted');
   d.over?.classList.remove('drop');
+  $('droptip').hidden = true;
+  for (const node of boardEl.querySelectorAll('.good, .great')) node.classList.remove('good', 'great');
   suppressClick = true;
   setTimeout(() => (suppressClick = false), 60);
   if (!drop || !d.over) return;
@@ -431,17 +433,37 @@ document.addEventListener(
       d.ghost.style.height = `${d.src.offsetHeight}px`;
       document.body.append(d.ghost);
       d.src.classList.add('lifted');
+      const ch = game.hand[d.i];
+      if (ch !== WILD) {
+        for (const node of boardEl.querySelectorAll<HTMLElement>('.cell.empty')) {
+          const [r, c] = node.dataset.k!.split(',').map(Number);
+          const pv = game.preview(ch, r, c);
+          if (pv.words.length) node.classList.add(pv.words.some((w) => w.kind !== 'plain') ? 'great' : 'good');
+        }
+      }
     }
     e.preventDefault();
     const x = e.clientX;
     const y = e.clientY - d.lift;
     d.ghost.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(-6deg) scale(1.15)`;
+    $('droptip').style.transform = `translate(${x}px, ${y - 64}px) translate(-50%, -50%)`;
     const hit = document.elementFromPoint(x, y)?.closest<HTMLElement>('#board .cell') ?? null;
     const over = hit?.classList.contains('empty') ? hit : null; // 空きマスだけ
     if (over !== d.over) {
       d.over?.classList.remove('drop');
       over?.classList.add('drop');
       d.over = over;
+      const tip = $('droptip');
+      const ch = game.hand[d.i];
+      if (over && ch !== WILD) {
+        const [r, c] = over.dataset.k!.split(',').map(Number);
+        const pv = game.preview(ch, r, c);
+        tip.textContent = pv.words.length
+          ? `${pv.words.map((w) => w.found.text.toUpperCase()).join('・')}　+${pv.total}`
+          : '待ちになる';
+        tip.className = pv.words.length ? 'yes' : 'no';
+        tip.hidden = false;
+      } else tip.hidden = true;
     }
   },
   { passive: false },
@@ -607,6 +629,11 @@ function renderPlay(note = ''): void {
       const li = el('li', [m.done ? 'done' : '', open ? 'open' : ''].join(' ').trim());
       li.append(el('span', 'tier', TIER_LABEL[m.word.tier]));
       if (m.done || m.revealed) li.append(el('span', 'spell', m.word.text));
+      else if (LEVELS[setup.level].cue) li.append(el('span', 'spell cue', m.word.text[0] + '·'.repeat(m.word.text.length - 1)));
+      if (game.isFlowing(i)) {
+        li.classList.add('flowing');
+        li.append(el('span', 'flow', '文字が来ている'));
+      }
       li.append(el('span', 'gloss', open ? m.word.gloss : brief(m.word.gloss)));
       if (!m.done) li.append(el('span', 'len', `${m.word.text.length}字`));
       if (open && !m.done && !m.revealed) {
@@ -668,7 +695,7 @@ function renderPlay(note = ''): void {
   } else if (fixing) {
     feed.append(el('div', 'hint', '手直し: 捨てる手札か、拾う待ちの文字をタップ（もう一度「手直し」でやめる）。'));
   } else if (!last) {
-    feed.append(el('div', 'hint', '手札をドラッグして、置きたいマスで離す。'));
+    feed.append(el('div', 'hint', '手札をつかむと、単語ができるマスが光る。置きたいマスで離す。'));
   } else if (!last.chain) {
     feed.append(el('div', 'hint', '待ち。この文字を含む単語ができれば色が付く。'));
   } else {
@@ -705,7 +732,8 @@ function renderPlay(note = ''): void {
   $('next').replaceChildren(...game.queue.slice(0, nextCount).map((ch) => el('i', '', ch === WILD ? '★' : ch)));
   const counts = new Map<string, number>();
   for (const ch of game.queue) counts.set(ch, (counts.get(ch) ?? 0) + 1);
-  const coming = Math.max(0, Math.min(game.queue.length, game.turnsLeft));
+  // 残りの手数ぶんしか置けないので、袋から手札に届くのは「手数 − いまの手札」枚まで
+  const coming = Math.max(0, Math.min(game.queue.length, game.turnsLeft - game.hand.length));
   $('bag').replaceChildren(
     `袋 ${game.queue.length}枚（このうち来るのはあと${coming}枚）: `,
     el('b', '', [...counts].sort().map(([ch, n]) => (ch === WILD ? '★' : ch.toUpperCase()) + (n > 1 ? n : '')).join(' ')),

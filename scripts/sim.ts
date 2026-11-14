@@ -153,11 +153,10 @@ function run(cfg: Cfg, mode: Mode, games: number) {
 
 const games = Number(process.argv[2]) || 200;
 const cfgs: Cfg[] = [
-  { name: 'ふつう(34手★2) / 全部知ってる', know: 1 },
-  { name: 'ふつう / 6割知ってる', know: 0.6 },
-  { name: 'ふつう / 3割知ってる', know: 0.3 },
-  { name: 'やさしい(38手★3) / 全部', know: 1, turns: 38, wilds: 3 },
-  { name: 'むずかしい(30手★1) / 全部', know: 1, turns: 30, wilds: 1 },
+  { name: 'やさしい / 全部知ってる', know: 1, shortage: 0, wilds: 3, maxMissionLen: 5 },
+  { name: 'ふつう / 全部知ってる', know: 1, shortage: 4, wilds: 2, maxMissionLen: 6 },
+  { name: 'ふつう / 6割知ってる', know: 0.6, shortage: 4, wilds: 2, maxMissionLen: 6 },
+  { name: 'むずかしい / 全部知ってる', know: 1, shortage: 9, wilds: 1, maxMissionLen: 7 },
 ];
 console.log(`判定語彙 ${lex.list.length}語`);
 for (const mode of (process.argv[3] ? [process.argv[3]] : ['kyote', 'kyodai']) as Mode[]) {

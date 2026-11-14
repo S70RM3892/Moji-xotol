@@ -1,7 +1,8 @@
 // 1局の進行。
 // 毎手1枚、好きな空きマスに置く。置いた文字を含む単語ができれば得点（複数なら連鎖）。
 // 単語にならなくても置ける＝「待ち」。あとから来る文字でつながれば成立し、最後まで残れば減点。
-// 袋はお題の文字 + おまけ + ★ を全部まぜたもの。手数が尽きると袋の残りは来ないので、待ちは外れることがある。
+// 袋はお題の文字 + おまけ + ★。お題の文字は上から順にだいたいまとまって流れてくるので、手札に混ざるのは1〜2語ぶん。
+// いつ来るかは運で、手数が尽きると袋の残りは来ない。
 import { type Found, type Grid, type Mask, type WordSet, cellsOf, emptyGrid, emptyMask, findWords } from './board';
 import { type Mode, type Rng, type Word, WORD_MAP, sampleWord } from './words';
 
@@ -15,8 +16,12 @@ export interface GameOptions {
   fillers?: number;
   /** 何の文字にでもなる札の枚数 */
   wilds?: number;
-  /** 置ける回数。袋を引き切る前に終わるので、来ない文字が出る */
+  /** 置ける回数。指定しなければ「袋の枚数 − shortage」 */
   turns?: number;
+  /** 袋のうち最後まで来ない枚数。0なら全部来る */
+  shortage?: number;
+  /** 文字が流れてくる順のばらつき。大きいほど前後のお題の文字が混ざる */
+  jitter?: number;
   /** 最初から盤面にある文字数 */
   seeds?: number;
   /** 得点が2倍・3倍になるマスの数 */
@@ -36,17 +41,18 @@ export interface GameOptions {
 export const DEFAULTS = {
   size: 8,
   missions: 6,
-  handSize: 6,
-  fillers: 12,
+  handSize: 7,
+  fillers: 8,
   wilds: 2,
-  turns: 34,
+  shortage: 4,
+  jitter: 5,
   seeds: 4,
   bonus2: 5,
   bonus3: 2,
   fixes: 4,
   mirror: false,
   deadPenalty: 15,
-  maxMissionLen: 7,
+  maxMissionLen: 6,
 };
 
 /** 層ごとの基礎点 × 文字数 */
@@ -162,6 +168,8 @@ export class Game {
   best = { total: 0, word: '' };
   /** 達成したお題が使っているマス */
   missionCells: string[] = [];
+  /** お題ごとの、文字が流れてくる範囲（引いた枚数で数える） */
+  private flow: [number, number][] = [];
   private snapshot: State | null = null;
 
   constructor(options: GameOptions, rng: Rng, private valid: WordSet) {
@@ -171,7 +179,6 @@ export class Game {
     this.fixesLeft = o.fixes;
     this.mirror = o.mirror;
     this.deadPenalty = o.deadPenalty;
-    this.turnsLeft = o.turns;
     this.grid = emptyGrid(n);
     this.lit = emptyMask(n);
     this.seed = emptyMask(n);
@@ -189,11 +196,20 @@ export class Game {
     shuffle(picked, rng);
     this.missions = picked.map((word) => ({ word, done: false, revealed: false }));
 
+    // 袋: お題ごとに「その語の文字 + おまけ」をひとかたまりにして順に並べ、近くどうしで順番をばらす
     const filler = () => FILLER[Math.floor(rng() * FILLER.length)];
-    const bag = picked.flatMap((w) => [...w.text]);
-    for (let i = 0; i < o.fillers; i++) bag.push(filler());
-    for (let i = 0; i < o.wilds; i++) bag.push(WILD);
-    this.queue = shuffle(bag, rng);
+    const stream: { ch: string; key: number }[] = [];
+    picked.forEach((w, i) => {
+      const block = [...w.text];
+      const extra = Math.floor(o.fillers / picked.length) + (i < o.fillers % picked.length ? 1 : 0);
+      for (let k = 0; k < extra; k++) block.push(filler());
+      const start = stream.length;
+      for (const ch of shuffle(block, rng)) stream.push({ ch, key: stream.length + rng() * o.jitter });
+      this.flow.push([start - o.jitter, stream.length + o.jitter + o.handSize]);
+    });
+    for (let i = 0; i < o.wilds; i++) stream.push({ ch: WILD, key: rng() * stream.length });
+    this.queue = stream.sort((a, b) => a.key - b.key).map((x) => x.ch);
+    this.turnsLeft = options.turns ?? Math.max(1, this.queue.length - o.shortage);
 
     // 種と倍率マス: 互いに重ならない位置にばらまく
     const cells = shuffle(
@@ -260,6 +276,25 @@ export class Game {
     for (let r = 0; r < this.size; r++) for (let c = 0; c < this.size; c++) if (this.isWaiting(r, c)) out.push([r, c]);
     return out;
   }
+  /** いま文字が流れてきているお題か（手札に混ざっていそうか） */
+  isFlowing(i: number): boolean {
+    const [from, to] = this.flow[i];
+    return !this.missions[i].done && this.seen.length >= from && this.seen.length <= to;
+  }
+
+  /** (r, c) に ch を置いたらできる単語と得点（置かずに調べる） */
+  preview(ch: string, r: number, c: number): { words: Scored[]; total: number } {
+    if (this.grid[r]?.[c] !== '') return { words: [], total: 0 };
+    this.grid[r][c] = ch;
+    const fresh = emptyMask(this.size);
+    fresh[r][c] = true;
+    const found = findWords(this.grid, fresh, this.valid, this.mirror);
+    this.grid[r][c] = '';
+    const words = found.map((f) => ({ found: f, ...scoreWord(f.text, this.missions.find((m) => !m.done && m.word.text === f.text)) }));
+    const total = words.reduce((sum, w) => sum + w.pts, 0) * Math.min(MAX_CHAIN_MULT, Math.max(1, words.length)) * (words.length ? this.bonus[r][c] : 1);
+    return { words, total };
+  }
+
   get canUndo(): boolean {
     return this.snapshot !== null;
   }

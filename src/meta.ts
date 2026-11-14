@@ -28,7 +28,7 @@ export interface Amulet {
   sign: string; // 一覧に出すヒエログリフ
   level: number;
   text: string;
-  apply: (o: Required<Pick<GameOptions, 'wilds' | 'fixes' | 'turns' | 'bonus3' | 'handSize' | 'deadPenalty' | 'mirror'>>) => void;
+  apply: (o: Required<Pick<GameOptions, 'wilds' | 'fixes' | 'shortage' | 'bonus3' | 'handSize' | 'deadPenalty' | 'mirror'>>) => void;
   /** NEXT に見える枚数 */
   next?: number;
 }
@@ -38,10 +38,10 @@ export const AMULETS: Amulet[] = [
   { id: 'eye', name: 'ホルスの目', sign: SIGN.eye, level: 1, text: 'NEXT が5枚先まで見える。', apply: () => {}, next: 5 },
   { id: 'palette', name: '書記のパレット', sign: SIGN.palette, level: 2, text: '手直しが3回増える。', apply: (o) => (o.fixes += 3) },
   { id: 'ankh', name: 'アンク', sign: SIGN.ankh, level: 3, text: '待ちのまま終わっても減点されない。', apply: (o) => (o.deadPenalty = 0) },
-  { id: 'nile', name: 'ナイルの恵み', sign: SIGN.water, level: 4, text: '手数が4手増える。', apply: (o) => (o.turns += 4) },
+  { id: 'nile', name: 'ナイルの恵み', sign: SIGN.water, level: 4, text: '袋の文字が4枚多く届く。', apply: (o) => (o.shortage = Math.max(0, o.shortage - 4)) },
   { id: 'mirror', name: '鏡文字', sign: SIGN.eye2, level: 5, text: '右から左、下から上に読んでも単語として成立する。', apply: (o) => (o.mirror = true) },
   { id: 'lapis', name: '黄金の床', sign: SIGN.sun, level: 6, text: '×3マスが3つ増える。', apply: (o) => (o.bonus3 += 3) },
-  { id: 'hand', name: '大きな手', sign: SIGN.arm, level: 7, text: '手札が7枚になる。', apply: (o) => (o.handSize += 1) },
+  { id: 'hand', name: '大きな手', sign: SIGN.arm, level: 7, text: '手札が1枚増える。', apply: (o) => (o.handSize += 1) },
 ];
 
 // --- 碑文: 条件は伏せてあり、ヒントだけが読める。達成すると名前と中身が現れる ---
