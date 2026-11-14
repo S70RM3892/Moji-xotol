@@ -601,7 +601,7 @@ actinons
 actins	actin の変化形
 action
 actions	action の変化形
-activate	…を活動的にする
+activate
 active
 actively
 actives	active の変化形
@@ -661,7 +661,7 @@ adapter	接続変換器、アダプター
 adapters	adapter の変化形
 adapting	adapt の変化形
 adaption
-adaptive	適応できる、適応性のある
+adaptive
 adaptor	接続変換器、アダプター
 adaptors	adaptor の変化形
 adapts	adapt の変化形
@@ -1742,7 +1742,7 @@ alleluia
 allergen
 allergic
 allergin
-allergy	アレルギー、異常過敏症
+allergy
 alley	小路、路地
 alleys	alley の変化形
 alleyway	横丁、路地
@@ -2305,7 +2305,7 @@ analogic
 analogs	analog の変化形
 analogue	類似物、相似物
 analogy
-analyse	〈状況など〉を分析する、詳細に検討す
+analyse
 analysed	analyse の変化形
 analyser
 analyses	analyse の変化形
@@ -4586,7 +4586,7 @@ backwrap
 backyard
 bacon
 bacons	bacon の変化形
-bacteria	バクテリア、細菌
+bacteria
 bacterin
 bacula
 baculine
@@ -4841,7 +4841,7 @@ bam	ドカーン[という音]
 bambini
 bambino	赤ん坊、幼い子
 bambinos	bambino の変化形
-bamboo	竹、竹材
+bamboo
 bamboos	bamboo の変化形
 bammed	bam の変化形
 bamming	bam の変化形
@@ -6402,7 +6402,7 @@ beveling	bevel の変化形
 bevelled	bevel の変化形
 beveller
 bevels	bevel の変化形
-beverage	飲み物、飲料
+beverage
 bevies	bevy の変化形
 bevomit
 bevomits
@@ -7142,7 +7142,7 @@ blazoned	blazon の変化形
 blazoner	blazon の変化形
 blazonry	紋章描画[法]
 blazons	blazon の変化形
-bleach	…を漂白する、さらす
+bleach
 bleached	bleach の変化形
 bleacher	漂白する人、漂白剤
 bleaches	bleach の変化形
@@ -7732,7 +7732,7 @@ bolshies	bolshy の変化形
 bolshy	反社会的な、非協力的な
 bolson
 bolsons
-bolster	長まくら
+bolster
 bolsters	bolster の変化形
 bolt
 bolted	bolt の変化形
@@ -9604,7 +9604,7 @@ buses	bus の変化形
 bush
 bushbuck
 bushed	疲れ果てた、消耗した
-bushel	ブッシェル
+bushel
 busheled	bushel の変化形
 busheler	bushel の変化形
 bushels	bushel の変化形
@@ -10307,9 +10307,9 @@ campagna
 campagne
 campaign
 camped	camp の変化形
-camper	キャンプをする人、夏季キャンプ参加児
+camper
 campers	camper の変化形
-campfire	野営地のたき火、キャンプファイアー
+campfire
 camphene
 camphine
 camphire
@@ -11433,7 +11433,7 @@ censure	…を非難する、とがめる、〈人〉をとが
 censured	censure の変化形
 censurer
 censures	censure の変化形
-census	人口調査、国勢調査
+census
 censused	census の変化形
 censuses	census の変化形
 cent
@@ -11466,7 +11466,7 @@ centos
 centra
 central
 centrals	central の変化形
-centre	中心、中央、中核
+centre
 centred	centre の変化形
 centres	centre の変化形
 centric
@@ -11495,7 +11495,7 @@ cepheids
 ceps
 ceramal
 ceramals
-ceramic	陶器の、製陶術の
+ceramic
 ceramics	窯業、製陶術
 ceramist	陶器製造者、陶工、陶芸家
 cerastes
@@ -11514,7 +11514,7 @@ cere
 cereal
 cereals	cereal の変化形
 cerebra
-cerebral	大脳の、脳の
+cerebral
 cerebric
 cerebrum	大脳、脳
 cered
@@ -12473,7 +12473,7 @@ chortle	クックッと笑う
 chortled	chortle の変化形
 chortler
 chortles	chortle の変化形
-chorus	合唱団
+chorus
 chorused	chorus の変化形
 choruses	chorus の変化形
 chose
@@ -12719,7 +12719,7 @@ cingula
 cingulum
 cinnabar	辰砂
 cinnamic
-cinnamon	シナモン
+cinnamon
 cinnamyl
 cinquain
 cinque
@@ -14172,7 +14172,7 @@ comparer	compar の変化形
 compares	compar の変化形
 compart
 comparts
-compass	羅針盤
+compass
 comped
 compeer	同等な人
 compeers	compeer の変化形
@@ -14991,7 +14991,7 @@ cosily	居ごこちよく
 cosine	コサイン、余弦
 cosines	cosine の変化形
 cosiness	居ごこちのよさ
-cosmetic	化粧品
+cosmetic
 cosmic
 cosmical
 cosmism
@@ -15135,7 +15135,7 @@ couples	couple の変化形
 couplet	2行連句、対句
 couplets	couplet の変化形
 coupling	連結、結合
-coupon	クーポン
+coupon
 coupons	coupon の変化形
 coups	coup の変化形
 courage
@@ -15380,7 +15380,7 @@ cracks	crack の変化形
 crackup	衝突、激突
 crackups	crackup の変化形
 cracky
-cradle	揺りかご
+cradle
 cradled	cradle の変化形
 cradler
 cradlers
@@ -15589,7 +15589,7 @@ creditor	債権者、貸し主
 credits	credit の変化形
 credo
 credos	credo の変化形
-creed	信条、信経
+creed
 creedal
 creeds	creed の変化形
 creek
@@ -16671,7 +16671,7 @@ cyesis
 cygnet	白鳥のひな
 cygnets	cygnet の変化形
 cylices
-cylinder	円柱、円筒、円柱形の物
+cylinder
 cylix
 cyma
 cymae
@@ -17528,7 +17528,7 @@ deco
 decoct	…を煎じる
 decocted	decoct の変化形
 decocts	decoct の変化形
-decode	…の暗号を解く
+decode
 decoded	decode の変化形
 decoder
 decoders
@@ -17608,7 +17608,7 @@ deeming	deem の変化形
 deems	deem の変化形
 deemster
 deep
-deepen	…を深くする、深める
+deepen
 deepened	deepen の変化形
 deepener	deepen の変化形
 deepens	deepen の変化形
@@ -17647,7 +17647,7 @@ defangs
 defat
 defats
 defatted
-default	不履行、怠慢、不出場
+default
 defaults	default の変化形
 defeat
 defeated	defeat の変化形
@@ -18613,7 +18613,7 @@ diagram
 diagrams	diagram の変化形
 diagraph
 dial
-dialect	方言、なまり
+dialect
 dialects	dialect の変化形
 dialed	dial の変化形
 dialer	dial の変化形
@@ -18634,7 +18634,7 @@ dialoged	dialog の変化形
 dialoger	dialog の変化形
 dialogic
 dialogs	dialog の変化形
-dialogue	対話、会話、問答
+dialogue
 dials	dial の変化形
 dialyse
 dialysed
@@ -19223,7 +19223,7 @@ discing	disc の変化形
 disciple
 disclaim	〈責任、関係など〉を否認する
 disclike
-disclose	〈隠れたもの〉をあらわにする、見せる
+disclose
 disco
 discoed	disco の変化形
 discoid	円盤状の
@@ -19321,7 +19321,7 @@ disowns	disown の変化形
 dispart
 disparts
 dispatch	〈電報、手紙など〉を送る、〈使者
-dispel	〈煙、霧〉を追い散らす、追い払う
+dispel
 dispels	dispel の変化形
 dispend
 dispends
@@ -21153,7 +21153,7 @@ earnests	earnest の変化形
 earning	earn の変化形
 earnings
 earns	earn の変化形
-earphone	イヤホーン
+earphone
 earpiece	耳おおい
 earplug	耳栓
 earplugs	earplug の変化形
@@ -21176,7 +21176,7 @@ earthnut	地中の根、茎が食用になる植物
 earthpea
 earths	earth の変化形
 earthset
-earthy	土の、土質の
+earthy
 earwax	耳くそ、耳あか
 earwaxes	earwax の変化形
 earwig	ハサミムシ
@@ -22556,7 +22556,7 @@ envied	envy の変化形
 envier
 enviers
 envies	envy の変化形
-envious	うらやましそうな、ねたましげな
+envious
 environ
 environs	近郊、郊外
 envisage
@@ -22877,7 +22877,7 @@ erose
 erosely
 eroses
 erosible
-erosion	腐食、浸食[作用]
+erosion
 erosions	erosion の変化形
 erosive	浸食性の
 erotic	性愛の、性愛を扱った、好色の
@@ -23304,7 +23304,7 @@ event
 eventful	でき事の多い、多事な
 eventide	夕べ、たそがれ
 events	event の変化形
-eventual	結果として起こる
+eventual
 ever
 evermore	常に、永久に
 eversion
@@ -23665,7 +23665,7 @@ exposes	expose の変化形
 exposing	expose の変化形
 exposit
 exposits
-exposure	さらすこと、さらされること
+exposure
 expound	…を説明する
 expounds	expound の変化形
 express
@@ -24040,7 +24040,7 @@ falsest
 falsetto	ファルセット、裏声、仮声
 falsie
 falsies	パッド
-falsify	〈書類など〉に不正に手を加える、を偽
+falsify
 falsity	真実でないこと
 faltboat	折りたたみ式小型ボート
 falter
@@ -26600,7 +26600,7 @@ fortuned	fortune の変化形
 fortunes	fortune の変化形
 forty	40、40の記号
 fortyish
-forum	大広場、市場
+forum
 forums	forum の変化形
 forward
 forwards	forward の変化形
@@ -27668,7 +27668,7 @@ galavant
 galax
 galaxes
 galaxies	galaxy の変化形
-galaxy	星雲、銀河、天の川
+galaxy
 galbanum
 gale
 galea
@@ -28920,7 +28920,7 @@ glassine
 glassing	glass の変化形
 glassman
 glassmen
-glassy	ガラス状の、ガラス質の
+glassy
 glaucoma	あおそこひ、緑内障
 glaucous	淡い青緑色の
 glaze	…にガラスをはめる、〈建物など〉にガ
@@ -29777,7 +29777,7 @@ grandee	大公
 grandees	grandee の変化形
 grander	grand の変化形
 grandest	grand の変化形
-grandeur	雄大さ、壮大さ、威容
+grandeur
 grandkid
 grandly	雄大に、壮大に
 grandma
@@ -30173,7 +30173,7 @@ groat	ペンス銀貨
 groats	ひき割り小麦
 grocer	食料品[雑貨]商人、乾物商
 grocers	grocer の変化形
-grocery	食料品[雑貨]店
+grocery
 grog	グログ酒
 groggery
 groggier
@@ -31110,7 +31110,7 @@ haloids
 haloing	halo の変化形
 halolike
 halos	halo の変化形
-halt	停止、休止
+halt
 halted	halt の変化形
 halter	はづなにつなぐ綱)
 haltere
@@ -31173,7 +31173,7 @@ hampered	hamper の変化形
 hamperer	hamper の変化形
 hampers	hamper の変化形
 hams	ham の変化形
-hamster	ハムスター、チョウセンネズミ
+hamster
 hamsters	hamster の変化形
 hamular
 hamulate
@@ -33242,7 +33242,7 @@ hotting	hot の変化形
 hottish
 houdah
 houdahs
-hound	猟犬、キツネ狩り犬
+hound
 hounded	hound の変化形
 hounder	hound の変化形
 hounders
@@ -34274,7 +34274,7 @@ impress
 imprest
 imprests
 imprimis
-imprint	〈印など〉を押す、〈模様など〉を押し
+imprint
 imprints	imprint の変化形
 imprison
 improper
@@ -34305,7 +34305,7 @@ imputes	impute の変化形
 imputing	impute の変化形
 in	…の中に
 inaction	不活動、怠惰、無活動
-inactive	活動しない、働いていない、活発でない
+inactive
 inane	ばかばかしくて無意味な、空虚な、愚か
 inanely	inane の変化形
 inaner
@@ -34601,7 +34601,7 @@ infecund
 infeoff
 infeoffs
 infer
-inferior	下の、劣る
+inferior
 infernal
 inferno	地獄
 infernos	inferno の変化形
@@ -36860,7 +36860,7 @@ kermises
 kern
 kerne
 kerned
-kernel	仁
+kernel
 kerneled	kernel の変化形
 kernels	kernel の変化形
 kernes
@@ -39455,7 +39455,7 @@ lingual	舌の
 linguals	lingual の変化形
 linguine
 linguini
-linguist	言語学者、語学者
+linguist
 lingy
 linier
 liniest
@@ -39466,7 +39466,7 @@ linings	lining の変化形
 linins
 link
 linkable
-linkage	鎖の輪
+linkage
 linkages	linkage の変化形
 linkboy
 linkboys
@@ -39992,7 +39992,7 @@ loment
 lomenta
 loments
 lomentum
-lone	孤独の、ひとりの
+lone
 lonelier
 lonelily
 lonely
@@ -40876,7 +40876,7 @@ magnate
 magnates	magnate の変化形
 magnesia	酸化マグネシウム、苦土
 magnesic
-magnet	磁石
+magnet
 magnetic
 magneto	磁石発電機
 magneton
@@ -40992,7 +40992,7 @@ makeover
 maker
 makers	maker の変化形
 makes	make の変化形
-makeup	化粧、メーキャップ、ふん装
+makeup
 makeups	makeup の変化形
 makimono
 making	作ること、でき上がること、製造
@@ -41097,7 +41097,7 @@ malvasia
 mama
 mamaliga
 mamas	mama の変化形
-mamba	マンバ
+mamba
 mambas	mamba の変化形
 mambo	マンボ
 mamboed	mambo の変化形
@@ -41458,7 +41458,7 @@ markets	market の変化形
 markhoor
 markhor
 markhors
-marking	印をつけること、彩点
+marking
 markings	marking の変化形
 markka	マルッカー
 markkaa
@@ -41740,7 +41740,7 @@ maturer
 matures	mature の変化形
 maturest
 maturing	mature の変化形
-maturity	成熟、円熟、完成
+maturity
 matza
 matzah
 matzahs
@@ -41801,7 +41801,7 @@ maxicoat
 maxilla	顎骨、上顎骨
 maxillae
 maxillas	maxilla の変化形
-maxim	格言、金言、処世訓
+maxim
 maxima
 maximal	最上限の、最高度の
 maximals	maximal の変化形
@@ -41971,7 +41971,7 @@ mediae
 medial	中間の、中間に位置する
 medially	medial の変化形
 medials	medial の変化形
-median	中央の、中間の
+median
 medianly	median の変化形
 medians	median の変化形
 mediant
@@ -42237,7 +42237,7 @@ meou
 meoued
 meouing
 meous
-meow	ニャー
+meow
 meowed	meow の変化形
 meowing	meow の変化形
 meows	meow の変化形
@@ -43313,7 +43313,7 @@ missuses	missus の変化形
 missy	お嬢さん
 mist
 mistake
-mistaken	間違った、誤りのある
+mistaken
 mistaker
 mistakes	mistake の変化形
 mistbow
@@ -43491,7 +43491,7 @@ mod
 modal	様式の、形態上の
 modality
 modally	modal の変化形
-mode	方法、やり方、流儀
+mode
 model
 modeled	model の変化形
 modeler	model の変化形
@@ -44103,7 +44103,7 @@ mothiest
 mothlike
 moths	moth の変化形
 mothy
-motif	モチーフ
+motif
 motific
 motifs	motif の変化形
 motile	運動性がある
@@ -47186,7 +47186,7 @@ only
 onrush	突進、奔流
 onrushes	onrush の変化形
 ons	on の変化形
-onset	攻撃、襲撃
+onset
 onsets	onset の変化形
 onshore	陸に向かって
 onside	正規の位置にいる、オンサイドにいる
@@ -47523,7 +47523,7 @@ organdie	オーガンディー
 organdy	オーガンディー
 organic
 organics	organic の変化形
-organise	〈物事〉を系統だてる、組織的にまとめ
+organise
 organism
 organist	オルガン奏者
 organize
@@ -50234,7 +50234,7 @@ penates
 pence
 pencel
 pencels
-penchant	強い好み
+penchant
 pencil
 penciled	pencil の変化形
 penciler	pencil の変化形
@@ -54568,7 +54568,7 @@ pyoses
 pyosis
 pyralid
 pyralids
-pyramid	ピラミッド
+pyramid
 pyramids	pyramid の変化形
 pyran
 pyranoid
@@ -54912,7 +54912,7 @@ quillet
 quillets
 quilling	quill の変化形
 quills	quill の変化形
-quilt	キルト
+quilt
 quilted	キルトふうの
 quilter	quilt の変化形
 quilters
@@ -55474,7 +55474,7 @@ randans
 randier
 randies	randy の変化形
 randiest
-random	手当たりしだいの、任意の、行き当たり
+random
 randomly	random の変化形
 randoms	random の変化形
 rands	rand の変化形
@@ -55905,7 +55905,7 @@ realgars
 realia
 realign	…に新しい隊列を組ませる
 realigns	realign の変化形
-realise	…を完全に理解する
+realise
 realised	realise の変化形
 realiser	実現者
 realises	realise の変化形
@@ -56036,7 +56036,7 @@ rebilled
 rebills
 rebind
 rebinds
-rebirth	新しく生まれ変わること、再生
+rebirth
 rebirths	rebirth の変化形
 reblend
 reblends
@@ -56250,7 +56250,7 @@ recrate
 recrated
 recrates
 recreant	不実な、おく病な
-recreate	…を再び作る、作り直す
+recreate
 recross
 recrown
 recrowns
@@ -56645,7 +56645,7 @@ reflects	reflect の変化形
 reflet
 reflets
 reflew
-reflex	反射
+reflex
 reflexed	reflex の変化形
 reflexes	reflex の変化形
 reflexly	reflex の変化形
@@ -57629,7 +57629,7 @@ reserve
 reserved	予約の、貸し切りの
 reserver
 reserves	reserve の変化形
-reset	リセット、初期化
+reset
 resets	reset の変化形
 resetter
 resettle	〈人〉を新しい土地に落ち着かせる
@@ -57835,7 +57835,7 @@ restrict
 restrike
 restring
 restrive
-restroom	手洗所
+restroom
 restrove
 restruck
 restrung
@@ -58053,7 +58053,7 @@ reunited	reunite の変化形
 reuniter
 reunites	reunite の変化形
 reusable
-reuse	…を再使用する、再生する
+reuse
 reused	reuse の変化形
 reuses	reuse の変化形
 reusing	reuse の変化形
@@ -61000,7 +61000,7 @@ sconces	sconce の変化形
 sconcing	sconce の変化形
 scone	小型パン、菓子パン
 scones	scone の変化形
-scoop	ひしゃく、しゃくし、大さじ
+scoop
 scooped	scoop の変化形
 scooper	scoop の変化形
 scoopers
@@ -61546,7 +61546,7 @@ sedilia
 sedilium
 sediment	沈殿物、かす
 sedition	反政府的な扇動、アジ演説、教唆行為
-seduce	〈人〉をそそのかす、誘惑する
+seduce
 seduced	seduce の変化形
 seducer	誘惑者、女たらし
 seducers	seducer の変化形
@@ -62546,7 +62546,7 @@ shends
 shent
 sheol
 sheols
-shepherd	羊飼い
+shepherd
 sheqalim
 sheqel
 sherbert
@@ -62872,7 +62872,7 @@ short
 shortage
 shortcut
 shorted	short の変化形
-shorten	…を短くする、縮める
+shorten
 shortens	shorten の変化形
 shorter	short の変化形
 shortest	short の変化形
@@ -62973,7 +62973,7 @@ shrift	ざんげ、赦罪
 shrifts	shrift の変化形
 shrike	モズ
 shrikes	shrike の変化形
-shrill	甲高い、金切り声の
+shrill
 shrilled	shrill の変化形
 shriller	shrill の変化形
 shrills	shrill の変化形
@@ -63604,7 +63604,7 @@ sixte
 sixteen	16、16の記号
 sixteens	sixteen の変化形
 sixtes
-sixth	第6の、6番目の
+sixth
 sixthly	sixth の変化形
 sixths	sixth の変化形
 sixties	sixty の変化形
@@ -64165,7 +64165,7 @@ slippage	滑ること
 slipped	slip の変化形
 slipper	室内履き、スリッパ
 slippers	slipper の変化形
-slippery	つるつるする、滑りやすい
+slippery
 slippier
 slipping	slip の変化形
 slippy	すばやい、すばしこい、抜け目のない
@@ -64630,7 +64630,7 @@ snarls	snarl の変化形
 snarly
 snash
 snashes
-snatch	…をひったくる、さっと取る
+snatch
 snatched	snatch の変化形
 snatcher	ひったくり、泥棒
 snatches	snatch の変化形
@@ -66202,7 +66202,7 @@ spooring	spoor の変化形
 spoors	spoor の変化形
 sporadic	ときどき起こる
 sporal
-spore	胞子、胚種
+spore
 spored	spore の変化形
 spores	spore の変化形
 sporing	spore の変化形
@@ -66499,7 +66499,7 @@ squirmed	squirm の変化形
 squirmer	squirm の変化形
 squirms	squirm の変化形
 squirmy
-squirrel	リス
+squirrel
 squirt	〈液体が〉噴出する、しぶきが飛ぶ
 squirted	squirt の変化形
 squirter	噴出器、噴霧器
@@ -66586,7 +66586,7 @@ stagiest
 stagily
 staging	足場
 stagings	staging の変化形
-stagnant	流れない、よどんでいる
+stagnant
 stagnate	〈水などが〉よどむ、よどんで腐る
 stags	stag の変化形
 stagy	舞台の、芝居の
@@ -66635,7 +66635,7 @@ stalled	stall の変化形
 stalling	stall の変化形
 stallion	種馬
 stalls	stall の変化形
-stalwart	じょうぶな、がっしりした
+stalwart
 stamen	雄ずい、おしべ
 stamens	stamen の変化形
 stamina
@@ -68749,7 +68749,7 @@ sweeps	sweep の変化形
 sweepy
 sweer
 sweet
-sweeten	…を甘くする、の甘味を増す
+sweeten
 sweetens	sweeten の変化形
 sweeter	sweet の変化形
 sweetest	sweet の変化形
@@ -70182,7 +70182,7 @@ temples	temple の変化形
 templet	型板
 templets	templet の変化形
 tempo
-temporal	時の、時間の
+temporal
 tempos	tempo の変化形
 temps
 tempt
@@ -70290,7 +70290,7 @@ tented	tent の変化形
 tenter	張りわく
 tentered	tenter の変化形
 tenters	tenter の変化形
-tenth	第10の、10番目の
+tenth
 tenthly	tenth の変化形
 tenths	tenth の変化形
 tentie
@@ -71500,7 +71500,7 @@ todays	today の変化形
 toddies	toddy の変化形
 toddle	〈幼児などが〉よちよち歩く
 toddled	toddle の変化形
-toddler	よちよち歩きをしはじめた幼児
+toddler
 toddlers	toddler の変化形
 toddles	toddle の変化形
 toddling	toddle の変化形
@@ -72542,7 +72542,7 @@ tribrach
 tribunal	裁判所、法廷、裁決機関
 tribune	演壇、講壇、高座
 tribunes	tribune の変化形
-tribute	感謝の印
+tribute
 tributes	tribute の変化形
 trice	瞬間
 triced	trice の変化形
@@ -73682,7 +73682,7 @@ typhoids	typhoid の変化形
 typhon
 typhonic
 typhons
-typhoon	台風
+typhoon
 typhoons	typhoon の変化形
 typhose
 typhous
@@ -74803,7 +74803,7 @@ unseats	unseat の変化形
 unseeded
 unseeing	目で見ていない、気づいていない
 unseemly	時をわきまえない、無作法な
-unseen	気づかれない、見られていない
+unseen
 unseized
 unsell
 unsells
@@ -74891,7 +74891,7 @@ unspoke
 unspoken	口に出さない、無言の
 unsprung
 unspun
-unstable	不安定な、ぐらぐらする
+unstable
 unstably
 unstack
 unstacks
@@ -75645,7 +75645,7 @@ vacuolar
 vacuole	空胞、液胞
 vacuoles	vacuole の変化形
 vacuous	空の、何も入っていない
-vacuum	真空
+vacuum
 vacuumed	vacuum の変化形
 vacuums	vacuum の変化形
 vadose
@@ -79308,7 +79308,7 @@ wringer	絞り機、絞る人
 wringers	wringer の変化形
 wringing	wring の変化形
 wrings	wring の変化形
-wrinkle	しわ
+wrinkle
 wrinkled	wrinkle の変化形
 wrinkles	wrinkle の変化形
 wrinkly	しわの多い、しわになりやすい

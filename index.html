@@ -37,6 +37,7 @@
               <span><b id="streak">0</b>日連続</span>
               <span>最高 <b id="best">0</b></span>
               <span>覚えた <b id="learned">0</b>語</span>
+              <span>瞬時に読める <b id="fluent">0</b>語</span>
               <span>復習待ち <b id="missed">0</b>語</span>
             </div>
           </div>
@@ -80,6 +81,13 @@
           <li>単語にならなかった文字（点線）は、何度でもつかんで動かせる。要らない札は「すてる」へ運ぶ。</li>
           <li>星の札は好きな文字になる。群青の<b>×2</b>・金の<b>×3</b>マスに置いて単語を作ると倍。</li>
           <li>評価は、つづりなしのお題をヒントなしで作れた割合で決まる。</li>
+        </ol>
+        <h2 data-sign="eye">読むモードの遊び方</h2>
+        <ol class="rules">
+          <li>英単語が1つ出る。4つの和訳から意味を選ぶ（1〜4のキーでもいい）。1回20語。</li>
+          <li>1.5秒以内に正しく答えられたら「瞬時に読めた」。3回続けば「瞬時に読める語」に数える。</li>
+          <li>間違えた語と遅かった語は、次の回にもう一度出る。</li>
+          <li>出る語は、選んだ層の過去問の本文に出た語が中心。長文を速く読むには、難語を知っているだけでなく、見た瞬間に意味が出ることが要る。</li>
         </ol>
         <h2 data-sign="jackal">喰らうモードの遊び方</h2>
         <ol class="rules">
@@ -157,6 +165,22 @@
         </div>
       </section>
 
+      <section id="read" hidden>
+        <div class="topbar">
+          <div class="scorebox"><span class="gl" data-sign="eye" aria-hidden="true"></span><b id="rscore">0</b><span>点</span></div>
+          <div class="meter"><span>問</span><b id="rstep">1</b><span id="rsteps">/ 20</span></div>
+          <div class="meter"><span>のこり</span><b id="rtime">5.0</b><span>秒</span></div>
+          <button id="rquit" class="mini">おわる</button>
+        </div>
+        <div class="mission readcard" aria-live="polite">
+          <div class="mhead"><span class="kind">意味は？</span><span class="tier" id="rtier"></span><span class="past" id="rpast" hidden></span></div>
+          <div id="rword" class="rword"></div>
+          <div id="rglyph" class="gl rglyph" aria-hidden="true"></div>
+        </div>
+        <div id="rchoices" class="choices"></div>
+        <p id="rnote" class="note" role="status"></p>
+      </section>
+
       <section id="result" hidden>
         <header class="brand"><span class="gl" data-sign="jackal" aria-hidden="true"></span><h1>検分</h1><span class="note" id="resmode"></span></header>
         <div class="fret" aria-hidden="true"></div>
@@ -174,7 +198,7 @@
         <div id="resnew"></div>
         </div>
         <div class="col">
-        <h2 data-sign="roll">この局の言葉</h2>
+        <h2 data-sign="roll" id="misshead">この局の言葉</h2>
         <ul id="resmissions" class="wordlist"></ul>
         <h2 id="foundhead" data-sign="palette">見つけた受験語</h2>
         <ul id="resfound" class="wordlist"></ul>

@@ -6,13 +6,17 @@ export type Mode = 'kyote' | 'nankan' | 'kyodai';
 export interface Word {
   text: string;
   tier: Tier;
-  /** CEFR のレベル。KU は語彙リストにないが京大の過去問に出た語 */
+  /** CEFR のレベル。KU / CT は、語彙リストにないが京大 / 共テの過去問に出た語 */
   cefr: string;
   gloss: string;
-  /** 京大重点での出やすさ: 過去問20年分から見積もった「次に出る見込み × まだ知らない見込み」 */
+  /** 京大重点での出やすさ: 過去問27年分から見積もった「次に出る見込み × まだ知らない見込み」 */
   value: number;
-  /** 京大の過去問(2005-2024)に出た年度（下2桁） */
+  /** 京大の過去問(2000-2026)に出た年度（下2桁） */
   years: number[];
+  /** 共テ重点での出やすさ。共通テスト・センター試験23年分から同じ方法で見積もった値 */
+  ctValue: number;
+  /** 共通テスト・センター試験(2004-2026)に出た年度数 */
+  ctYears: number;
 }
 
 export const TIER_LABEL = ['共テ', '難関2次', '京大'] as const;
@@ -23,11 +27,10 @@ export const MODE_LABEL: Record<Mode, string> = {
 };
 
 /**
- * 共テ重点・難関2次重点での、層の出題確率 [共テ, 難関2次, 京大]。
- * 京大重点は層では決めず、過去問の分析から付けた語ごとの「覚える価値」で選ぶ（sampleWord を参照）。
+ * 難関2次重点での、層の出題確率 [共テ, 難関2次, 京大]。
+ * 共テ重点と京大重点は層では決めず、それぞれの過去問の分析から付けた語ごとの「覚える価値」で選ぶ（sampleWord を参照）。
  */
-export const MODE_WEIGHTS: Record<Exclude<Mode, 'kyodai'>, [number, number, number]> = {
-  kyote: [0.6, 0.3, 0.1],
+export const MODE_WEIGHTS: Record<'nankan', [number, number, number]> = {
   nankan: [0.1, 0.65, 0.25],
 };
 
@@ -35,8 +38,8 @@ export const MODE_WEIGHTS: Record<Exclude<Mode, 'kyodai'>, [number, number, numb
 // A1（中学初級）はお題にしない。A2 もほとんど出さない
 const CEFR_WEIGHT: Record<string, number> = { A1: 0, A2: 0.2, B1: 1.5, B2: 1, C1: 1, C2: 0.6 };
 
-export const WORDS: Word[] = (raw as [string, Tier, string, string, number, number[]][]).map(
-  ([text, tier, cefr, gloss, value, years]) => ({ text, tier, cefr, gloss, value, years }),
+export const WORDS: Word[] = (raw as [string, Tier, string, string, number, number[], number, number][]).map(
+  ([text, tier, cefr, gloss, value, years, ctValue, ctYears]) => ({ text, tier, cefr, gloss, value, years, ctValue, ctYears }),
 );
 export const WORD_MAP = new Map(WORDS.map((w) => [w.text, w]));
 
@@ -77,6 +80,11 @@ const KYODAI = table(
   WORDS.filter((w) => w.value > 0),
   (w) => (w.value / 1e4) ** 2,
 );
+/** 共テ重点: B1以上と、共テ・センターに出た表外の語。重みは京大重点と同じ考え方 */
+const KYOTE = table(
+  WORDS.filter((w) => w.ctValue > 0),
+  (w) => (w.ctValue / 1e4) ** 2,
+);
 
 function pickFrom(table: Table, rng: Rng): Word {
   const x = rng() * table.cum[table.cum.length - 1];
@@ -92,13 +100,14 @@ function pickFrom(table: Table, rng: Rng): Word {
 
 /**
  * お題にする語を1つ選ぶ。
- * 共テ重点・難関2次重点: まず層をモードの確率で選び、次に層内で1語選ぶ（層の語数に確率が左右されない）。
- * 京大重点: 過去問から見積もった覚える価値に比例して選ぶ。
+ * 難関2次重点: まず層を確率で選び、次に層内で1語選ぶ（層の語数に確率が左右されない）。
+ * 共テ重点・京大重点: それぞれの過去問から見積もった覚える価値の高い語を優先して選ぶ。
  */
 export function sampleWord(mode: Mode, rng: Rng, maxLen = 10, minLen = 4): Word {
   for (;;) {
     let w: Word;
     if (mode === 'kyodai') w = pickFrom(KYODAI, rng);
+    else if (mode === 'kyote') w = pickFrom(KYOTE, rng);
     else {
       const [a, b] = MODE_WEIGHTS[mode];
       const x = rng();

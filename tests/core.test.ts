@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { emptyGrid, emptyMask, findWords } from '../src/core/board';
 import { DEFAULTS, Game, WILD } from '../src/core/game';
-import { MODE_WEIGHTS, type Mode, WORD_MAP, makeRng, sampleWord } from '../src/core/words';
+import { MODE_WEIGHTS, WORD_MAP, makeRng, sampleWord } from '../src/core/words';
 
 const valid = new Set(['rat', 'rate', 'ate', 'at', 'tea', 'eat', 'ox', 'or']);
 const RATE = WORD_MAP.get('rate')!;
@@ -20,7 +20,7 @@ function blank(hand: string[], shown = true): Game {
 }
 
 describe('sampleWord', () => {
-  it.each(Object.keys(MODE_WEIGHTS) as Exclude<Mode, 'kyodai'>[])('%s は狙いの層分布になる', (mode) => {
+  it.each(Object.keys(MODE_WEIGHTS) as 'nankan'[])('%s は狙いの層分布になる', (mode) => {
     const rng = makeRng(1);
     const counts = [0, 0, 0];
     const n = 20000;
@@ -219,7 +219,7 @@ describe('語の難しさ', () => {
   it('中学初級（A1）はお題に出ない。京大重点では共テ水準の語が出ない', () => {
     const rng = makeRng(2);
     for (let i = 0; i < 5000; i++) {
-      expect(sampleWord('kyote', rng).cefr).not.toBe('A1');
+      expect(['A1', 'A2']).not.toContain(sampleWord('kyote', rng).cefr);
       expect(['B2', 'C1', 'C2', 'KU']).toContain(sampleWord('kyodai', rng).cefr);
     }
   });
@@ -231,6 +231,11 @@ describe('語の難しさ', () => {
     for (let i = 0; i < n; i++) if (sampleWord('kyodai', rng).years.length) seen++;
     expect(seen / n).toBeGreaterThan(0.7);
     expect(seen / n).toBeLessThan(0.95);
+    // 共テ重点も同じく、共テ・センターに出た語が中心になる
+    let ct = 0;
+    for (let i = 0; i < n; i++) if (sampleWord('kyote', rng).ctYears) ct++;
+    expect(ct / n).toBeGreaterThan(0.8);
+    expect(WORD_MAP.get('contribute')!.ctYears).toBeGreaterThanOrEqual(5);
     // 語彙リストにない過去問の語も出る
     expect(WORD_MAP.get('subsequent')?.cefr).toBe('KU');
     expect(WORD_MAP.get('subsequent')!.years.length).toBeGreaterThanOrEqual(2);

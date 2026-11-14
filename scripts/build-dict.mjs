@@ -85,17 +85,23 @@ if (existsSync(ovPath)) {
   }
 }
 
-// --- 京大の過去問(2005-2024)の集計: 語 → 出た年度と「覚える価値」。scripts/analyze-exams.py が作る ---
-const exam = new Map();
-for (const line of readFileSync(new URL('../data/kyodai-words.tsv', import.meta.url), 'utf8').split('\n')) {
-  if (!line || line.startsWith('#')) continue;
-  const [w, lv, years, , value] = line.split('\t');
-  exam.set(w, { lv, years: years ? years.split(',').map((y) => Number(y) % 100) : [], value: Number(value) });
+// --- 過去問の集計: 語 → 出た年度と「覚える価値」。scripts/analyze-exams.py が作る ---
+function loadExam(name) {
+  const map = new Map();
+  for (const line of readFileSync(new URL(`../data/${name}-words.tsv`, import.meta.url), 'utf8').split('\n')) {
+    if (!line || line.startsWith('#')) continue;
+    const [w, lv, years, , value] = line.split('\t');
+    map.set(w, { lv, years: years ? years.split(',').map((y) => Number(y) % 100) : [], value: Number(value) });
+  }
+  return map;
 }
-// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 過去問に出た年度(下2桁)]
+const kyodai = loadExam('kyodai'); // 京都大学 2000-2026
+const kyote = loadExam('kyote'); // 共通テスト・センター試験 2004-2026
+// 行の形: [語, 層, レベル, 和訳, 京大での覚える価値(×10万), 京大の過去問に出た年度(下2桁), 共テでの覚える価値(×10万), 共テ・センターに出た年度数]
 const row = (word, tier, cefr, gloss) => {
-  const x = exam.get(word);
-  return [word, tier, cefr, gloss, x ? Math.round(x.value * 1e5) : 0, x ? x.years : []];
+  const k = kyodai.get(word);
+  const c = kyote.get(word);
+  return [word, tier, cefr, gloss, k ? Math.round(k.value * 1e5) : 0, k ? k.years : [], c ? Math.round(c.value * 1e5) : 0, c ? c.years.length : 0];
 };
 
 const words = [];
@@ -107,22 +113,25 @@ for (const [word, e] of entries) {
   if (!gloss) { stats.noGloss++; continue; }
   words.push(row(word, TIER[e.cefr], e.cefr, gloss));
 }
-// 語彙リストにはないが過去問に出た語（subsequent, underlying, trajectory など）を、京大層の語として加える。
-// 複数形で出ていて辞書に見出しがないものは、もとの形に寄せる
+// 語彙リストにはないが過去問に出た語を加える。京大に出た語（subsequent, underlying など）は京大層 KU、
+// 共テだけに出た語（bacteria, density など）は共テ層 CT。複数形で出ていて辞書に見出しがないものは、もとの形に寄せる
 const added = new Map();
-for (const [w, x] of exam) {
-  if (x.lv !== '-' || !x.years.length) continue;
-  let word = w;
-  if (!ej.has(word) && word.endsWith('s') && ej.has(word.slice(0, -1))) word = word.slice(0, -1);
-  if (entries.has(word) || word.length < MIN_LEN || word.length > MAX_LEN) continue;
-  const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
-  if (!gloss) continue;
-  const prev = added.get(word);
-  const years = [...new Set([...(prev?.years ?? []), ...x.years])].sort((a, b) => a - b);
-  added.set(word, { gloss, years, value: Math.max(prev?.value ?? 0, x.value) });
+for (const [exam, label, tier] of [[kyodai, 'KU', 2], [kyote, 'CT', 0]]) {
+  for (const [w, x] of exam) {
+    // 共テだけに出た表外語は、2年度以上に出たものに絞る（1回きりは OCR の読み誤りや話題限りの語が多い）
+    if (x.lv !== '-' || !x.value || x.years.length < (label === 'CT' ? 2 : 1)) continue;
+    let word = w;
+    if (!ej.has(word) && word.endsWith('s') && ej.has(word.slice(0, -1))) word = word.slice(0, -1);
+    if (entries.has(word) || added.has(word) || word.length < MIN_LEN || word.length > MAX_LEN) continue;
+    const gloss = overrides.get(word) ?? cleanGloss(ej.get(word) ?? '');
+    if (!gloss) continue;
+    // 寄せた形の集計値は、もとの語のものを使う
+    if (!exam.has(word)) exam.set(word, x);
+    added.set(word, { gloss, label, tier });
+  }
 }
 for (const [word, x] of added) {
-  words.push([word, 2, 'KU', x.gloss, Math.round(x.value * 1e5), x.years]);
+  words.push(row(word, x.tier, x.label, x.gloss));
   stats.examOnly++;
 }
 words.sort((a, b) => (a[0] < b[0] ? -1 : 1));

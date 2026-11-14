@@ -7,7 +7,9 @@ OCR 済みの年度別テキスト（<dir>/2005.txt …）を読み、次を出�
   3. 過去の出題歴・一般的な頻度・レベルから「次の年に出る確率」を予測するモデルと、その検証
   4. data/kyodai-words.tsv（語・出た年度・回数・予測値）— 集計値だけで、問題文は含めない
 
-使い方: python3 -I scripts/analyze-exams.py <OCRテキストの置き場> <頻度リスト en_50k.txt> [--write]
+使い方: python3 -I scripts/analyze-exams.py <OCRテキストの置き場> <頻度リスト en_50k.txt> [--profile kyodai|kyote] [--write]
+  kyodai: 京都大学の英語。難語 = B2以上と表外。data/kyodai-words.tsv に書く
+  kyote : 共通テスト・センター試験の英語。難語 = B1以上と表外。data/kyote-words.tsv に書く
 問題文そのものは著作物なので、このリポジトリには置かない。
 """
 import collections
@@ -22,6 +24,12 @@ RAW = ROOT / "data" / "raw"
 text_dir = pathlib.Path(sys.argv[1])
 freq_path = pathlib.Path(sys.argv[2])
 WRITE = "--write" in sys.argv
+PROFILE = sys.argv[sys.argv.index("--profile") + 1] if "--profile" in sys.argv else "kyodai"
+# 試験ごとの設定: やさしい側に数えるレベル、表外語を難語と見なす頻度順位、「まだ知らない見込み」が5割になる頻度順位
+EASY, OFF_RANK, HALF_KNOWN, TITLE = {
+    "kyodai": (("A1", "A2", "B1"), 4000, 8000, "京大英語"),
+    "kyote": (("A1", "A2"), 3000, 4000, "共通テスト・センター試験 英語"),
+}[PROFILE]
 
 # ---------- 語彙リスト ----------
 enable = set(RAW.joinpath("enable1.txt").read_text().split())
@@ -162,12 +170,12 @@ def proper(w):
 
 def group(w):
     lv = level.get(w)
-    if lv in ("A1", "A2", "B1"):
+    if lv in EASY:
         return "A1-B1"
     if lv:
         return lv
     # 表外でも、ごくありふれた語（cannot, born, according など）と固有名詞は難語に数えない
-    if rank.get(w, 10**9) <= 4000 or proper(w):
+    if rank.get(w, 10**9) <= OFF_RANK or proper(w):
         return "A1-B1"
     return "表外"
 
@@ -176,8 +184,10 @@ print("\n== 異なり語（20年間に1回でも出た語）のレベル別の�
 by_group = collections.defaultdict(list)
 for w, ys in appear.items():
     by_group[group(w)].append(len(ys))
-for g in ["A1-B1", "B2", "C1", "C2", "表外"]:
+for g in ["A1-B1", "B1", "B2", "C1", "C2", "表外"]:
     v = by_group[g]
+    if not v:
+        continue
     once = sum(1 for x in v if x == 1)
     print(f"{g:6s} {len(v):5d}語  1年度だけ {100 * once / len(v):4.1f}%  2〜3年度 {100 * sum(1 for x in v if 2 <= x <= 3) / len(v):4.1f}%  4年度以上 {100 * sum(1 for x in v if x >= 4) / len(v):4.1f}%")
 
@@ -193,13 +203,14 @@ def band(w):
 
 
 BAND = ["頻度1-3千位", "3-8千位", "8千-2万位", "2万位以下"]
-print("\n== 2. 難しい語（B2以上と表外）が「ある年度に出る確率」: それまでの出題歴別 ==")
-print("（一般的な頻度が同じくらいの語どうしで比べる。対象年度は2010〜2024）")
+FIRST = years[0] + 5  # 出題歴を数えるために、最初の5年度は予測の対象にしない
+SPLIT = years[-3]  # ここまでで学習し、最後の2年度で検証する
+print("\n== 2. 難しい語が「ある年度に出る確率」: それまでの出題歴別 ==")
+print(f"（一般的な頻度が同じくらいの語どうしで比べる。対象年度は{FIRST}〜{years[-1]}）")
 table = collections.defaultdict(lambda: [0, 0])  # (band, history) -> [出た, 全体]
 for y in years:
-    if y < 2010:
+    if y < FIRST:
         continue
-    prior = [x for x in years if x < y]
     for w in hard:
         k = sum(1 for x in appear.get(w, []) if x < y)
         last = max([x for x in appear.get(w, []) if x < y], default=None)
@@ -268,11 +279,11 @@ import random
 random.seed(1)
 train_rows, train_y, test = [], [], []
 for y in years:
-    if y < 2010:
+    if y < FIRST:
         continue
     for w in hard:
         t = 1 if y in appear.get(w, []) else 0
-        if y <= 2019:
+        if y <= SPLIT:
             if t or random.random() < 0.08:  # 出なかった例は間引く（重みで補正）
                 train_rows.append(features(w, y))
                 train_y.append(t)
@@ -281,23 +292,23 @@ for y in years:
 coef = fit(train_rows, train_y)
 coef[0] += math.log(0.08)  # 出なかった例を8%に間引いて学習したぶん、切片を戻す（確率を実際の水準に合わせる）
 names = ["切片", "log頻度順位", "B2", "C1", "C2", "表外", "出た年度の割合", "出たことがある", "直近3年に出た", "学術語らしい語尾", "語の長さ"]
-print("\n== 3. 予測モデル（2010〜2019年度で学習）の係数 ==")
+print(f"\n== 3. 予測モデル（{FIRST}〜{SPLIT}年度で学習）の係数 ==")
 print("  ".join(f"{n}={c:+.2f}" for n, c in zip(names, coef)))
 
 scored = [(predict(coef, features(w, y)), t) for w, y, t in test]
 scored.sort(reverse=True)
 pos = sum(t for _, t in scored)
-print(f"\n検証（2020〜2024年度、学習に使っていない）: 候補 {len(scored)} 語年のうち実際に出たのは {pos}（{100 * pos / len(scored):.2f}%、予測の平均は {100 * sum(p for p, _ in scored) / len(scored):.2f}%）")
+print(f"\n検証（{SPLIT + 1}〜{years[-1]}年度、学習にもモデルの設計にも使っていない）: 候補 {len(scored)} 語年のうち実際に出たのは {pos}（{100 * pos / len(scored):.2f}%、予測の平均は {100 * sum(p for p, _ in scored) / len(scored):.2f}%）")
 for frac in (0.01, 0.05, 0.2):
     top = scored[: int(len(scored) * frac)]
     hit = sum(t for _, t in top)
     print(f"  予測上位 {int(frac * 100):2d}%: 的中率 {100 * hit / len(top):5.2f}%（全体の {100 * hit / pos:4.1f}% を拾う、ランダムの {hit / len(top) / (pos / len(scored)):.1f} 倍）")
 
 # ---------- 4. 書き出し ----------
-# 検証が済んだら、2010〜2024年度の全部で学習し直して予測に使う
+# 検証が済んだら、全部の年度で学習し直して予測に使う
 rows, labels = [], []
 for y in years:
-    if y < 2010:
+    if y < FIRST:
         continue
     for w in hard:
         t = 1 if y in appear.get(w, []) else 0
@@ -312,13 +323,13 @@ next_year = max(years) + 1
 def unknown(w):
     """京大志望者がその語を知らない見込み。ありふれた語ほど低い（頻度順位 2千位で1割、8千位で5割、2万位以上で8割強）"""
     r = rank.get(w, 60000)
-    return 1 / (1 + math.exp(-1.6 * (math.log(r) - math.log(8000))))
+    return 1 / (1 + math.exp(-1.6 * (math.log(r) - math.log(HALF_KNOWN))))
 
 
 out = []
 for w in hard:
     p = predict(coef, features(w, next_year))
-    if appear.get(w) or level.get(w) in ("B2", "C1", "C2"):
+    if appear.get(w) or (level.get(w) in ("B1", "B2", "C1", "C2") and level.get(w) not in EASY):
         # 覚える価値 = 出る見込み × まだ知らない見込み
         out.append((w, level.get(w, "-"), ",".join(str(y) for y in appear.get(w, [])), total[w], p * unknown(w)))
 out.sort(key=lambda r: -r[4])
@@ -331,10 +342,14 @@ print(f"\n== 4. {next_year}年度に向けて覚える価値が高い語（上�
 print(", ".join(f"{w}({lv},{len(ys.split(',')) if ys else 0}回)" for w, lv, ys, _, _ in out[:60]))
 print("\n表外で2年度以上に出た語:", ", ".join(w for w, lv, ys, _, _ in out if lv == "-" and ys.count(",") >= 1)[:900])
 if WRITE:
-    path = ROOT / "data" / "kyodai-words.tsv"
+    path = ROOT / "data" / f"{PROFILE}-words.tsv"
+    # 難語ではないが本文に出た語（A2〜B1 など）も、回数だけ残す。速く読む練習の対象になる
+    easy = sorted((w for w in appear if w not in set(hard) and len(w) >= 4 and level.get(w, "") != "A1" and not proper(w) and (w in level or rank.get(w, 10**9) > 1500)), key=lambda w: -total[w])
     with open(path, "w") as f:
-        f.write("# 京大英語 過去問(2005-2024)の語彙集計。scripts/analyze-exams.py が作る。問題文は含まない\n")
-        f.write("# 語\tレベル\t出た年度\t延べ回数\t覚える価値（次年度に出る見込み × まだ知らない見込み）\n")
+        f.write(f"# {TITLE} 過去問({years[0]}-{years[-1]})の語彙集計。scripts/analyze-exams.py が作る。問題文は含まない\n")
+        f.write("# 語\tレベル\t出た年度\t延べ回数\t覚える価値（次年度に出る見込み × まだ知らない見込み。難語以外は0）\n")
         for w, lv, ys, k, p in out:
             f.write(f"{w}\t{lv}\t{ys}\t{k}\t{p:.5f}\n")
-    print(f"\n{path} に {len(out)} 語を書き出した")
+        for w in easy:
+            f.write(f"{w}\t{level.get(w, '-')}\t{','.join(str(y) for y in appear[w])}\t{total[w]}\t0\n")
+    print(f"\n{path} に難語 {len(out)} 語、それ以外 {len(easy)} 語を書き出した")

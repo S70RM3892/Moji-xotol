@@ -6,7 +6,7 @@ import { setSound, sfx, toast } from './fx';
 import { SIGN, glyphOf, spell } from './glyphs';
 import { AMULETS, INSCRIPTIONS, MAX_AMULETS, inscriptionsForPlacement, levelOf, levelStart, titleOf } from './meta';
 
-type Kind = 'tile' | 'eat';
+type Kind = 'tile' | 'eat' | 'read';
 /** むずかしさ。お題の文字数の範囲は遊ぶ形で変わる（刻むは盤面の幅、喰らうは道の長さが上限） */
 const LEVELS = [
   { label: 'やさしい', min: 4, tileMax: 6, eatMax: 6, cue: 2, wilds: 3, note: 'お題は4〜6文字。思い出すときは頭の2文字が見える。' },
@@ -15,9 +15,9 @@ const LEVELS = [
 ];
 const lengths = (k: Kind, lv: number) => ({ minLen: LEVELS[lv].min, maxLen: k === 'eat' ? LEVELS[lv].eatMax : LEVELS[lv].tileMax });
 const MODE_NOTE: Record<Mode, string> = {
-  kyote: 'お題の6割が共通テスト水準（CEFR B1 中心）、3割が難関2次水準。中学初級の語は出ない。',
+  kyote: '共通テスト・センター試験23年分（2004〜2026）の分析に基づいて選ぶ。繰り返し出ていて、次も出る見込みが高い語（B1中心）を優先する。',
   nankan: 'お題の65%が難関大2次水準（CEFR B2）、25%が京大水準。',
-  kyodai: '京大の過去問20年分（2005〜2024）の分析に基づいて選ぶ。次に出る見込みが高く、まだ知らなそうな語（B2以上と、過去問に出た学術語）を優先する。',
+  kyodai: '京大の過去問27年分（2000〜2026）の分析に基づいて選ぶ。次に出る見込みが高く、まだ知らなそうな語（B2以上と、過去問に出た学術語）を優先する。',
 };
 /** 盤ごとの自己ベストを覚えておく数 */
 const BOARDS_KEPT = 60;
@@ -66,6 +66,7 @@ function save(key: string, value: unknown): void {
 const KINDS: { value: Kind; label: string; note: string }[] = [
   { value: 'tile', label: '刻む', note: '手札の文字をドラッグして、壁に語を並べる。連鎖と倍率マスで点を伸ばす。' },
   { value: 'eat', label: '喰らう', note: '壁いっぱいの文字の中で文字食い邪神を動かし、語をつづりの順に食べさせる。' },
+  { value: 'read', label: '読む', note: '英単語を見て、意味を即答する。長文を速く読むための練習。1.5秒以内に答えられた語を「瞬時に読める語」として数える。' },
 ];
 let kind = load<Kind>('kind', 'tile');
 let mode = load<Mode>('mode', 'kyodai');
@@ -130,14 +131,14 @@ function hash(text: string): number {
   for (const ch of text) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
   return h >>> 0;
 }
-const boardKey = (s: Pick<Setup, 'kind' | 'seed' | 'mode' | 'level'>) => `${s.seed}:${s.mode}:${s.level}${s.kind === 'eat' ? ':eat' : ''}`;
+const boardKey = (s: Pick<Setup, 'kind' | 'seed' | 'mode' | 'level'>) => `${s.seed}:${s.mode}:${s.level}${s.kind === 'tile' ? '' : `:${s.kind}`}`;
 const dailySeed = () => hash(`${today()}|${mode}|${level}`);
 const dailyKey = () => boardKey({ kind, seed: dailySeed(), mode, level });
 const unlocked = () => AMULETS.filter((a) => a.level <= levelOf(xp));
 const activeAmulets = () => unlocked().filter((a) => chosen.includes(a.id)).slice(0, MAX_AMULETS);
 
-function show(view: 'home' | 'play' | 'eat' | 'result'): void {
-  for (const v of ['home', 'play', 'eat', 'result']) $(v).hidden = v !== view;
+function show(view: 'home' | 'play' | 'eat' | 'read' | 'result'): void {
+  for (const v of ['home', 'play', 'eat', 'read', 'result']) $(v).hidden = v !== view;
   scrollTo(0, 0);
 }
 
@@ -202,6 +203,7 @@ function startGame(s: Setup): void {
   ending = false;
   busy = false;
   if (s.kind === 'eat') return startEat(s);
+  if (s.kind === 'read') return startRead();
   const L = LEVELS[s.level];
   const opts = {
     wilds: L.wilds,
@@ -439,11 +441,39 @@ function endGame(): void {
   });
 }
 
-function finish(o: Outcome): void {
+/** 得点・局数・連続日数・盤ごとの自己ベストを記録する。戻り値は、この盤の前回までの自己ベストと、加点前のレベル */
+function account(total: number): { prev: number | undefined; before: number } {
   const before = levelOf(xp);
-  xp += o.total;
+  xp += total;
   games += 1;
-  best = Math.max(best, o.total);
+  best = Math.max(best, total);
+  if (days.last !== today()) {
+    const yesterday = new Date(Date.now() - 864e5).toLocaleDateString('sv');
+    days = { last: today(), streak: days.last === yesterday ? days.streak + 1 : 1 };
+    save('days', days);
+  }
+  const key = boardKey(setup);
+  const prev = boards[key];
+  if (prev === undefined || total > prev) {
+    delete boards[key];
+    boards[key] = total;
+    for (const old of Object.keys(boards).slice(0, -BOARDS_KEPT)) delete boards[old];
+    save('boards', boards);
+  }
+  save('xp', xp);
+  save('games', games);
+  save('best', best);
+  return { prev, before };
+}
+function levelUpNotice(before: number): void {
+  const lv = levelOf(xp);
+  if (lv <= before) return;
+  const gift = AMULETS.filter((a) => a.level > before && a.level <= lv).map((a) => `護符「${a.name}」`);
+  toast(appEl, 110, `Lv ${lv}　${titleOf(lv)}${gift.length ? `　${gift.join('・')}を得た` : ''}`, 'banner');
+}
+
+function finish(o: Outcome): void {
+  const { prev, before } = account(o.total);
   // 思い出すお題の結果だけを記録する: 自力で思い出せたら「覚えた」、それ以外は覚え直し
   for (const t of o.tasks) {
     if (t.shown) continue;
@@ -452,22 +482,6 @@ function finish(o: Outcome): void {
       missed.delete(t.word.text);
     } else missed.add(t.word.text);
   }
-  if (days.last !== today()) {
-    const yesterday = new Date(Date.now() - 864e5).toLocaleDateString('sv');
-    days = { last: today(), streak: days.last === yesterday ? days.streak + 1 : 1 };
-    save('days', days);
-  }
-  const key = boardKey(setup);
-  const prev = boards[key];
-  if (prev === undefined || o.total > prev) {
-    delete boards[key];
-    boards[key] = o.total;
-    for (const old of Object.keys(boards).slice(0, -BOARDS_KEPT)) delete boards[old];
-    save('boards', boards);
-  }
-  save('xp', xp);
-  save('games', games);
-  save('best', best);
   save('missed', [...missed]);
   save('learned', learned);
 
@@ -530,7 +544,7 @@ function finish(o: Outcome): void {
         el('span', 'word', w.text),
         el('span', 'gl', spell(w.text)),
         el('span', 'tier', TIER_LABEL[w.tier]),
-        ...(w.years.length ? [el('span', 'past', pastLabel(w))] : []),
+        ...(hasPast(w) ? [el('span', 'past', pastLabel(w))] : []),
         el('span', 'g', w.gloss),
         el(
           'span',
@@ -547,6 +561,8 @@ function finish(o: Outcome): void {
       return li;
     }),
   );
+  $('retry').hidden = false;
+  $('misshead').textContent = 'この局の言葉';
   $('foundhead').hidden = setup.kind === 'eat';
   $('resfound').hidden = setup.kind === 'eat';
   $('foundhead').textContent = `ついでに見つけた受験語（${o.found.length}語）`;
@@ -560,12 +576,252 @@ function finish(o: Outcome): void {
       : [el('li', 'empty', 'お題のほかに受験語はできなかった')]),
   );
   show('result');
-  if (levelOf(xp) > before) {
-    const lv = levelOf(xp);
-    const gift = AMULETS.filter((a) => a.level > before && a.level <= lv).map((a) => `護符「${a.name}」`);
-    toast(appEl, 110, `Lv ${lv}　${titleOf(lv)}${gift.length ? `　${gift.join('・')}を得た` : ''}`, 'banner');
-  }
+  levelUpNotice(before);
 }
+
+// --- 読むモード: 英単語を見て意味を即答する。長文を速く読むための練習 ---
+/** この時間以内に正しく答えられたら「瞬時に読めた」と数える */
+const FAST_MS = 1500;
+const READ_COUNT = 20;
+/** むずかしさごとの制限時間（秒） */
+const READ_LIMIT = [7, 5, 4];
+/** 語ごとの記録: 瞬時に読めた連続回数と、直近の回答時間。3回続けば「瞬時に読める語」 */
+const fluent = load<Record<string, [number, number]>>('fluent', {});
+/** 間違えた語・遅かった語。次の回でもう一度出す */
+const slow = new Set(load<string[]>('slow', []).filter((w) => WORD_MAP.has(w)));
+const isFluent = (w: string) => (fluent[w]?.[0] ?? 0) >= 3;
+
+/** 和訳の形（動詞・形容詞・名詞）。同じ形の選択肢を並べて、形だけで答えが分からないようにする */
+function glossShape(g: string, text = ''): string {
+  if (text.endsWith('ly')) return 'd'; // 副詞
+  const head = brief(g).split('、')[0];
+  if (head.startsWith('…') || /(する|[るうくすつぶむぐ])$/.test(head)) return 'v';
+  if (/(い|な|の|的|た)$/.test(head)) return 'a';
+  return 'n';
+}
+/** その層の試験の本文で出会う語。出た年度が多い語ほど出やすい */
+function readPool(): { word: Word; weight: number }[] {
+  return WORDS.filter((w) => w.cefr !== 'A1' && w.text.length >= 4)
+    .map((w) => {
+      const seen = mode === 'kyote' ? w.ctYears : mode === 'kyodai' ? w.years.length : Math.max(w.years.length, w.ctYears) * (w.tier >= 1 ? 1 : 0.3);
+      const value = mode === 'kyote' ? w.ctValue : mode === 'kyodai' ? w.value : w.tier === 1 ? 20000 : 0;
+      // やさしい語は見た瞬間に分かるはずなので、ほとんど出さない。難しい語ほど、また過去問に何度も出た語ほど出やすい
+      const hard = { A2: 0.05, B1: 0.5, B2: 1.5, C1: 2, C2: 2, KU: 2, CT: 1.5 }[w.cefr] ?? 0;
+      return { word: w, weight: (seen + value / 15000) * hard };
+    })
+    .filter((x) => x.weight > 0);
+}
+
+interface ReadItem {
+  word: Word;
+  options: Word[];
+  /** 選んだ選択肢の番号。時間切れは -1 */
+  picked: number | null;
+  ms: number;
+}
+let readItems: ReadItem[] = [];
+let readAt = 0;
+let readShown = 0; // 問題を出した時刻
+let readTimer = 0;
+let readScore = 0;
+
+function startRead(): void {
+  const pool = readPool();
+  const byText = new Map(pool.map((x) => [x.word.text, x]));
+  const chosen: Word[] = [];
+  // 前に遅かった・間違えた語を半分まで。残りは、まだ瞬時に読めない語から重みに従って選ぶ
+  for (const w of [...slow].sort(() => Math.random() - 0.5)) {
+    if (chosen.length >= READ_COUNT / 2) break;
+    if (byText.has(w)) chosen.push(byText.get(w)!.word);
+  }
+  const rest = pool.filter((x) => !isFluent(x.word.text) && !chosen.includes(x.word));
+  let sum = rest.reduce((a, x) => a + x.weight, 0);
+  while (chosen.length < READ_COUNT && rest.length) {
+    let r = Math.random() * sum;
+    const i = Math.max(0, rest.findIndex((x) => (r -= x.weight) <= 0));
+    chosen.push(rest[i].word);
+    sum -= rest[i].weight;
+    rest.splice(i, 1);
+  }
+  const shapes = new Map<string, Word[]>();
+  for (const { word } of pool) {
+    const k = `${word.tier}${glossShape(word.gloss, word.text)}`;
+    shapes.set(k, [...(shapes.get(k) ?? []), word]);
+  }
+  readItems = chosen
+    .sort(() => Math.random() - 0.5)
+    .map((word) => {
+      const same = shapes.get(`${word.tier}${glossShape(word.gloss, word.text)}`) ?? [];
+      const options = [word];
+      for (let tries = 0; options.length < 4 && tries < 200; tries++) {
+        const cand = same[Math.floor(Math.random() * same.length)] ?? WORDS[Math.floor(Math.random() * WORDS.length)];
+        if (!options.some((o) => brief(o.gloss) === brief(cand.gloss))) options.push(cand);
+      }
+      return { word, options: options.sort(() => Math.random() - 0.5), picked: null, ms: 0 };
+    });
+  readAt = 0;
+  readScore = 0;
+  show('read');
+  askRead();
+}
+
+function askRead(): void {
+  const item = readItems[readAt];
+  readShown = performance.now();
+  clearInterval(readTimer);
+  const limit = READ_LIMIT[setup.level] * 1000;
+  readTimer = window.setInterval(() => {
+    const left = limit - (performance.now() - readShown);
+    if (left <= 0) answerRead(-1);
+    else $('rtime').textContent = (left / 1000).toFixed(1);
+  }, 100);
+  $('rtime').textContent = (limit / 1000).toFixed(1);
+  renderRead(item);
+}
+
+function renderRead(item: ReadItem): void {
+  $('rscore').textContent = String(readScore);
+  $('rstep').textContent = String(readAt + 1);
+  $('rsteps').textContent = `/ ${readItems.length}`;
+  $('rword').textContent = item.word.text;
+  $('rglyph').textContent = spell(item.word.text);
+  $('rtier').textContent = TIER_LABEL[item.word.tier];
+  const past = $('rpast');
+  past.hidden = !hasPast(item.word);
+  past.textContent = pastLabel(item.word);
+  const answered = item.picked !== null;
+  $('rchoices').replaceChildren(
+    ...item.options.map((o, i) => {
+      const b = el('button', 'choice');
+      b.append(el('span', 'key', String(i + 1)), el('span', 'g', answered ? o.gloss : brief(o.gloss)));
+      if (answered) {
+        b.disabled = true;
+        if (o === item.word) b.classList.add('right');
+        else if (i === item.picked) b.classList.add('wrong');
+        if (o !== item.word) b.append(el('span', 'was', o.text));
+      } else b.onclick = () => answerRead(i);
+      return b;
+    }),
+  );
+  const ok = answered && item.options[item.picked!] === item.word;
+  $('rnote').textContent = !answered
+    ? '意味を選べ。1〜4のキーでも答えられる。'
+    : !ok
+      ? item.picked === -1
+        ? '時間切れ。'
+        : '違う。'
+      : item.ms <= FAST_MS
+        ? `瞬時に読めた（${(item.ms / 1000).toFixed(1)}秒）。`
+        : `正解。ただし ${(item.ms / 1000).toFixed(1)}秒かかった。1.5秒以内を目指せ。`;
+}
+
+function answerRead(i: number): void {
+  const item = readItems[readAt];
+  if (!item || item.picked !== null) return;
+  clearInterval(readTimer);
+  item.picked = i;
+  item.ms = performance.now() - readShown;
+  const ok = i >= 0 && item.options[i] === item.word;
+  const w = item.word.text;
+  if (ok && item.ms <= FAST_MS) {
+    fluent[w] = [(fluent[w]?.[0] ?? 0) + 1, Math.round(item.ms)];
+    slow.delete(w);
+    sfx.note(Math.min(readAt, 8));
+  } else {
+    fluent[w] = [0, Math.round(item.ms)];
+    slow.add(w);
+    if (ok) sfx.bet();
+    else sfx.bad();
+  }
+  if (ok) {
+    const limit = READ_LIMIT[setup.level] * 1000;
+    readScore += 100 + Math.round(100 * Math.max(0, Math.min(1, (limit - item.ms) / (limit - 1000))));
+    if (!zukan.has(w)) zukan.add(w);
+  }
+  renderRead(item);
+  // 正解ならすぐ次へ。間違えたときは正しい意味を読む時間を取る
+  setTimeout(nextRead, ok ? 600 : 2200);
+}
+
+function nextRead(): void {
+  if ($('read').hidden) return;
+  readAt++;
+  if (readAt < readItems.length) askRead();
+  else endRead();
+}
+
+function endRead(): void {
+  clearInterval(readTimer);
+  const done = readItems.filter((x) => x.picked !== null);
+  const right = done.filter((x) => x.picked! >= 0 && x.options[x.picked!] === x.word);
+  const fast = right.filter((x) => x.ms <= FAST_MS);
+  save('fluent', fluent);
+  save('slow', [...slow]);
+  save('zukan', [...zukan]);
+  const { prev, before } = account(readScore);
+  const rate = done.length ? fast.length / done.length : 0;
+  const grade = rate >= 0.9 ? 'S' : rate >= 0.75 ? 'A' : rate >= 0.5 ? 'B' : 'C';
+  const times = right.map((x) => x.ms).sort((a, b) => a - b);
+  const median = times.length ? times[times.length >> 1] / 1000 : 0;
+
+  $('resmode').textContent = `読む・${MODE_LABEL[setup.mode]}・${LEVELS[setup.level].label}`;
+  const g = $('grade');
+  g.className = `grade g-${grade}`;
+  g.textContent = grade;
+  const row = (label: string, value: string) => {
+    const d = el('div');
+    d.append(el('span', '', label), el('b', '', value));
+    return d;
+  };
+  $('resrows').replaceChildren(
+    row('正解', `${right.length} / ${done.length}`),
+    row('瞬時に読めた（1.5秒以内）', `${fast.length} / ${done.length}`),
+    row('正解までの時間（中央値）', `${median.toFixed(1)}秒`),
+    row('合計', `${readScore}`),
+  );
+  $('resrecord').textContent =
+    `瞬時に読める語は通算 ${Object.keys(fluent).filter(isFluent).length} 語（3回続けて1.5秒以内に正解した語）。` +
+    (prev !== undefined && readScore > prev ? ` 自己ベスト更新: ${prev} → ${readScore}` : '');
+  $('resnew').replaceChildren();
+  // 見直す語: 間違えた語と、遅かった語
+  const review = done.filter((x) => !fast.includes(x));
+  $('misshead').textContent = `見直す語（${review.length}語）。次の回にもう一度出る`;
+  $('resmissions').replaceChildren(
+    ...(review.length
+      ? review.map((x) => {
+          const ok = right.includes(x);
+          const li = el('li', ok ? 'ok' : 'ng');
+          li.append(
+            el('span', 'mark', ok ? '△' : '×'),
+            el('span', 'word', x.word.text),
+            el('span', 'tier', TIER_LABEL[x.word.tier]),
+            ...(hasPast(x.word) ? [el('span', 'past', pastLabel(x.word))] : []),
+            el('span', 'g', x.word.gloss),
+            el('span', 'why luck', ok ? `正解だが ${(x.ms / 1000).toFixed(1)}秒かかった` : x.picked === -1 ? '時間切れ' : `「${brief(x.options[x.picked!].gloss)}」と答えた`),
+          );
+          return li;
+        })
+      : [el('li', 'empty', '全部、瞬時に読めた')]),
+  );
+  $('foundhead').hidden = true;
+  $('resfound').hidden = true;
+  $('retry').hidden = true;
+  show('result');
+  levelUpNotice(before);
+}
+
+document.addEventListener('keydown', (e) => {
+  if ($('read').hidden || !/^[1-4]$/.test(e.key)) return;
+  answerRead(Number(e.key) - 1);
+});
+$('rquit').onclick = () => {
+  clearInterval(readTimer);
+  if (readItems.some((x) => x.picked !== null)) endRead();
+  else {
+    renderHome();
+    show('home');
+  }
+};
 
 // --- 喰らうモード ---
 let eater: Eater;
@@ -781,7 +1037,15 @@ $('pickcancel').onclick = () => ($('picker').hidden = true);
 
 // --- 描画 ---
 /** 京大の過去問に出た年度の書き方: 「京大過去問 2回（'07 '15）」 */
-const pastLabel = (w: Word) => (w.years.length ? `京大過去問 ${w.years.length}回（${w.years.map((y) => `'${String(y).padStart(2, '0')}`).join(' ')}）` : '');
+const pastLabel = (w: Word) =>
+  [
+    // 年度は4回までなら並べる。それ以上は回数だけ
+    w.years.length ? `京大 ${w.years.length}回${w.years.length <= 4 ? `（${w.years.map((y) => `'${String(y).padStart(2, '0')}`).join(' ')}）` : ''}` : '',
+    w.ctYears ? `共テ ${w.ctYears}回` : '',
+  ]
+    .filter(Boolean)
+    .join('・');
+const hasPast = (w: Word) => w.years.length > 0 || w.ctYears > 0;
 /** いまのお題: 種類・層・つづり（伏せ字つき）・意味 */
 function drawMission(panel: HTMLElement, t: Task | undefined, cue: string, label: string): void {
   panel.className = `mission ${!t ? 'idle' : t.state === 'done' ? 'done' : t.shown ? 'shown' : 'recall'}`;
@@ -789,7 +1053,7 @@ function drawMission(panel: HTMLElement, t: Task | undefined, cue: string, label
   panel.querySelector('.kind')!.textContent = !t.shown && t.hints ? `${label}（ヒント${t.hints}）` : label;
   panel.querySelector('.tier')!.textContent = TIER_LABEL[t.word.tier];
   const past = panel.querySelector<HTMLElement>('.past')!;
-  past.hidden = !t.word.years.length;
+  past.hidden = !hasPast(t.word);
   past.textContent = pastLabel(t.word);
   const word = panel.querySelector('.mword')!;
   word.replaceChildren();
@@ -910,7 +1174,11 @@ function renderHome(): void {
   $('modenote').textContent = MODE_NOTE[mode];
   $('levelnote').textContent = LEVELS[level].note;
   const dailyBest = boards[dailyKey()];
-  $('kindnote').textContent = KINDS.find((k) => k.value === kind)!.note + (kind === 'eat' ? ' 護符は使わない。' : '');
+  $('kindnote').textContent = KINDS.find((k) => k.value === kind)!.note + (kind === 'tile' ? '' : ' 護符は使わない。');
+  $('fluent').textContent = String(Object.keys(fluent).filter(isFluent).length);
+  $('daily').hidden = kind === 'read';
+  $('dailynote').hidden = kind === 'read';
+  $('start').textContent = kind === 'read' ? '20語を読む' : 'ランダムな盤';
   $('dailynote').textContent =
     dailyBest === undefined
       ? '今日の盤は1日同じ並び。新しい語を3つ、見て作り、あとで思い出す。'
